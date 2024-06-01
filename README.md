@@ -1,18 +1,90 @@
-# red_oxide
+## About
 
-CLI to help uploading to REDacted, inspired by REDBetter.
+An all-in-one command line tool to **transcode FLAC** audio files and **upload to gazelle** based indexers/trackers. 
 
-## Installing
+## Features
 
-1. Install [intermodal](https://github.com/casey/intermodal#installation) and add it to your PATH
-2. Install lame, sox & flac and add them to your PATH
-3. download the latest release from [here](https://github.com/DevYukine/red_oxide/releases)
+All gazelle based indexers/trackers are supported
+- RED
+- **[[new](https://github.com/DevYukine/red_oxide/issues/7)]** OPS.
 
-## Usage
+Tested on Linux, theoretically works on Windows.
 
-### CLI
+Fully configurable, if there's something hard coded that you think should be configurable then open issue on GitHub.
 
-#### Transcode subcommand (red_oxide transcode)
+### Source Verification
+
+Each source is verified to ensure it's:
+- A lossless FLAC
+- Not a scene or lossy release
+- Files match the torrent hash
+- Audio tags for artist, album, title and track number are set
+- **[[fixed](https://github.com/DevYukine/red_oxide/issues/18)]** Vinyl track numbering
+- Sample rate and channels are supported
+
+### Spectrogram Generation
+
+- Full and zoomed spectrograms generated for review
+
+### Transcoding
+
+- **[fixed]** Multi-threaded transcoding with optional CPU limit
+- FLAC and FLAC 24 bit sources are supported
+- FLAC, MP3 320 (CBR) and MP3 V0 (VBR) target formats
+- Existing formats are skipped
+- **[[fixed](https://github.com/DevYukine/red_oxide/issues/21)]** Nested sub directories are fully supported (i.e. CD1, and CD2 etc)
+- **[[fixed](https://github.com/DevYukine/red_oxide/issues/22)]** Automatic naming following established conventions, with decoding of HTML entities.
+- **[[fixed](https://github.com/DevYukine/red_oxide/issues/24)]** Shorter file names.
+- Automatic torrent file creation
+- **[new]** Images in the root directory are included and all other files ignored.
+- **[new]** Images larger than 750 KB are (optionally) compressed and reduced to less than 1920 px. 
+
+*The logic being that folder and cover images are included but to minimize file size, but for artwork and anything additional the original source can be downloaded*
+
+### Upload
+
+*Work in progress*
+
+## Getting started
+
+### Install
+
+#### Linux
+
+1. [Install Rust](https://www.rust-lang.org/tools/install)
+
+2. [Install Intermodal](https://github.com/casey/intermodal#installation)
+
+```bash
+cargo install imdl
+```
+
+3. Install FLAC, LAME, SOX and ImageMagick
+
+```bash
+sudo apt install flac lame sox imagemagick --yes
+```
+
+4. Install red_oxide
+```bash
+cargo install red_oxide
+```
+
+#### Windows
+
+*To be confirmed*
+
+#### Docker
+
+*To be confirmed*
+
+### CLI Commands
+
+#### Verify source `rogue_oxide verify`
+
+#### Generate spectrograms `rogue_oxide spectrogram`
+
+#### Transcode FLACs `rogue_oxide transcode`
 
 You have to specify api-key, torrent-directory, content-directory, transcode-directory & spectrogram-directory either via the config file or via the CLI
 
@@ -96,44 +168,26 @@ HOME is determined by these environment variables on Linux in this order:
 
 ```
 
-### Notes for people using sox under windows
+## Releases and Changes
 
-if you use the binaries from [here](https://sourceforge.net/projects/sox/files/sox/), and you want utf-8 support for paths (this is needed for Japanese/Chinese/Korean names in paths for example) you have to download the files from [here](https://raw.githubusercontent.com/DevYukine/red_oxide/master/.github/dependency-fixes/sox_windows_fix.zip) and follow the steps below
+All release versions follow the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
-1. Extract the files from the zip
-2. Run the PreferExternalManifest.reg file and let it overwrite the registry entry
-3. Copy the sox.exe.manifest file to the folder where sox.exe is located
-4. Enjoy sox working with utf-8 paths :)
+All commit messages follow the [Conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
-## Built With
+Releases and a full changelog are available via [GitHub Releases](https://github.com/RogueOneEcho/rogue_oxide/releases).
 
-- [Rust](https://www.rust-lang.org/) - The language used
-- [clap](https://github.com/clap-rs/clap) - CLI Framework
-- [tokio](https://tokio.rs/) - Async runtime
-- [reqwest](https://github.com/seanmonstar/reqwest) - HTTP client
-- [serde](https://serde.rs/) - Serialization/Deserialization
-- [intermodal](https://github.com/casey/intermodal) - Used for Torrent Hash checking & creation
-- [audiotags](https://docs.rs/audiotags/latest/audiotags/) - Reading/Writing Audio Metadata
+## History
 
-## Contributing
+[**DevYukine**](https://github.com/DevYukine) completed the **initial work** and released it as [**red_oxide**](https://github.com/DevYukine/red_oxide) under an [MIT license](LICENSE.HISTORIC.md).
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code
-of conduct, and the process for submitting pull requests to us.
+[**RogueOneEcho**](https://github.com/RogueOneEcho) then forked the project to complete a major refactor, **fix some issues**, add **new features** and improve logging and error handling. The fork is released as [**rogue_oxide**](https://github.com/RogueOneEcho/rogue_oxide) under an [AGPL license](LICENSE.md).
 
-## Versioning
+*The main difference between the former MIT license and the present AGPL license is that if you intend to distribute a modified version of the code - even to run it on a server - you must also provide the modified source code under an AGPL license.*
 
-We use [Semantic Versioning](http://semver.org/) for versioning. For the versions
-available, see the [tags on this
-repository](https://github.com/DevYukine/red_oxide/tags).
+*This is often known as copyleft. The intent is to ensure that anyone taking advantage of this open source work are also contributing back to the open source community.*
 
-## Authors
-
-- **[DevYukine](https://github.com/DevYukine)** - *Initial Work*
+The code base has now adopted [object oriented patterns](https://refactoring.guru/design-patterns/catalog) with SOLID principles.
 
 See also the list of
 [contributors](https://github.com/DevYukine/red_oxide/contributors)
 who participated in this project.
-
-## License
-
-This project is licensed under the [MIT](LICENSE) See the [LICENSE.md](LICENSE) file for details
