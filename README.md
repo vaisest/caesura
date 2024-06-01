@@ -80,93 +80,223 @@ cargo install red_oxide
 
 ### CLI Commands
 
-#### Verify source `rogue_oxide verify`
-
-#### Generate spectrograms `rogue_oxide spectrogram`
-
-#### Transcode FLACs `rogue_oxide transcode`
-
-You have to specify api-key, torrent-directory, content-directory, transcode-directory & spectrogram-directory either via the config file or via the CLI
+#### Verify source
 
 ```
-Transcode FLACs to other co-existing formats
+rogue_oxide verify [OPTIONS] [SOURCE]
+```
 
-Usage: red_oxide transcode [OPTIONS] [URLS]...
+<details>
+<summary>Documentation</summary>
+
+```
+Usage: rogue_oxide verify [OPTIONS] [SOURCE]
 
 Arguments:
-  [URLS]...  The Perma URLs (PL's) of torrents to transcode
+  [SOURCE]
+          Source as: torrent id, path to torrent file, or indexer url.
+          
+          Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
 
 Options:
-      --debug
-          If debug logs should be shown
-  -a, --automatic-upload
-          If the upload should be done automatically
-      --concurrency <CONCURRENCY>
-          How many tasks (for transcoding as example) should be run in parallel, defaults to your CPU count
       --api-key <API_KEY>
-          The Api key from Redacted to use there API with
+          API key
+
+      --indexer <INDEXER>
+          ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
+
+      --indexer-url <INDEXER_URL>
+          URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
+
+      --tracker-url <TRACKER_URL>
+          URL of the tracker. Examples: https://flacsfor.me, https://home.opsfet.ch; Default: Dependent on indexer
+
       --content-directory <CONTENT_DIRECTORY>
-          The path to the directory where the downloaded torrents are stored
-      --transcode-directory <TRANSCODE_DIRECTORY>
-          The path to the directory where the transcoded torrents should be stored
-      --torrent-directory <TORRENT_DIRECTORY>
-          The path to the directory where the torrents should be stored
-      --spectrogram-directory <SPECTROGRAM_DIRECTORY>
-          The path to the directory where the spectrograms should be stored
-  -c, --config-file <CONFIG_FILE>
-          The path to the config file
-  -f, --allowed-transcode-formats <ALLOWED_TRANSCODE_FORMATS>
-          List of allowed formats to transcode to, defaults to all formats if omitted [possible values: flac24, flac, mp3320, mp3-v0]
-  -m, --move-transcode-to-content
-          If the transcode should be moved to the content directory, useful when you want to start seeding right after you upload
+          Directory containing torrent content. Typically this is set as the download directory in your torrent client
+
+      --cpu-limit <CPU_LIMIT>
+          Number of cpus to use for processing. Default: Total number of CPUs
+
+      --verbosity <VERBOSITY>
+          Level of logs to display. Default: info
+          
+          [possible values: silent, error, warn, info, debug, trace]
+
+      --config-path <CONFIG_PATH>
+          Path to the configuration file. Default: config.json (in current working directory)
+
+      --output <OUTPUT>
+          Directory where transcodes and spectrograms will be written
+
+      --target <TARGET>
+          Target formats. Default: flac, 320, and v0
+          
+          [possible values: flac, 320, v0]
+
+      --allow-existing
+          Allow transcoding to existing formats
+
       --skip-hash-check
-          If the hash check of the original torrent should be skipped, defaults to false, not recommended and if enabled done at own risk!
-      --skip-spectrogram
-          If the spectrogram check of the original torrent should be skipped, defaults to false, not recommended and if enabled done at own risk!
-  -d, --dry-run
-          If this is a dry run, no files will be uploaded to Redacted
+          Should the torrent hash check of existing files be skipped?
+
+      --hard-link
+          Use hard links when copying files
+
+      --compress-images
+          Should images greater than 750 KB be compressed?
+
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
+```
+</details>
+
+#### Generate spectrograms
 
 ```
+rogue_oxide spectrogram [OPTIONS] [SOURCE]
+```
+
+<details>
+<summary>Documentation</summary>
+
+```
+Usage: rogue_oxide spectrogram [OPTIONS] [SOURCE]
+
+Arguments:
+  [SOURCE]
+          Source as: torrent id, path to torrent file, or indexer url.
+          
+          Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+
+Options:
+      --api-key <API_KEY>
+          API key
+
+      --indexer <INDEXER>
+          ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
+
+      --indexer-url <INDEXER_URL>
+          URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
+
+      --tracker-url <TRACKER_URL>
+          URL of the tracker. Examples: https://flacsfor.me, https://home.opsfet.ch; Default: Dependent on indexer
+
+      --content-directory <CONTENT_DIRECTORY>
+          Directory containing torrent content. Typically this is set as the download directory in your torrent client
+
+      --cpu-limit <CPU_LIMIT>
+          Number of cpus to use for processing. Default: Total number of CPUs
+
+      --verbosity <VERBOSITY>
+          Level of logs to display. Default: info
+          
+          [possible values: silent, error, warn, info, debug, trace]
+
+      --config-path <CONFIG_PATH>
+          Path to the configuration file. Default: config.json (in current working directory)
+
+      --output <OUTPUT>
+          Directory where transcodes and spectrograms will be written
+
+      --spectrogram-size <SPECTROGRAM_SIZE>
+          Output directory to write spectrogram images to
+          
+          [possible values: full, zoom]
+
+  -h, --help
+          Print help (see a summary with '-h')
+```
+
+</details>
+
+#### Transcode FLACs
+
+```
+rogue_oxide transcode [OPTIONS] [SOURCE]
+```
+
+<details>
+<summary>Documentation</summary>
+
+```
+Usage: rogue_oxide transcode [OPTIONS] [SOURCE]
+
+Arguments:
+  [SOURCE]
+          Source as: torrent id, path to torrent file, or indexer url.
+          
+          Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+
+Options:
+      --api-key <API_KEY>
+          API key
+
+      --indexer <INDEXER>
+          ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
+
+      --indexer-url <INDEXER_URL>
+          URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
+
+      --tracker-url <TRACKER_URL>
+          URL of the tracker. Examples: https://flacsfor.me, https://home.opsfet.ch; Default: Dependent on indexer
+
+      --content-directory <CONTENT_DIRECTORY>
+          Directory containing torrent content. Typically this is set as the download directory in your torrent client
+
+      --cpu-limit <CPU_LIMIT>
+          Number of cpus to use for processing. Default: Total number of CPUs
+
+      --verbosity <VERBOSITY>
+          Level of logs to display. Default: info
+          
+          [possible values: silent, error, warn, info, debug, trace]
+
+      --config-path <CONFIG_PATH>
+          Path to the configuration file. Default: config.json (in current working directory)
+
+      --output <OUTPUT>
+          Directory where transcodes and spectrograms will be written
+
+      --target <TARGET>
+          Target formats. Default: flac, 320, and v0
+          
+          [possible values: flac, 320, v0]
+
+      --allow-existing
+          Allow transcoding to existing formats
+
+      --skip-hash-check
+          Should the torrent hash check of existing files be skipped?
+
+      --hard-link
+          Use hard links when copying files
+
+      --compress-images
+          Should images greater than 750 KB be compressed?
+
+  -h, --help
+          Print help (see a summary with '-h')
+```
+</details>
+
+
+#### Upload
+
+```
+rogue_oxide upload [OPTIONS] [SOURCE]
+```
+
+*Work in progress*
+
+<details>
+<summary>Documentation</summary>
+
+```
+
+```
+</details>
 
 ### Config file
-
-This is useful if you don't want a super long CLI command and your configs do not change often, note that all the options can be specified via the CLI as well and are fully optional in this config file (will be merged with the CLI options if specified)
-
-There are multiple default locations where the config file will be searched for, in this order (once found it will not look for the config file in the other locations):
-1. The path specified via the --config-file CLI option
-2. `./red_oxide.config.json` (In the same folder as the red_oxide executable)
-3. `%APPDATA%/red_oxide/red_oxide.config.json` (only on Windows)
-4. `$XDG_CONFIG_HOME/red_oxide/red_oxide.config.json`
-5. `HOME/.config/red_oxide/red_oxide.config.json`
-6. `HOME/red_oxide.config.json`
-
-HOME is determined by these environment variables on Windows in this order:
-1. `%HOME%`
-2. `%USERPROFILE%`
-3. `%HOMEDRIVE%\%HOMEPATH%`
-
-HOME is determined by these environment variables on Linux in this order:
-1. `$HOME`
-
-
-```json
-{
-  "api_key": "YOUR_API_KEY",
-  "torrent_directory": "FULL_PATH_WHERE_TORRENT_FILES_WILL_BE_STORED",
-  "content_directory": "FULL_PATH_WHERE_CONTENT_IS_LOCATED",
-  "transcode_directory": "FULL_PATH_WHERE_TRANSCODED_CONTENT_WILL_BE_PUT",
-  "spectrogram_directory": "FULL_PATH_WHERE_SPECTROGRAMS_WILL_BE_PUT",
-  "move_transcode_to_content": true,
-  "automatic_upload": true,
-  "skip_hash_check": false,
-  "skip_spectrogram": false,
-  "allowed_transcode_formats": ["Flac", "Mp3320", "Mp3V0"],
-  "concurrency": 16
-}
-
-```
 
 ## Releases and Changes
 
