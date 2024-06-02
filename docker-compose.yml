@@ -1,0 +1,25 @@
+services:
+  rogue_oxide:
+    container_name: rogue_oxide
+    build: .
+    volumes:
+    - ./config.json:/app/config.json:ro
+    - ./samples:/app/samples
+    - output:/app/output
+
+  caddy:
+    container_name: caddy
+    image: caddy:2-alpine
+    ports:
+    - "3000:80"
+    volumes:
+    - caddy_data:/data
+    - caddy_config:/config
+    - output:/srv
+    restart: unless-stopped
+    command: caddy file-server --browse --root /srv
+
+volumes:
+  output:
+  caddy_data:
+  caddy_config:

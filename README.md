@@ -69,6 +69,11 @@ docker run \
 rogue_oxide verify "123456"
 ```
 
+#### Docker Compose
+
+```bash
+docker compose run rogue_oxide verify "123456"
+```
 
 #### Linux
 
