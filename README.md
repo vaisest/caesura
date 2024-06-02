@@ -357,7 +357,7 @@ Releases and a full changelog are available via [GitHub Releases](https://github
 
 *This is often known as copyleft. The intent is to ensure that anyone taking advantage of this open source work are also contributing back to the open source community.*
 
-The code base has now adopted [object oriented patterns](https://refactoring.guru/design-patterns/catalog) with SOLID principles.
+The code base has now adopted [object oriented patterns](https://refactoring.guru/design-patterns/catalog) with SOLID principles and [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection).
 
 See also the list of
 [contributors](https://github.com/DevYukine/red_oxide/contributors)
