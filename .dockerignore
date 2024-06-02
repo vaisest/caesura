@@ -1,0 +1,6 @@
+.github
+.editorconfig
+.idea
+samples/
+target/
+config.json

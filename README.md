@@ -47,7 +47,28 @@ Each source is verified to ensure it's:
 
 ## Getting started
 
+The quickest path to get running is using docker compose, but that will require a little familiarity with docker. But the benefits are reproducability and peace of mind through isolation. 
+
 ### Install
+
+#### Docker
+
+1. Build
+
+```bash
+docker build -t rogue_oxide .
+```
+
+2. Run
+
+```bash
+docker run \
+--user 1000:1000 \
+-v ./path/to/your/config.json:/app/config.json \
+-v /path/to/your/data:/data \
+rogue_oxide verify "123456"
+```
+
 
 #### Linux
 
@@ -74,9 +95,7 @@ cargo install red_oxide
 
 *To be confirmed*
 
-#### Docker
-
-*To be confirmed*
+For now it's recommended to run with docker.
 
 ### CLI Commands
 
