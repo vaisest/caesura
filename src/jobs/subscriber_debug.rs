@@ -13,16 +13,16 @@ use crate::options::SharedOptions;
 /// [`CommandRunner`] as a [Subscriber].
 pub struct DebugSubscriber {
     pub semaphore: Arc<Semaphore>,
-    pub cpu_limit: u16,
+    pub cpus: u16,
 }
 
 #[injectable]
 impl DebugSubscriber {
     pub fn new(options: Arc<SharedOptions>, semaphore: Arc<Semaphore>) -> Self {
-        let cpu_limit = options.cpu_limit.expect("Options should be set");
+        let cpus = options.cpus.expect("Options should be set");
         Self {
             semaphore,
-            cpu_limit,
+            cpus,
         }
     }
 }
@@ -37,8 +37,8 @@ impl Subscriber for DebugSubscriber {
     /// Called when the status of a job changes.
     fn update(&self, job_id: &str, status: Status) {
         let available = self.semaphore.available_permits();
-        let in_use = self.cpu_limit - available as u16;
-        let total = self.cpu_limit;
+        let in_use = self.cpus - available as u16;
+        let total = self.cpus;
         trace!(
             "{:>9} {} {}",
             status.to_string().bold(),

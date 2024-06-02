@@ -114,7 +114,7 @@ Options:
       --content-directory <CONTENT_DIRECTORY>
           Directory containing torrent content. Typically this is set as the download directory in your torrent client
 
-      --cpu-limit <CPU_LIMIT>
+      --cpus <CPUS>
           Number of cpus to use for processing. Default: Total number of CPUs
 
       --verbosity <VERBOSITY>
@@ -184,7 +184,7 @@ Options:
       --content-directory <CONTENT_DIRECTORY>
           Directory containing torrent content. Typically this is set as the download directory in your torrent client
 
-      --cpu-limit <CPU_LIMIT>
+      --cpus <CPUS>
           Number of cpus to use for processing. Default: Total number of CPUs
 
       --verbosity <VERBOSITY>
@@ -243,7 +243,7 @@ Options:
       --content-directory <CONTENT_DIRECTORY>
           Directory containing torrent content. Typically this is set as the download directory in your torrent client
 
-      --cpu-limit <CPU_LIMIT>
+      --cpus <CPUS>
           Number of cpus to use for processing. Default: Total number of CPUs
 
       --verbosity <VERBOSITY>
@@ -321,11 +321,11 @@ Full configuration:
     "indexer_url": "https://example.com",
     "tracker_url": "https://tracker.example.com",
     "content_directory": "samples/content",
-    "cpu_limit": 6,
+    "cpus": 6,
     "verbosity": "trace",
     "output": "samples/output",
+
     "target": ["320", "v0", "flac"],
-    
     "allow_existing": false,
     "skip_hash_check": false,
     "hard_link": false,

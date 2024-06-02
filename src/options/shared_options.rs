@@ -45,7 +45,7 @@ pub struct SharedOptions {
     /// Number of cpus to use for processing.
     /// Default: Total number of CPUs
     #[arg(long)]
-    pub cpu_limit: Option<u16>,
+    pub cpus: Option<u16>,
 
     /// Level of logs to display.
     /// Default: info
@@ -105,8 +105,8 @@ impl Options for SharedOptions {
             self.content_directory
                 .clone_from(&alternative.content_directory);
         }
-        if self.cpu_limit.is_none() {
-            self.cpu_limit = alternative.cpu_limit;
+        if self.cpus.is_none() {
+            self.cpus = alternative.cpus;
         }
         if self.verbosity.is_none() {
             self.verbosity = alternative.verbosity;
@@ -140,8 +140,8 @@ impl Options for SharedOptions {
                 _ => None,
             }
         }
-        if self.cpu_limit.is_none() {
-            self.cpu_limit = Some(num_cpus::get() as u16);
+        if self.cpus.is_none() {
+            self.cpus = Some(num_cpus::get() as u16);
         }
         if self.verbosity.is_none() {
             self.verbosity = Some(Info);

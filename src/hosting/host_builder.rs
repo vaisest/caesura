@@ -60,8 +60,8 @@ impl HostBuilder {
             .add(SpectrogramJobFactory::transient())
             .add(singleton_as_self().from(|provider| {
                 let options = provider.get_required::<SharedOptions>();
-                let cpu_limit = options.cpu_limit.expect("Options should be set") as usize;
-                Arc::new(Semaphore::new(cpu_limit))
+                let cpus = options.cpus.expect("Options should be set") as usize;
+                Arc::new(Semaphore::new(cpus))
             }))
             .add(singleton_as_self().from(|_| {
                 let set: JoinSet<Result<(), AppError>> = JoinSet::new();
