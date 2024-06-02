@@ -296,7 +296,48 @@ rogue_oxide upload [OPTIONS] [SOURCE]
 ```
 </details>
 
-### Config file
+### Configuration
+
+Configuration options are sourced first from the command line arguments, and if not set then from a configuration file.
+
+By default the application loads `config.json` from the current working directory, but this can be overridden with the `--config-path <CONFIG_PATH>` cli argument.
+
+Most options have sensible defaults so the minimum required configuration is:
+
+```json
+{
+    "api_key": "YOUR_API_KEY",
+    "output": "path/to/write/output",
+    "content_directory": "path/to/your/torrent/content_or_downloads"
+}
+```
+
+Full configuration:
+
+```json
+{
+    "api_key": "YOUR_API_KEY",
+    "indexer": "abc",
+    "indexer_url": "https://example.com",
+    "tracker_url": "https://tracker.example.com",
+    "content_directory": "samples/content",
+    "cpu_limit": 6,
+    "verbosity": "trace",
+    "output": "samples/output",
+    "target": ["320", "v0", "flac"],
+    
+    "allow_existing": false,
+    "skip_hash_check": false,
+    "hard_link": false,
+    "compress_images": false,
+    
+    "spectrogram_size": ["full", "zoom"], 
+        
+    "source": "123456",
+}
+
+
+```
 
 ## Releases and Changes
 
