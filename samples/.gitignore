@@ -1,1 +1,5 @@
-*.json
+*
+!.gitignore
+!.gitkeep
+!/content
+!download-sample

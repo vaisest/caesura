@@ -1,5 +1,7 @@
+/.github
+/.idea
+/output
 /target
 config.json
-.idea/workspace.xml
-.DS_Store
-.idea/inspectionProfiles
+**/*.rs.bk
+*.pdb

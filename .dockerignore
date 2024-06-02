@@ -1,6 +1,9 @@
-.github
+/.github
+/.idea
+/output
+/samples
+/target
 .editorconfig
-.idea
-samples/
-target/
 config.json
+Dockerfile
+*.md
