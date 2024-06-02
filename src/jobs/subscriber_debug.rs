@@ -20,10 +20,7 @@ pub struct DebugSubscriber {
 impl DebugSubscriber {
     pub fn new(options: Arc<SharedOptions>, semaphore: Arc<Semaphore>) -> Self {
         let cpus = options.cpus.expect("Options should be set");
-        Self {
-            semaphore,
-            cpus,
-        }
+        Self { semaphore, cpus }
     }
 }
 
