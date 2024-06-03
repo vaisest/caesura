@@ -14,7 +14,7 @@ async fn source_transcoder() -> Result<(), AppError> {
     Logger::init_new(Debug);
     let shared_options = TestOptionsFactory::shared(SharedOptions {
         verbosity: Some(Debug),
-        output: Some(TempDirectory::create("red_oxide")),
+        output: Some(TempDirectory::create("rogue_oxide")),
         ..SharedOptions::default()
     });
     let transcode_options = TestOptionsFactory::transcode(TranscodeOptions {
