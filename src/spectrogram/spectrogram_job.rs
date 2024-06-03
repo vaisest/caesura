@@ -1,4 +1,5 @@
 use std::fs::create_dir_all;
+use std::path::PathBuf;
 use std::process::Output;
 
 use tokio::process::Command;
@@ -15,8 +16,7 @@ use crate::spectrogram::*;
 pub struct SpectrogramJob {
     pub id: String,
     pub source_path: String,
-    pub output_dir: String,
-    pub output_path: String,
+    pub output_path: PathBuf,
     pub image_title: String,
     pub size: Size,
 }
@@ -24,7 +24,11 @@ pub struct SpectrogramJob {
 impl SpectrogramJob {
     /// Execute the command to generate the spectrogram.
     pub async fn execute(self) -> Result<(), AppError> {
-        create_dir_all(&self.output_dir)
+        let output_dir = self
+            .output_path
+            .parent()
+            .expect("output path should have a parent");
+        create_dir_all(output_dir)
             .or_else(|e| AppError::io(e, "create spectrogram output directory"))?;
         match self.size {
             Size::Full => self.execute_full().await,

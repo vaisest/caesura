@@ -1,16 +1,16 @@
-use std::path::Path;
-
 use di::{injectable, Ref};
 
 use crate::formats::target_format::TargetFormat;
-use crate::fs::AdditionalFile;
+use crate::fs::{AdditionalFile, PathManager};
 use crate::jobs::Job;
 use crate::options::TranscodeOptions;
+use crate::source::Source;
 use crate::transcode::AdditionalJob;
 
 #[injectable]
 pub struct AdditionalJobFactory {
     options: Ref<TranscodeOptions>,
+    paths: Ref<PathManager>,
 }
 
 impl AdditionalJobFactory {
@@ -19,12 +19,12 @@ impl AdditionalJobFactory {
     pub fn create(
         &self,
         files: &[AdditionalFile],
-        format: TargetFormat,
-        output_dir: &Path,
+        source: &Source,
+        target: TargetFormat,
     ) -> Vec<Job> {
         let mut jobs = Vec::new();
         for (index, file) in files.iter().enumerate() {
-            jobs.push(self.create_single(index, file, format, output_dir));
+            jobs.push(self.create_single(index, file, source, target));
         }
         jobs
     }
@@ -34,12 +34,15 @@ impl AdditionalJobFactory {
         &self,
         index: usize,
         file: &AdditionalFile,
-        format: TargetFormat,
-        output_dir: &Path,
+        source: &Source,
+        target: TargetFormat,
     ) -> Job {
-        let id = format!("Additional {format:<7?}{index:>3}");
+        let id = format!("Additional {target:<7?}{index:>3}");
         let source_path = file.path.clone();
-        let output_dir = output_dir.join(&file.sub_dir);
+        let output_dir = self
+            .paths
+            .get_transcode_target_dir(source, &target)
+            .join(&file.sub_dir);
         let output_path = output_dir
             .join(&file.file_name)
             .to_string_lossy()

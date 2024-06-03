@@ -10,6 +10,7 @@ use tokio::task::JoinSet;
 use crate::api::{Api, ApiFactory};
 use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
+use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
@@ -43,6 +44,7 @@ impl HostBuilder {
             .add(TranscodeOptions::singleton())
             // Add main services
             .add(Logger::singleton())
+            .add(PathManager::transient())
             .add(SourceProvider::transient().as_mut())
             .add(ApiFactory::transient())
             .add(Api::singleton().as_mut())

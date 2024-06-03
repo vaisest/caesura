@@ -1,4 +1,5 @@
 use std::fs::create_dir_all;
+use std::path::PathBuf;
 use std::process::Stdio;
 
 use audiotags::{AudioTagWrite, Id3v2Tag};
@@ -11,16 +12,19 @@ use crate::transcode::CommandFactory;
 
 pub struct TranscodeJob {
     pub id: String,
-    pub output_dir: String,
-    pub output_path: String,
+    pub output_path: PathBuf,
     pub commands: Vec<CommandFactory>,
     pub tags: Option<Id3v2Tag>,
 }
 
 impl TranscodeJob {
     pub async fn execute(self) -> Result<(), AppError> {
-        create_dir_all(&self.output_dir).or_else(|e| AppError::io(e, "create transcode output directory"))?;
-
+        let output_dir = self
+            .output_path
+            .parent()
+            .expect("output path should have a parent");
+        create_dir_all(output_dir)
+            .or_else(|e| AppError::io(e, "create transcode output directory"))?;
         let mut buffer = vec![];
         for factory in self.commands {
             let command = format!(
@@ -33,7 +37,6 @@ impl TranscodeJob {
                 .create()
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
-                // TODO SHOULD do something with stderr or use Stdio::null()
                 .stderr(Stdio::piped())
                 .spawn()
                 .expect("Process should be able to spawn");
@@ -54,7 +57,7 @@ impl TranscodeJob {
         }
         if let Some(tags) = self.tags {
             let mut tags = tags;
-            tags.write_to_path(self.output_path.as_str())
+            tags.write_to_path(self.output_path.to_string_lossy().as_ref())
                 .or_else(|e| AppError::tag(e, "write tags to file"))?;
         }
         Ok(())

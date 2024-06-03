@@ -1,3 +1,4 @@
+use std::path::Path;
 use claxon::metadata::StreamInfo;
 use tokio::process::Command;
 
@@ -23,9 +24,10 @@ impl CommandFactory {
     pub fn new_flac_resample(
         flac: &FlacFile,
         info: &StreamInfo,
-        output_path: String,
+        output_path: &Path,
     ) -> Result<CommandFactory, AppError> {
         let resample_rate = get_resample_rate_or_err(info)?;
+        let output_path = output_path.to_string_lossy().into_owned();
         let command = CommandFactory {
             program: SOX.to_owned(),
             args: vec![
@@ -54,7 +56,7 @@ impl CommandFactory {
         Ok(command)
     }
 
-    pub fn new_encode(format: TargetFormat, output_path: String) -> CommandFactory {
+    pub fn new_encode(format: TargetFormat, output_path: &Path) -> CommandFactory {
         match format {
             Flac => encode_flac(output_path),
             _320 => encode_mp3_320(output_path),
@@ -90,7 +92,8 @@ fn decode_without_resample(flac: &FlacFile) -> CommandFactory {
     }
 }
 
-fn encode_mp3_v0(output_path: String) -> CommandFactory {
+fn encode_mp3_v0(output_path: &Path) -> CommandFactory {
+    let output_path = output_path.to_string_lossy().into_owned();
     CommandFactory {
         program: LAME.to_owned(),
         args: vec![
@@ -105,7 +108,8 @@ fn encode_mp3_v0(output_path: String) -> CommandFactory {
     }
 }
 
-fn encode_mp3_320(output_path: String) -> CommandFactory {
+fn encode_mp3_320(output_path: &Path) -> CommandFactory {
+    let output_path = output_path.to_string_lossy().into_owned();
     CommandFactory {
         program: LAME.to_owned(),
         args: vec![
@@ -120,7 +124,8 @@ fn encode_mp3_320(output_path: String) -> CommandFactory {
     }
 }
 
-fn encode_flac(output_path: String) -> CommandFactory {
+fn encode_flac(output_path: &Path) -> CommandFactory {
+    let output_path = output_path.to_string_lossy().into_owned();
     CommandFactory {
         program: FLAC.to_owned(),
         args: vec![
