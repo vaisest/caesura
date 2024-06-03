@@ -90,7 +90,7 @@ async fn compress_image(source_path: &String, output_path: &String) -> Result<Ou
     let output = Command::new(CONVERT)
         .arg(source_path)
         .arg("-resize")
-        .arg(format!("{MAX_PIXEL_SIZE}x{MAX_PIXEL_SIZE}"))
+        .arg(format!("{MAX_PIXEL_SIZE}x{MAX_PIXEL_SIZE}>"))
         .arg("-quality")
         .arg(format!("{QUALITY}%"))
         .arg(output_path)
