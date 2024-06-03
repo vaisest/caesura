@@ -63,6 +63,9 @@ impl OptionsProvider {
             if options.compress_images == Some(false) {
                 options.compress_images = None;
             }
+            if options.png_to_jpg == Some(false) {
+                options.png_to_jpg = None;
+            }
             self.get(Some(options))
         } else {
             self.get(options)

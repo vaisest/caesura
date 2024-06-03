@@ -30,6 +30,12 @@ pub struct TranscodeOptions {
     /// Should images greater than 750 KB be compressed?
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub compress_images: Option<bool>,
+
+    /// Should png images be converted to jpg?
+    /// 
+    /// Only applied if the image is greated than 750 KB and compress_images is true.
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub png_to_jpg: Option<bool>,
 }
 
 #[injectable]
@@ -63,6 +69,9 @@ impl Options for TranscodeOptions {
         if self.compress_images.is_none() {
             self.compress_images = alternative.compress_images;
         }
+        if self.png_to_jpg.is_none() {
+            self.png_to_jpg = alternative.png_to_jpg;
+        }
     }
 
     fn apply_defaults(&mut self) {
@@ -84,6 +93,9 @@ impl Options for TranscodeOptions {
         }
         if self.compress_images.is_none() {
             self.compress_images = Some(false);
+        }
+        if self.png_to_jpg.is_none() {
+            self.png_to_jpg = Some(false);
         }
     }
 

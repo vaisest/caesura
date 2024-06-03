@@ -37,7 +37,7 @@ Each source is verified to ensure it's:
 - **[[fixed](https://github.com/DevYukine/red_oxide/issues/24)]** Shorter file names.
 - Automatic torrent file creation
 - **[new]** Images in the root directory are included and all other files ignored.
-- **[new]** Images larger than 750 KB are (optionally) compressed and reduced to less than 1920 px. 
+- **[new]** Images larger than 750 KB are (optionally) compressed, converted to JPG and reduced to less than 1920 px. 
 
 *The logic being that folder and cover images are included but to minimize file size, but for artwork and anything additional the original source can be downloaded*
 

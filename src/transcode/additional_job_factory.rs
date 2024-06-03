@@ -54,6 +54,7 @@ impl AdditionalJobFactory {
             .to_string_lossy()
             .into_owned();
         let compress_images = self.options.compress_images.expect("Options should be set");
+        let png_to_jpg = self.options.png_to_jpg.expect("Options should be set");
         let hard_link = self.options.hard_link.expect("Options should be set");
         Job::Additional(AdditionalJob {
             id,
@@ -62,6 +63,7 @@ impl AdditionalJobFactory {
             output_path,
             hard_link,
             compress_images,
+            png_to_jpg,
             extension,
         })
     }
