@@ -30,11 +30,11 @@ impl AdditionalJob {
     pub async fn execute(self) -> Result<(), AppError> {
         let file = File::open(&self.source_path)
             .await
-            .or_else(|e| AppError::io(e, "open file"))?;
+            .or_else(|e| AppError::io(e, "open additional file"))?;
         let metadata = file
             .metadata()
             .await
-            .or_else(|e| AppError::io(e, "read metadata"))?;
+            .or_else(|e| AppError::io(e, "read metadata of additional file"))?;
         let size = metadata.size();
         let is_large = size > MAX_FILE_SIZE;
         let is_image = IMAGE_EXTENSIONS.contains(&self.extension.as_str());
@@ -48,7 +48,7 @@ impl AdditionalJob {
         }
         create_dir_all(&self.output_dir)
             .await
-            .or_else(|e| AppError::io(e, "create directories"))?;
+            .or_else(|e| AppError::io(e, "create directories for additional file"))?;
 
         let verb = if is_large && is_image && self.compress_images {
             compress_image(
@@ -60,12 +60,12 @@ impl AdditionalJob {
         } else if self.hard_link {
             hard_link(&self.source_path, &self.output_path)
                 .await
-                .or_else(|e| AppError::io(e, "hard link file"))?;
+                .or_else(|e| AppError::io(e, "hard link additional file"))?;
             "Hard Linked"
         } else {
             copy(&self.source_path, &self.output_path)
                 .await
-                .or_else(|e| AppError::io(e, "copy file"))?;
+                .or_else(|e| AppError::io(e, "copy additional file"))?;
             "Copied"
         };
         trace!(
@@ -96,6 +96,6 @@ async fn compress_image(source_path: &String, output_path: &String) -> Result<Ou
         .arg(output_path)
         .output()
         .await
-        .or_else(|e| AppError::io(e, "compressing image"))?;
-    OutputHandler::execute(output, "compressing image", "convert")
+        .or_else(|e| AppError::io(e, "execute compress image"))?;
+    OutputHandler::execute(output, "compress image", "convert")
 }

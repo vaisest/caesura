@@ -123,7 +123,7 @@ impl SourceTranscoder {
             .expect("Option should be set")
             .join(dir_name);
         let torrent_dir = dir.join(TORRENT_SUB_DIR);
-        create_dir_all(&torrent_dir).or_else(|e| AppError::io(e, "create torrent directory"))?;
+        create_dir_all(&torrent_dir).or_else(|e| AppError::io(e, "create torrent output directory"))?;
         for target in targets {
             let name = TargetName::get(source, target);
             let content_dir = dir.join(TRANSCODE_SUB_DIR).join(&name);

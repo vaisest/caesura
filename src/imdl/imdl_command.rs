@@ -21,7 +21,6 @@ impl ImdlCommand {
         announce_url: String,
         source: String,
     ) -> Result<Output, AppError> {
-        let action = "create torrent";
         let output = Command::new(IMDL)
             .arg("torrent")
             .arg("create")
@@ -36,13 +35,12 @@ impl ImdlCommand {
             .arg("--force")
             .output()
             .await
-            .or_else(|e| AppError::io(e, action))?;
-        OutputHandler::execute(output, action, "IMDL")
+            .or_else(|e| AppError::io(e, "execute create torrent"))?;
+        OutputHandler::execute(output, "create torrent", "IMDL")
     }
 
     /// Get a summary of the torrent file.
     pub async fn show(path: &Path) -> Result<TorrentSummary, AppError> {
-        let action = "read torrent";
         let output = Command::new(IMDL)
             .arg("torrent")
             .arg("show")
@@ -50,15 +48,14 @@ impl ImdlCommand {
             .arg(path)
             .output()
             .await
-            .or_else(|e| AppError::io(e, action))?;
-        let output = OutputHandler::execute(output, action, "IMDL")?;
+            .or_else(|e| AppError::io(e, "execute read torrent"))?;
+        let output = OutputHandler::execute(output, "read torrent", "IMDL")?;
         let reader = output.stdout.reader();
-        serde_json::from_reader(reader).or_else(|e| AppError::deserialization(e, action))
+        serde_json::from_reader(reader).or_else(|e| AppError::deserialization(e, "deserialize torrent"))
     }
 
     /// Verify files match the torrent metadata.
     pub async fn verify(buffer: &[u8], directory: &PathBuf) -> Result<Vec<SourceRule>, AppError> {
-        let action = "verify torrent";
         let mut child = Command::new(IMDL)
             .arg("torrent")
             .arg("verify")
@@ -69,17 +66,17 @@ impl ImdlCommand {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
-            .or_else(|e| AppError::io(e, action))?;
+            .or_else(|e| AppError::io(e, "execute verify torrent"))?;
         let mut stdin = child.stdin.take().expect("stdin should be available");
         stdin
             .write_all(buffer)
             .await
-            .or_else(|e| AppError::io(e, action))?;
+            .or_else(|e| AppError::io(e, "writing buffer to verify torrent"))?;
         drop(stdin);
         let output = child
             .wait_with_output()
             .await
-            .or_else(|e| AppError::io(e, action))?;
+            .or_else(|e| AppError::io(e, "get output of verify torrent"))?;
         if output.status.success() {
             Ok(Vec::new())
         } else {

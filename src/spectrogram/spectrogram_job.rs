@@ -25,7 +25,7 @@ impl SpectrogramJob {
     /// Execute the command to generate the spectrogram.
     pub async fn execute(self) -> Result<(), AppError> {
         create_dir_all(&self.output_dir)
-            .or_else(|e| AppError::io(e, "creating spectrogram directories"))?;
+            .or_else(|e| AppError::io(e, "create spectrogram output directory"))?;
         match self.size {
             Size::Full => self.execute_full().await,
             Size::Zoom => self.execute_zoom().await,
@@ -60,8 +60,8 @@ impl SpectrogramJob {
             .arg(&self.output_path)
             .output()
             .await
-            .or_else(|e| AppError::io(e, "generate spectrogram"))?;
-        OutputHandler::execute(output, "generatespectrogram", "IMDL")
+            .or_else(|e| AppError::io(e, "execute generate spectrogram"))?;
+        OutputHandler::execute(output, "generate spectrogram", "IMDL")
     }
 
     async fn execute_full(&self) -> Result<Output, AppError> {
@@ -87,7 +87,7 @@ impl SpectrogramJob {
             .arg(&self.output_path)
             .output()
             .await
-            .or_else(|e| AppError::io(e, "generating spectrogram"))?;
-        OutputHandler::execute(output, "generating spectrogram", "IMDL")
+            .or_else(|e| AppError::io(e, "execute generating spectrogram"))?;
+        OutputHandler::execute(output, "generate spectrogram", "IMDL")
     }
 }

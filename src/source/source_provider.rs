@@ -40,7 +40,6 @@ impl SourceProvider {
     }
 
     async fn get_by_id(&mut self, id: i64) -> Result<Source, AppError> {
-        let action = "get source by id";
         let mut api = self.api.write().expect("API should be available to read");
         let response = api.get_torrent(id).await?;
         let torrent = response.torrent;
@@ -48,7 +47,7 @@ impl SourceProvider {
         let response = api.get_torrent_group(group.id).await?;
         if group.id != response.group.id {
             AppError::explained(
-                action,
+                "get source by id",
                 "group of torrent did not match torrent group".to_owned(),
             )?;
         }
@@ -83,7 +82,6 @@ impl SourceProvider {
     }
 
     async fn get_by_file(&mut self, path: &Path) -> Result<Source, AppError> {
-        let action = "get source by file";
         let summary = ImdlCommand::show(path).await?;
         let tracker_id = self
             .options
@@ -96,11 +94,11 @@ impl SourceProvider {
             if is_url(url.as_str()) {
                 self.get_by_url(&url).await
             } else {
-                AppError::explained(action, "comment is not a url".to_owned())
+                AppError::explained("get source by file", "comment is not a url".to_owned())
             }
         } else {
             AppError::unexpected(
-                action,
+                "get source by file",
                 "incorrect source",
                 tracker_id,
                 summary.source.unwrap_or_default(),

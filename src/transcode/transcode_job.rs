@@ -19,8 +19,7 @@ pub struct TranscodeJob {
 
 impl TranscodeJob {
     pub async fn execute(self) -> Result<(), AppError> {
-        let action = "transcode";
-        create_dir_all(&self.output_dir).or_else(|e| AppError::io(e, action))?;
+        create_dir_all(&self.output_dir).or_else(|e| AppError::io(e, "create transcode output directory"))?;
 
         let mut buffer = vec![];
         for factory in self.commands {
@@ -50,7 +49,7 @@ impl TranscodeJob {
                 .wait_with_output()
                 .await
                 .expect("Child should produce an output");
-            let output = OutputHandler::execute(output, action, "transcode")?;
+            let output = OutputHandler::execute(output, "transcode", "transcode")?;
             buffer = output.stdout;
         }
         if let Some(tags) = self.tags {

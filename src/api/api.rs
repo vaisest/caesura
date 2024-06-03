@@ -32,10 +32,9 @@ impl Api {
     /// # See Also
     /// - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#torrent>
     pub async fn get_torrent(&mut self, id: i64) -> Result<TorrentResponse, AppError> {
-        let action = "get torrent";
         let url = format!("{}/ajax.php?action=torrent&id={}", self.api_url, id);
-        let response = self.get(&url, action).await?;
-        self.deserialize(response, action).await
+        let response = self.get(&url, "get torrent").await?;
+        self.deserialize(response, "deserialize torrent").await
     }
 
     /// Get a torrent group by id
@@ -46,10 +45,9 @@ impl Api {
     /// # See Also
     /// - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#torrent-group>
     pub async fn get_torrent_group(&mut self, id: i64) -> Result<TorrentGroupResponse, AppError> {
-        let action = "get torrent group";
         let url = format!("{}/ajax.php?action=torrentgroup&id={}", self.api_url, id);
-        let response = self.get(&url, action).await?;
-        self.deserialize(response, action).await
+        let response = self.get(&url, "get torrent group").await?;
+        self.deserialize(response, "deserialize torrent group").await
     }
 
     /// Get the content of the .torrent file as a buffer
