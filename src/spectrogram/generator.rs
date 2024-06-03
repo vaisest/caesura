@@ -22,7 +22,7 @@ impl SpectrogramGenerator {
     pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
         info!("{} spectrograms for {}", "Creating".bold(), source);
         let collection = Collector::get_flacs(&source.directory);
-        let jobs = self.factory.create(&collection, &source);
+        let jobs = self.factory.create(&collection, source);
         let count = jobs.len();
         self.runner.add(jobs);
         self.runner.execute().await?;

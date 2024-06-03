@@ -18,6 +18,7 @@ pub struct PathManager {
 }
 
 impl PathManager {
+    #[must_use]
     pub fn get_output_dir(&self) -> PathBuf {
         self.shared_options
             .output
@@ -25,23 +26,27 @@ impl PathManager {
             .expect("Option should be set")
     }
 
+    #[must_use]
     pub fn get_spectrogram_dir(&self, source: &Source) -> PathBuf {
         self.get_output_dir()
             .join(SourceName::get_escaped(source))
             .join(SPECTROGRAM_DIR_NAME)
     }
 
+    #[must_use]
     pub fn get_transcode_dir(&self, source: &Source) -> PathBuf {
         self.get_output_dir()
             .join(SourceName::get_escaped(source))
             .join(TRANSCODE_DIR_NAME)
     }
 
+    #[must_use]
     pub fn get_transcode_target_dir(&self, source: &Source, target: &TargetFormat) -> PathBuf {
         self.get_transcode_dir(source)
             .join(TargetName::get(source, target))
     }
 
+    #[must_use]
     pub fn get_transcode_path(
         &self,
         source: &Source,
@@ -55,12 +60,14 @@ impl PathManager {
             .join(filename)
     }
 
+    #[must_use]
     pub fn get_torrent_dir(&self, source: &Source) -> PathBuf {
         self.get_output_dir()
             .join(SourceName::get_escaped(source))
             .join(TORRENT_DIR_NAME)
     }
 
+    #[must_use]
     pub fn get_torrent_path(&self, source: &Source, target: &TargetFormat) -> PathBuf {
         let filename = TargetName::get(source, target) + ".torrent";
         self.get_torrent_dir(source).join(filename)
