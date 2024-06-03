@@ -51,7 +51,8 @@ impl ImdlCommand {
             .or_else(|e| AppError::io(e, "execute read torrent"))?;
         let output = OutputHandler::execute(output, "read torrent", "IMDL")?;
         let reader = output.stdout.reader();
-        serde_json::from_reader(reader).or_else(|e| AppError::deserialization(e, "deserialize torrent"))
+        serde_json::from_reader(reader)
+            .or_else(|e| AppError::deserialization(e, "deserialize torrent"))
     }
 
     /// Verify files match the torrent metadata.

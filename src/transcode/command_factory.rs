@@ -1,5 +1,5 @@
-use std::path::Path;
 use claxon::metadata::StreamInfo;
+use std::path::Path;
 use tokio::process::Command;
 
 use crate::dependencies::{FLAC, LAME, SOX};

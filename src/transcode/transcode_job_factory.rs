@@ -6,8 +6,8 @@ use crate::formats::target_format::TargetFormat;
 use crate::fs::{FlacFile, PathManager};
 use crate::jobs::Job;
 use crate::source::Source;
-use crate::transcode::*;
 use crate::transcode::transcode_job::TranscodeJob;
+use crate::transcode::*;
 
 #[injectable]
 pub struct TranscodeJobFactory {
@@ -39,9 +39,7 @@ impl TranscodeJobFactory {
     ) -> Result<Job, AppError> {
         let info = flac.get_stream_info()?;
         let id = format!("Transcode {format:<7?}{index:>3}");
-        let output_path = self
-            .paths
-            .get_transcode_path(source, &format, flac);
+        let output_path = self.paths.get_transcode_path(source, &format, flac);
         let commands = if matches!(format, TargetFormat::Flac) && is_resample_required(&info) {
             let cmd = CommandFactory::new_flac_resample(flac, &info, &output_path)?;
             vec![cmd]

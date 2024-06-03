@@ -8,7 +8,7 @@ use crate::spectrogram::*;
 /// A factory for creating [`SpectrogramJob`] from multiple flac files.
 #[injectable]
 pub struct SpectrogramJobFactory {
-    paths: Ref<PathManager>   
+    paths: Ref<PathManager>,
 }
 
 impl SpectrogramJobFactory {
