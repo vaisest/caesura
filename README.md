@@ -111,7 +111,7 @@ rogue_oxide verify [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary>Documentation</summary>
+<summary><code>rogue_oxide verify --help</code></summary>
 
 ```
 Usage: rogue_oxide verify [OPTIONS] [SOURCE]
@@ -181,7 +181,7 @@ rogue_oxide spectrogram [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary>Documentation</summary>
+<summary><code>rogue_oxide spectrogram --help</code></summary>
 
 ```
 Usage: rogue_oxide spectrogram [OPTIONS] [SOURCE]
@@ -240,7 +240,7 @@ rogue_oxide transcode [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary>Documentation</summary>
+<summary><code>rogue_oxide transcode --help</code></summary>
 
 ```
 Usage: rogue_oxide transcode [OPTIONS] [SOURCE]
@@ -313,7 +313,7 @@ rogue_oxide upload [OPTIONS] [SOURCE]
 *Work in progress*
 
 <details>
-<summary>Documentation</summary>
+<summary><code>rogue_oxide upload --help</code></summary>
 
 ```
 
@@ -322,7 +322,7 @@ rogue_oxide upload [OPTIONS] [SOURCE]
 
 ### Configuration
 
-Configuration options are sourced first from the command line arguments, and if not set then from a configuration file.
+Configuration options are sourced first from the command line arguments, then from a configuration file.
 
 By default the application loads `config.json` from the current working directory, but this can be overridden with the `--config-path <CONFIG_PATH>` cli argument.
 
@@ -375,7 +375,7 @@ Releases and a full changelog are available via [GitHub Releases](https://github
 
 [**DevYukine**](https://github.com/DevYukine) completed the **initial work** and released it as [**red_oxide**](https://github.com/DevYukine/red_oxide) under an [MIT license](LICENSE.HISTORIC.md).
 
-[**RogueOneEcho**](https://github.com/RogueOneEcho) then forked the project to complete a major refactor, **fix some issues**, add **new features** and improve logging and error handling. The fork is released as [**rogue_oxide**](https://github.com/RogueOneEcho/rogue_oxide) under an [AGPL license](LICENSE.md).
+[**RogueOneEcho**](https://github.com/RogueOneEcho) forked the project to complete a major refactor, **fix some issues**, add **new features** and improve logging and error handling. The fork is released as [**rogue_oxide**](https://github.com/RogueOneEcho/rogue_oxide) under an [AGPL license](LICENSE.md).
 
 *The main difference between the former MIT license and the present AGPL license is that if you intend to distribute a modified version of the code - even to run it on a server - you must also provide the modified source code under an AGPL license.*
 
