@@ -33,8 +33,8 @@ impl Shortener {
     
     pub fn suggest_album_name(source: &Source) {
         if let Some(shortened) = Shortener::shorten_album(&source.metadata) {
-            let before = SourceName::from_metadata(&source.metadata);
-            let after = SourceName::from_metadata(&shortened);
+            let before = SourceName::get(&source.metadata);
+            let after = SourceName::get(&shortened);
             let difference = before.len() - after.len();
             if difference > 0 {
                 info!("{} directory could save {difference} characters: {}", "Renaming".bold(), after.gray());

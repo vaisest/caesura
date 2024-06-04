@@ -16,7 +16,7 @@ fn get_shortened() {
     let result = Shortener::shorten_album(&metadata);
 
     // Assert
-    let name_before = SourceName::from_metadata(&metadata);
-    let name_after = SourceName::from_metadata(&result.expect("Should have value"));
-    assert!(name_after < name_before);
+    let name_before = SourceName::get(&metadata);
+    let name_after = SourceName::get(&result.expect("Should have value"));
+    assert!(name_after.len() < name_before.len());
 }
