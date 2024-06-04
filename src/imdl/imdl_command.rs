@@ -1,11 +1,12 @@
 use std::path::{Path, PathBuf};
 use std::process::{Output, Stdio};
 
-use crate::dependencies::IMDL;
 use bytes::Buf;
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 
+use crate::built_info::{PKG_NAME, PKG_VERSION};
+use crate::dependencies::IMDL;
 use crate::errors::{AppError, OutputHandler};
 use crate::imdl::TorrentSummary;
 use crate::verify::SourceRule;
@@ -28,10 +29,13 @@ impl ImdlCommand {
             .arg("--private")
             .arg("--announce")
             .arg(announce_url)
+            .arg("--comment")
+            .arg(format!("Created with {} v{}", PKG_NAME, PKG_VERSION))
             .arg("--source")
-            .arg(source)
+            .arg(source.to_uppercase())
             .arg("--output")
             .arg(output_path.to_string_lossy().to_string())
+            .arg("--no-created-by")
             .arg("--force")
             .output()
             .await
