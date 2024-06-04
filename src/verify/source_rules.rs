@@ -1,6 +1,8 @@
 use crate::verify::SourceRule::*;
 use std::fmt::{Display, Formatter};
 
+pub const MAX_PATH_LENGTH : usize = 180;
+
 pub enum SourceRule {
     SceneNotSupported,
     LossyMasterNeedsApproval,
@@ -9,6 +11,7 @@ pub enum SourceRule {
     SourceDirectoryNotFound(String),
     NoFlacFiles(String),
     IncorrectHash(String),
+    PathTooLong(String),
     NoArtistTag(String),
     NoAlbumTag(String),
     NoTitleTag(String),
@@ -27,6 +30,7 @@ impl Display for SourceRule {
             SourceDirectoryNotFound(_) => "Source directory not found: {0}".to_owned(),
             NoFlacFiles(path) => format!("No Flac files found in source directory: {path}"),
             IncorrectHash(details) => format!("Files do not match hash:\n{details}"),
+            PathTooLong(path) => format!("Path is {} longer than 180 character limit: {path}",  path.len() - MAX_PATH_LENGTH),
             NoArtistTag(path) => format!("No artist tag: {path}"),
             NoAlbumTag(path) => format!("No album tag: {path}"),
             NoTitleTag(path) => format!("No title tag: {path}"),

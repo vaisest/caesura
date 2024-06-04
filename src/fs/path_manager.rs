@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use di::{injectable, Ref};
 
-use crate::formats::TargetFormat;
+use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::FlacFile;
 use crate::naming::{SourceName, TargetName};
 use crate::options::SharedOptions;
@@ -15,6 +15,7 @@ const TRANSCODE_DIR_NAME: &str = "transcodes";
 #[injectable]
 pub struct PathManager {
     shared_options: Ref<SharedOptions>,
+    targets: Ref<TargetFormatProvider>,
 }
 
 impl PathManager {
@@ -58,6 +59,23 @@ impl PathManager {
         self.get_transcode_target_dir(source, target)
             .join(&flac.sub_dir)
             .join(filename)
+    }
+
+    #[must_use]
+    pub fn get_max_transcode_sub_path(&self, source: &Source, flac: &FlacFile) -> String {
+        let mut targets = self.targets.get(source.format, &source.existing);
+        targets.sort();
+        if targets.is_empty() {
+            return "".to_owned();
+        }
+        let target = targets.last().expect("Should contain at least 1");
+        let filename = flac.file_name.clone();
+        let extension = target.get_file_extension();
+        PathBuf::from(TargetName::get(source, target))
+            .join(&flac.sub_dir)
+            .join(format!("{filename}.{extension}"))
+            .to_string_lossy()
+            .to_string()
     }
 
     #[must_use]

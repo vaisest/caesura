@@ -5,13 +5,13 @@ use log::*;
 use crate::api::Api;
 use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
-use crate::fs::Collector;
+use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
 use crate::options::TranscodeOptions;
 use crate::source::*;
-use crate::verify::tag_verifier::TagVerifier;
-use crate::verify::SourceRule::*;
 use crate::verify::*;
+use crate::verify::SourceRule::*;
+use crate::verify::tag_verifier::TagVerifier;
 
 /// Check if a [Source] is suitable for transcoding.
 #[injectable]
@@ -19,6 +19,7 @@ pub struct SourceVerifier {
     options: Ref<TranscodeOptions>,
     api: RefMut<Api>,
     targets: Ref<TargetFormatProvider>,
+    paths: Ref<PathManager>,
 }
 
 impl SourceVerifier {
@@ -80,6 +81,10 @@ impl SourceVerifier {
         }
         let mut errors: Vec<SourceRule> = Vec::new();
         for flac in flacs {
+            let max_path = self.paths.get_max_transcode_sub_path(source, &flac);
+            if max_path.len() > MAX_PATH_LENGTH {
+                errors.push(PathTooLong(max_path))
+            }
             for error in TagVerifier::execute(&flac, &source.metadata.media)? {
                 errors.push(error);
             }
