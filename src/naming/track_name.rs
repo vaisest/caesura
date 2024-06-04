@@ -4,6 +4,7 @@ use crate::naming::Sanitizer;
 pub struct TrackName;
 
 impl TrackName {
+    #[must_use]
     pub fn get(flac: &FlacFile) -> Option<String> {
         let tags = flac.get_tags().ok()?;
         let track_number = tags.track_number()?;

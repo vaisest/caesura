@@ -45,7 +45,7 @@ impl TargetFormat {
 
 impl PartialOrd for TargetFormat {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.get_name().len().partial_cmp(&other.get_name().len())
+        Some(self.cmp(other))
     }
 }
 

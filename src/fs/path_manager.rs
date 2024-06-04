@@ -66,7 +66,7 @@ impl PathManager {
         let mut targets = self.targets.get(source.format, &source.existing);
         targets.sort();
         if targets.is_empty() {
-            return "".to_owned();
+            return String::new();
         }
         let target = targets.last().expect("Should contain at least 1");
         let filename = flac.file_name.clone();

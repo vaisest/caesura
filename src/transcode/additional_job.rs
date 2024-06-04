@@ -78,10 +78,10 @@ impl AdditionalJob {
 
 async fn compress_image(
     source_path: &Path,
-    output_path: &String,
+    output_path: &str,
     png_to_jpg: bool,
 ) -> Result<Output, AppError> {
-    let mut output_path = output_path.clone();
+    let mut output_path = output_path.to_owned();
     let extension = source_path
         .extension()
         .unwrap_or_default()

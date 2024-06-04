@@ -23,7 +23,7 @@ impl Shortener {
     }
 
     pub fn suggest_track_name(flac: &FlacFile) {
-        if let Some(file_name) = TrackName::get(&flac) {
+        if let Some(file_name) = TrackName::get(flac) {
             let difference = flac.file_name.len() - file_name.len();
             if difference > 0 {
                 info!(
