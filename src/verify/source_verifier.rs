@@ -7,6 +7,7 @@ use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
+use crate::naming::Shortener;
 use crate::options::TranscodeOptions;
 use crate::source::*;
 use crate::verify::*;
@@ -83,7 +84,8 @@ impl SourceVerifier {
         for flac in flacs {
             let max_path = self.paths.get_max_transcode_sub_path(source, &flac);
             if max_path.len() > MAX_PATH_LENGTH {
-                errors.push(PathTooLong(max_path))
+                errors.push(PathTooLong(max_path));
+                Shortener::suggest_track_name(&flac);
             }
             for error in TagVerifier::execute(&flac, &source.metadata.media)? {
                 errors.push(error);
@@ -91,6 +93,9 @@ impl SourceVerifier {
             for error in StreamVerifier::execute(&flac)? {
                 errors.push(error);
             }
+        }
+        if errors.iter().any(|rule| matches!(rule, &PathTooLong(_))) {
+            Shortener::suggest_album_name(source);
         }
         Ok(errors)
     }

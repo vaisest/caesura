@@ -30,7 +30,7 @@ impl Display for SourceRule {
             SourceDirectoryNotFound(path) => format!("Source directory not found: {path}"),
             NoFlacFiles(path) => format!("No Flac files found in source directory: {path}"),
             IncorrectHash(details) => format!("Files do not match hash:\n{details}"),
-            PathTooLong(path) => format!("Path is {} longer than 180 character limit: {path}",  path.len() - MAX_PATH_LENGTH),
+            PathTooLong(path) => format!("Path is {} characters longer than allowed: {path}",  path.len() - MAX_PATH_LENGTH),
             NoArtistTag(path) => format!("No artist tag: {path}"),
             NoAlbumTag(path) => format!("No album tag: {path}"),
             NoTitleTag(path) => format!("No title tag: {path}"),
