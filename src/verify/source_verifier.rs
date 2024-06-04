@@ -10,9 +10,9 @@ use crate::imdl::imdl_command::ImdlCommand;
 use crate::naming::Shortener;
 use crate::options::TranscodeOptions;
 use crate::source::*;
-use crate::verify::*;
-use crate::verify::SourceRule::*;
 use crate::verify::tag_verifier::TagVerifier;
+use crate::verify::SourceRule::*;
+use crate::verify::*;
 
 /// Check if a [Source] is suitable for transcoding.
 #[injectable]

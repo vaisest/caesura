@@ -52,8 +52,7 @@ impl AdditionalJob {
             .or_else(|e| AppError::io(e, "create directories for additional file"))?;
 
         let verb = if is_large && is_image && self.compress_images {
-            compress_image(&self.source_path, &self.output_path, self.png_to_jpg)
-            .await?;
+            compress_image(&self.source_path, &self.output_path, self.png_to_jpg).await?;
             "Compressed"
         } else if self.hard_link {
             hard_link(&self.source_path, &self.output_path)
@@ -77,15 +76,22 @@ impl AdditionalJob {
     }
 }
 
-async fn compress_image(source_path: &Path, output_path: &String, png_to_jpg: bool) -> Result<Output, AppError> {
+async fn compress_image(
+    source_path: &Path,
+    output_path: &String,
+    png_to_jpg: bool,
+) -> Result<Output, AppError> {
     let mut output_path = output_path.clone();
-    let extension = source_path.extension().unwrap_or_default().to_string_lossy();
+    let extension = source_path
+        .extension()
+        .unwrap_or_default()
+        .to_string_lossy();
     let extension = extension.as_ref();
-    if png_to_jpg &&  extension == "png" {
+    if png_to_jpg && extension == "png" {
         output_path = output_path
             .strip_suffix(extension)
             .expect("path should have extension")
-            .to_owned() 
+            .to_owned()
             + "jpg";
     }
     let source_path = source_path.to_string_lossy().into_owned();
@@ -95,7 +101,7 @@ async fn compress_image(source_path: &Path, output_path: &String, png_to_jpg: bo
         MAX_PIXEL_SIZE,
         QUALITY,
         source_path
-    );    
+    );
     let output = Command::new(CONVERT)
         .arg(source_path)
         .arg("-resize")

@@ -1,8 +1,8 @@
-use std::cmp::Ordering;
 use crate::formats::ExistingFormat;
+use crate::formats::TargetFormat::{Flac, V0, _320};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
-use crate::formats::TargetFormat::{_320, Flac, V0};
+use std::cmp::Ordering;
 
 /// Format to transcode to.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize, ValueEnum)]
@@ -15,7 +15,6 @@ pub enum TargetFormat {
 }
 
 impl TargetFormat {
-
     #[must_use]
     pub fn get_name(&self) -> &str {
         match self {

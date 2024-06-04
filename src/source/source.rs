@@ -29,6 +29,9 @@ pub struct Source {
 
 impl fmt::Display for Source {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        SourceName::get(&self.metadata).gray().italic().fmt(formatter)
+        SourceName::get(&self.metadata)
+            .gray()
+            .italic()
+            .fmt(formatter)
     }
 }

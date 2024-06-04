@@ -32,7 +32,7 @@ pub struct TranscodeOptions {
     pub compress_images: Option<bool>,
 
     /// Should png images be converted to jpg?
-    /// 
+    ///
     /// Only applied if the image is greated than 750 KB and compress_images is true.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub png_to_jpg: Option<bool>,
