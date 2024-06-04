@@ -27,7 +27,7 @@ impl Display for SourceRule {
             LossyMasterNeedsApproval => "Lossy master releases need approval".to_owned(),
             LossyWebNeedsApproval => "Lossy web releases need approval".to_owned(),
             NoTranscodeFormats => "All allowed formats have been transcoded to already".to_owned(),
-            SourceDirectoryNotFound(_) => "Source directory not found: {0}".to_owned(),
+            SourceDirectoryNotFound(path) => format!("Source directory not found: {path}"),
             NoFlacFiles(path) => format!("No Flac files found in source directory: {path}"),
             IncorrectHash(details) => format!("Files do not match hash:\n{details}"),
             PathTooLong(path) => format!("Path is {} longer than 180 character limit: {path}",  path.len() - MAX_PATH_LENGTH),
