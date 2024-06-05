@@ -1,5 +1,3 @@
-#![allow(unused_imports)]
-
 use std::path::{Path, PathBuf};
 use std::process::{Output, Stdio};
 
@@ -17,6 +15,7 @@ use crate::verify::SourceRule::IncorrectHash;
 pub struct ImdlCommand;
 
 impl ImdlCommand {
+    #[allow(clippy::uninlined_format_args)]
     /// Create a torrent
     pub async fn create(
         content_dir: &Path,
@@ -32,7 +31,7 @@ impl ImdlCommand {
             .arg("--announce")
             .arg(announce_url)
             .arg("--comment")
-            .arg(format!("Created with {PKG_NAME} v{PKG_VERSION}"))
+            .arg(format!("Created with {} v{}", PKG_NAME, PKG_VERSION))
             .arg("--source")
             .arg(source.to_uppercase())
             .arg("--output")

@@ -44,15 +44,16 @@ impl UploadCommand {
         Ok(true)
     }
 
+    #[allow(clippy::uninlined_format_args)]
     fn create_description(&self, source: &Source, transcode_command: &String) -> String {
         let base = &self.options.get_value(|x| x.indexer_url.clone());
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
-        return format!(
+        format!(
             "Transcode of [url]{source_url}[/url]\
             Transcode process:\
             [code]{transcode_command}[/code]\
             Created using [url={}]{} v{}[/url]",
             PKG_REPOSITORY, PKG_NAME, PKG_VERSION
-        );
+        )
     }
 }
