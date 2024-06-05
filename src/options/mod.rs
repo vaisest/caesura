@@ -1,4 +1,5 @@
 pub use errors::*;
+pub use file_options::*;
 pub use options_provider::*;
 pub use options_trait::*;
 pub use rules::OptionRule::*;
@@ -7,8 +8,10 @@ pub use runner_options::*;
 pub use shared_options::*;
 pub use spectrogram_options::*;
 pub use target_options::*;
+pub use verify_options::*;
 
 pub mod errors;
+pub mod file_options;
 pub mod options_provider;
 pub mod options_trait;
 pub mod rules;

@@ -15,9 +15,8 @@ use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
 use crate::options::{
-    OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions,
+    OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, VerifyOptions,
 };
-use crate::options::verify_options::VerifyOptions;
 use crate::source::SourceProvider;
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};

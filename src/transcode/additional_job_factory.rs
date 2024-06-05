@@ -3,13 +3,13 @@ use di::{injectable, Ref};
 use crate::formats::target_format::TargetFormat;
 use crate::fs::{AdditionalFile, PathManager};
 use crate::jobs::Job;
-use crate::options::TargetOptions;
+use crate::options::FileOptions;
 use crate::source::Source;
 use crate::transcode::AdditionalJob;
 
 #[injectable]
 pub struct AdditionalJobFactory {
-    options: Ref<TargetOptions>,
+    options: Ref<FileOptions>,
     paths: Ref<PathManager>,
 }
 

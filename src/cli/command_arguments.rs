@@ -1,7 +1,9 @@
 use clap::Subcommand;
 
 use crate::options::verify_options::VerifyOptions;
-use crate::options::{RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions};
+use crate::options::{
+    FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions,
+};
 
 /// Cli sub-commands and arguments
 #[derive(Subcommand, Debug, Clone)]
@@ -24,6 +26,8 @@ pub enum CommandArguments {
         runner: RunnerOptions,
         #[command(flatten)]
         target: TargetOptions,
+        #[command(flatten)]
+        file: FileOptions,
     },
 
     /// Verify a FLAC source is suitable for transcoding.

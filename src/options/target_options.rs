@@ -1,11 +1,11 @@
 use std::fmt::{Display, Formatter};
 
-use crate::cli::ArgumentsParser;
-use crate::cli::CommandArguments::*;
 use clap::{ArgAction, Args};
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
+use crate::cli::ArgumentsParser;
+use crate::cli::CommandArguments::*;
 use crate::formats::TargetFormat;
 use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
 
@@ -20,20 +20,6 @@ pub struct TargetOptions {
     /// Allow transcoding to existing formats
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub allow_existing: Option<bool>,
-
-    /// Use hard links when copying files
-    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub hard_link: Option<bool>,
-
-    /// Should images greater than 750 KB be compressed?
-    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub compress_images: Option<bool>,
-
-    /// Should png images be converted to jpg?
-    ///
-    /// Only applied if the image is greated than 750 KB and `compress_images` is true.
-    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub png_to_jpg: Option<bool>,
 }
 
 #[injectable]
@@ -58,15 +44,6 @@ impl Options for TargetOptions {
         if self.allow_existing.is_none() {
             self.allow_existing = alternative.allow_existing;
         }
-        if self.hard_link.is_none() {
-            self.hard_link = alternative.hard_link;
-        }
-        if self.compress_images.is_none() {
-            self.compress_images = alternative.compress_images;
-        }
-        if self.png_to_jpg.is_none() {
-            self.png_to_jpg = alternative.png_to_jpg;
-        }
     }
 
     fn apply_defaults(&mut self) {
@@ -79,15 +56,6 @@ impl Options for TargetOptions {
         }
         if self.allow_existing.is_none() {
             self.allow_existing = Some(false);
-        }
-        if self.hard_link.is_none() {
-            self.hard_link = Some(false);
-        }
-        if self.compress_images.is_none() {
-            self.compress_images = Some(false);
-        }
-        if self.png_to_jpg.is_none() {
-            self.png_to_jpg = Some(false);
         }
     }
 
@@ -109,26 +77,13 @@ impl Options for TargetOptions {
     #[must_use]
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
-            Some(Transcode {
-                target: transcode, ..
-            }) => transcode,
-            Some(Verify {
-                target: transcode, ..
-            }) => transcode,
+            Some(Transcode { target, .. }) => target,
+            Some(Verify { target, .. }) => target,
             _ => return None,
         };
         let mut options = options;
         if options.allow_existing == Some(false) {
             options.allow_existing = None;
-        }
-        if options.hard_link == Some(false) {
-            options.hard_link = None;
-        }
-        if options.compress_images == Some(false) {
-            options.compress_images = None;
-        }
-        if options.png_to_jpg == Some(false) {
-            options.png_to_jpg = None;
         }
         Some(options)
     }
