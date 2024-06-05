@@ -10,11 +10,11 @@ use rogue_oxide::testing::*;
 async fn source_provider() -> Result<(), AppError> {
     // Arrange
     Logger::init_new(Debug);
-    let shared_options = TestOptionsFactory::shared(SharedOptions {
+    let shared_options = TestOptionsFactory::from_with_env(SharedOptions {
         verbosity: Some(Debug),
         ..SharedOptions::default()
     });
-    let target_options = TestOptionsFactory::transcode(TargetOptions {
+    let target_options = TestOptionsFactory::from(TargetOptions {
         allow_existing: Some(true),
         ..TargetOptions::default()
     });

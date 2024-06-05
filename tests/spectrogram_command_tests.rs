@@ -14,7 +14,7 @@ use rogue_oxide::testing::*;
 async fn spectrogram_command() -> Result<(), AppError> {
     // Arrange
     Logger::init_new(Debug);
-    let shared_options = TestOptionsFactory::shared(SharedOptions {
+    let shared_options = TestOptionsFactory::from_with_env(SharedOptions {
         verbosity: Some(Debug),
         output: Some(TempDirectory::create("rogue_oxide")),
         ..SharedOptions::default()

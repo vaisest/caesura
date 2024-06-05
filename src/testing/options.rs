@@ -1,29 +1,24 @@
-use crate::options::{Options, OptionsProvider, SharedOptions, SpectrogramOptions, TargetOptions};
-use crate::testing::CONTENT_SAMPLES_DIR;
-use colored::Colorize;
-use log::{debug, warn};
 use std::env::var;
 use std::path::PathBuf;
+
+use colored::Colorize;
+use log::{debug, warn};
+
+use crate::options::{Options, OptionsProvider, SharedOptions};
+use crate::testing::CONTENT_SAMPLES_DIR;
 
 pub struct TestOptionsFactory;
 
 impl TestOptionsFactory {
     #[must_use]
-    pub fn shared(mut options: SharedOptions) -> SharedOptions {
+    pub fn from_with_env(mut options: SharedOptions) -> SharedOptions {
         let provider = OptionsProvider::new();
         options.merge(&provider.get());
         inject_from_env_var(options)
     }
 
     #[must_use]
-    pub fn spectrogram(mut options: SpectrogramOptions) -> SpectrogramOptions {
-        let provider = OptionsProvider::new();
-        options.merge(&provider.get());
-        options
-    }
-
-    #[must_use]
-    pub fn transcode(mut options: TargetOptions) -> TargetOptions {
+    pub fn from<T: Options>(mut options: T) -> T {
         let provider = OptionsProvider::new();
         options.merge(&provider.get());
         options
