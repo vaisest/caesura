@@ -9,6 +9,7 @@ use crate::source;
 use crate::source::Source;
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
+use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
 
 /// Application host, responsible for executing the application
@@ -48,6 +49,7 @@ impl Host {
         match ArgumentsParser::get_or_exit() {
             Spectrogram { .. } => self.execute_spectrogram(&source).await,
             Transcode { .. } => self.execute_transcode(&source).await,
+            Upload { .. } => self.execute_upload(&source).await,
             Verify { .. } => self.execute_verify(&source).await,
         }
     }
@@ -67,6 +69,18 @@ impl Host {
             return Ok(false);
         }
         let service = self.services.get_required::<TranscodeCommand>();
+        service.execute(source).await
+    }
+
+    async fn execute_upload(&self, source: &Source) -> Result<bool, AppError> {
+        let options = self.services.get_required::<TargetOptions>();
+        if !options.validate() {
+            return Ok(false);
+        }
+        let service = self.services.get_required_mut::<UploadCommand>();
+        let mut service = service
+            .write()
+            .expect("UploadCommand should be available to write");
         service.execute(source).await
     }
 

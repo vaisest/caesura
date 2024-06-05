@@ -6,8 +6,8 @@ use serde::de::DeserializeOwned;
 use tower::limit::RateLimit;
 use tower::ServiceExt;
 
-use crate::api::ApiFactory;
-use crate::api::{ApiResponse, TorrentGroupResponse, TorrentResponse};
+use crate::api::{ApiFactory, UploadForm, UploadResponse};
+use crate::api::{ApiResponse, GroupResponse, TorrentResponse};
 use crate::errors::AppError;
 
 /// API client
@@ -44,7 +44,7 @@ impl Api {
     ///
     /// # See Also
     /// - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#torrent-group>
-    pub async fn get_torrent_group(&mut self, id: i64) -> Result<TorrentGroupResponse, AppError> {
+    pub async fn get_torrent_group(&mut self, id: i64) -> Result<GroupResponse, AppError> {
         let url = format!("{}/ajax.php?action=torrentgroup&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent group").await?;
         self.deserialize(response, "deserialize torrent group")
@@ -64,6 +64,27 @@ impl Api {
             .expect("Response should not be empty");
         let buffer = bytes.to_vec();
         Ok(buffer)
+    }
+
+    /// Upload the torrent
+    ///
+    /// # See Also
+    ///  - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#upload>
+    pub async fn upload_torrent(&mut self, upload: UploadForm) -> Result<UploadResponse, AppError> {
+        let url = format!("{}/ajax.php?action=upload", self.api_url);
+        let form = upload.to_form()?;
+        let client = self.wait_for_client().await;
+        let result = client.post(&url).multipart(form).send().await;
+        trace!("{} POST request: {}", "Sent".bold(), &url);
+        let response = result.or_else(|e| AppError::request(e, "post upload"))?;
+        let status_code = response.status();
+        if !status_code.is_success() {
+            return AppError::response(status_code, "post upload");
+        }
+        response
+            .json::<UploadResponse>()
+            .await
+            .or_else(|e| AppError::request(e, "deserialize upload response"))
     }
 
     async fn get(&mut self, url: &String, action: &str) -> Result<Response, AppError> {

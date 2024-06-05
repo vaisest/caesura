@@ -48,3 +48,8 @@ pub fn get_group_id_from_url(url: &str, base: &String) -> Option<i64> {
     .expect("Number can be parsed");
     Some(id)
 }
+
+#[must_use]
+pub fn get_permalink(base: &String, group_id: i64, torrent_id: i64) -> String {
+    format!(r"{base}/torrents.php?id={group_id}&torrentid={torrent_id}#torrent{torrent_id}")
+}

@@ -14,6 +14,7 @@ pub mod source;
 pub mod spectrogram;
 pub mod testing;
 pub mod transcode;
+pub mod upload;
 pub mod verify;
 
 #[allow(clippy::needless_raw_strings)]

@@ -41,6 +41,15 @@ impl TargetFormat {
             V0 => "mp3".to_owned(),
         }
     }
+
+    #[must_use]
+    pub fn get_bitrate(&self) -> &str {
+        match self {
+            Flac => "Lossless",
+            _320 => "320",
+            V0 => "V0 (VBR)",
+        }
+    }
 }
 
 impl PartialOrd for TargetFormat {

@@ -21,6 +21,7 @@ use crate::options::{
 use crate::source::SourceProvider;
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
+use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
 
 pub struct HostBuilder {
@@ -75,6 +76,8 @@ impl HostBuilder {
                 let set: JoinSet<Result<(), AppError>> = JoinSet::new();
                 RefMut::new(Mut::new(set))
             }))
+            // Add upload services
+            .add(UploadCommand::transient().as_mut())
             // Add verify services
             .add(VerifyCommand::transient().as_mut());
         this

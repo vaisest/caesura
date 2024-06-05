@@ -322,7 +322,46 @@ rogue_oxide upload [OPTIONS] [SOURCE]
 <summary><code>rogue_oxide upload --help</code></summary>
 
 ```
+Usage: rogue_oxide upload [OPTIONS] [SOURCE]
 
+Arguments:
+  [SOURCE]
+          Source as: torrent id, path to torrent file, or indexer url.
+          
+          Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+
+Options:
+      --api-key <API_KEY>
+          API key
+
+      --indexer <INDEXER>
+          ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
+
+      --indexer-url <INDEXER_URL>
+          URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
+
+      --tracker-url <TRACKER_URL>
+          URL of the tracker. Examples: https://flacsfor.me, https://home.opsfet.ch; Default: Dependent on indexer
+
+      --content-directory <CONTENT_DIRECTORY>
+          Directory containing torrent content. Typically this is set as the download directory in your torrent client
+
+      --cpus <CPUS>
+          Number of cpus to use for processing. Default: Total number of CPUs
+
+      --verbosity <VERBOSITY>
+          Level of logs to display. Default: info
+          
+          [possible values: silent, error, warn, info, debug, trace]
+
+      --config-path <CONFIG_PATH>
+          Path to the configuration file. Default: config.json (in current working directory)
+
+      --output <OUTPUT>
+          Directory where transcodes and spectrograms will be written
+
+  -h, --help
+          Print help (see a summary with '-h')
 ```
 </details>
 

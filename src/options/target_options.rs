@@ -79,6 +79,7 @@ impl Options for TargetOptions {
         let options = match ArgumentsParser::get() {
             Some(Transcode { target, .. }) => target,
             Some(Verify { target, .. }) => target,
+            Some(Upload { target, .. }) => target,
             _ => return None,
         };
         let mut options = options;

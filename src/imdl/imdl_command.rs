@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 use std::path::{Path, PathBuf};
 use std::process::{Output, Stdio};
 

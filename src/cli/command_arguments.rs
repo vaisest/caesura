@@ -39,4 +39,12 @@ pub enum CommandArguments {
         #[command(flatten)]
         verify: VerifyOptions,
     },
+
+    /// Upload transcodes of a FLAC source.
+    Upload {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        target: TargetOptions,
+    },
 }

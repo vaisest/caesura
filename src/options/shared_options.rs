@@ -6,7 +6,7 @@ use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
-use crate::cli::CommandArguments::{Spectrogram, Transcode, Verify};
+use crate::cli::CommandArguments::{Spectrogram, Transcode, Upload, Verify};
 use crate::logging::{Info, Verbosity};
 use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
@@ -213,6 +213,7 @@ impl Options for SharedOptions {
             Some(Spectrogram { shared, .. }) => Some(shared),
             Some(Transcode { shared, .. }) => Some(shared),
             Some(Verify { shared, .. }) => Some(shared),
+            Some(Upload { shared, .. }) => Some(shared),
             _ => None,
         }
     }
