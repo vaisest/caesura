@@ -1,6 +1,6 @@
 use clap::Subcommand;
 
-use crate::options::{SharedOptions, SpectrogramOptions, TranscodeOptions};
+use crate::options::{RunnerOptions, SharedOptions, SpectrogramOptions, TranscodeOptions};
 
 /// Cli sub-commands and arguments
 #[derive(Subcommand, Debug, Clone)]
@@ -10,6 +10,8 @@ pub enum CommandArguments {
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
+        runner: RunnerOptions,
+        #[command(flatten)]
         spectrogram: SpectrogramOptions,
     },
 
@@ -17,6 +19,8 @@ pub enum CommandArguments {
     Transcode {
         #[command(flatten)]
         shared: SharedOptions,
+        #[command(flatten)]
+        runner: RunnerOptions,
         #[command(flatten)]
         transcode: TranscodeOptions,
     },

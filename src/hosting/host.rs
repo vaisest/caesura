@@ -1,11 +1,10 @@
+use crate::cli::ArgumentsParser;
+use crate::cli::CommandArguments::*;
 use di::ServiceProvider;
 
 use crate::errors::AppError;
 use crate::logging::*;
-use crate::options::CommandArguments::*;
-use crate::options::{
-    ArgumentsParser, Options, SharedOptions, SpectrogramOptions, TranscodeOptions,
-};
+use crate::options::{Options, SharedOptions, SpectrogramOptions, TranscodeOptions};
 use crate::source;
 use crate::source::Source;
 use crate::spectrogram::SpectrogramCommand;

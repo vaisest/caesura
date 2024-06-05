@@ -1,15 +1,15 @@
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
+use crate::cli::ArgumentsParser;
 use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
+use crate::cli::CommandArguments::{Spectrogram, Transcode, Verify};
 use crate::logging::{Info, Verbosity};
-use crate::options::CommandArguments::{Spectrogram, Transcode, Verify};
 use crate::options::{
-    ArgumentsParser, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
-    UrlNotHttp,
+    DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
 };
 
 /// Options for all commands
@@ -43,11 +43,6 @@ pub struct SharedOptions {
     /// Typically this is set as the download directory in your torrent client.
     #[arg(long)]
     pub content_directory: Option<PathBuf>,
-
-    /// Number of cpus to use for processing.
-    /// Default: Total number of CPUs
-    #[arg(long)]
-    pub cpus: Option<u16>,
 
     /// Level of logs to display.
     /// Default: info
@@ -104,9 +99,6 @@ impl Options for SharedOptions {
             self.content_directory
                 .clone_from(&alternative.content_directory);
         }
-        if self.cpus.is_none() {
-            self.cpus = alternative.cpus;
-        }
         if self.verbosity.is_none() {
             self.verbosity = alternative.verbosity;
         }
@@ -138,9 +130,6 @@ impl Options for SharedOptions {
                 Some("ops") => Some("https://home.opsfet.ch".to_owned()),
                 _ => None,
             }
-        }
-        if self.cpus.is_none() {
-            self.cpus = Some(num_cpus::get() as u16);
         }
         if self.verbosity.is_none() {
             self.verbosity = Some(Info);

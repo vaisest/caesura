@@ -7,7 +7,7 @@ use tokio::sync::Semaphore;
 
 use crate::jobs::{Status, Subscriber};
 use crate::logging::Colors;
-use crate::options::SharedOptions;
+use crate::options::RunnerOptions;
 
 /// Log all [Command] status updates to the console by subscribing to
 /// [`CommandRunner`] as a [Subscriber].
@@ -18,7 +18,7 @@ pub struct DebugSubscriber {
 
 #[injectable]
 impl DebugSubscriber {
-    pub fn new(options: Arc<SharedOptions>, semaphore: Arc<Semaphore>) -> Self {
+    pub fn new(options: Arc<RunnerOptions>, semaphore: Arc<Semaphore>) -> Self {
         let cpus = options.cpus.expect("Options should be set");
         Self { semaphore, cpus }
     }

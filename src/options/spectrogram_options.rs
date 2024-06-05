@@ -1,7 +1,8 @@
 use std::fmt::{Display, Formatter};
 
-use crate::options::CommandArguments::Spectrogram;
-use crate::options::{ArgumentsParser, IsEmpty, OptionRule, Options, OptionsProvider};
+use crate::cli::ArgumentsParser;
+use crate::cli::CommandArguments::Spectrogram;
+use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider};
 use crate::spectrogram::Size;
 use clap::Args;
 use di::{injectable, Ref};

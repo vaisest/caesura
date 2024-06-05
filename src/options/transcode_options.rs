@@ -1,12 +1,13 @@
 use std::fmt::{Display, Formatter};
 
+use crate::cli::ArgumentsParser;
+use crate::cli::CommandArguments::*;
 use clap::{ArgAction, Args};
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
 use crate::formats::TargetFormat;
-use crate::options::CommandArguments::{Transcode, Verify};
-use crate::options::{ArgumentsParser, IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
+use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
 
 /// Options for [Transcoder] and [`SourceVerifier`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]

@@ -14,7 +14,9 @@ use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
-use crate::options::{OptionsProvider, SharedOptions, SpectrogramOptions, TranscodeOptions};
+use crate::options::{
+    OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TranscodeOptions,
+};
 use crate::source::SourceProvider;
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
@@ -39,6 +41,7 @@ impl HostBuilder {
         this.services
             // Add options
             .add(OptionsProvider::singleton())
+            .add(RunnerOptions::singleton())
             .add(SharedOptions::singleton())
             .add(SpectrogramOptions::singleton())
             .add(TranscodeOptions::singleton())
@@ -61,7 +64,7 @@ impl HostBuilder {
             .add(SpectrogramCommand::transient())
             .add(SpectrogramJobFactory::transient())
             .add(singleton_as_self().from(|provider| {
-                let options = provider.get_required::<SharedOptions>();
+                let options = provider.get_required::<RunnerOptions>();
                 let cpus = options.cpus.expect("Options should be set") as usize;
                 Arc::new(Semaphore::new(cpus))
             }))
