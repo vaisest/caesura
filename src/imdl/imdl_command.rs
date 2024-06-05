@@ -30,7 +30,7 @@ impl ImdlCommand {
             .arg("--announce")
             .arg(announce_url)
             .arg("--comment")
-            .arg(format!("Created with {} v{}", PKG_NAME, PKG_VERSION))
+            .arg(format!("Created with {PKG_NAME} v{PKG_VERSION}"))
             .arg("--source")
             .arg(source.to_uppercase())
             .arg("--output")
