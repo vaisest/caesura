@@ -1,2 +1,2 @@
-pub mod arguments;
-pub mod sub_command;
+pub mod arguments_parser;
+pub mod command_arguments;

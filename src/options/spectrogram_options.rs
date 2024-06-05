@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 
-use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider};
+use crate::options::CommandArguments::Spectrogram;
+use crate::options::{ArgumentsParser, IsEmpty, OptionRule, Options, OptionsProvider};
 use crate::spectrogram::Size;
 use clap::Args;
 use di::{injectable, Ref};
@@ -17,7 +18,7 @@ pub struct SpectrogramOptions {
 #[injectable]
 impl SpectrogramOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
-        provider.get_spectrogram_options()
+        provider.get()
     }
 }
 
@@ -52,6 +53,14 @@ impl Options for SpectrogramOptions {
         }
         OptionRule::show(&errors);
         errors.is_empty()
+    }
+
+    #[must_use]
+    fn from_args() -> Option<SpectrogramOptions> {
+        match ArgumentsParser::get() {
+            Some(Spectrogram { spectrogram, .. }) => Some(spectrogram),
+            _ => None,
+        }
     }
 
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {

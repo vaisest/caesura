@@ -13,21 +13,21 @@ impl TestOptionsFactory {
     #[must_use]
     pub fn shared(mut options: SharedOptions) -> SharedOptions {
         let provider = OptionsProvider::new();
-        options.merge(&provider.get_shared_options());
+        options.merge(&provider.get());
         inject_from_env_var(options)
     }
 
     #[must_use]
     pub fn spectrogram(mut options: SpectrogramOptions) -> SpectrogramOptions {
         let provider = OptionsProvider::new();
-        options.merge(&provider.get_spectrogram_options());
+        options.merge(&provider.get());
         options
     }
 
     #[must_use]
     pub fn transcode(mut options: TranscodeOptions) -> TranscodeOptions {
         let provider = OptionsProvider::new();
-        options.merge(&provider.get_transcode_options());
+        options.merge(&provider.get());
         options
     }
 }

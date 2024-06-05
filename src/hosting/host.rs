@@ -2,8 +2,10 @@ use di::ServiceProvider;
 
 use crate::errors::AppError;
 use crate::logging::*;
-use crate::options::SubCommand::*;
-use crate::options::{Arguments, Options, SharedOptions, SpectrogramOptions, TranscodeOptions};
+use crate::options::CommandArguments::*;
+use crate::options::{
+    ArgumentsParser, Options, SharedOptions, SpectrogramOptions, TranscodeOptions,
+};
 use crate::source;
 use crate::source::Source;
 use crate::spectrogram::SpectrogramCommand;
@@ -44,7 +46,7 @@ impl Host {
             .expect("Source provider should be writeable")
             .get_by_string(&source_input)
             .await?;
-        match Arguments::get_command_or_exit() {
+        match ArgumentsParser::get_or_exit() {
             Spectrogram { .. } => self.execute_spectrogram(&source).await,
             Transcode { .. } => self.execute_transcode(&source).await,
             Verify { .. } => self.execute_verify(&source).await,

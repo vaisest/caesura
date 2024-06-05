@@ -7,8 +7,8 @@ pub use shared_options::*;
 pub use spectrogram_options::*;
 pub use transcode_options::*;
 
-pub use crate::cli::arguments::*;
-pub use crate::cli::sub_command::*;
+pub use crate::cli::arguments_parser::*;
+pub use crate::cli::command_arguments::*;
 
 pub mod errors;
 pub mod options_provider;

@@ -5,7 +5,8 @@ use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
 use crate::formats::TargetFormat;
-use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
+use crate::options::CommandArguments::{Transcode, Verify};
+use crate::options::{ArgumentsParser, IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
 
 /// Options for [Transcoder] and [`SourceVerifier`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -41,7 +42,7 @@ pub struct TranscodeOptions {
 #[injectable]
 impl TranscodeOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
-        provider.get_transcode_options()
+        provider.get()
     }
 }
 
@@ -112,6 +113,32 @@ impl Options for TranscodeOptions {
         }
         OptionRule::show(&errors);
         errors.is_empty()
+    }
+
+    #[must_use]
+    fn from_args() -> Option<Self> {
+        let options = match ArgumentsParser::get() {
+            Some(Transcode { transcode, .. }) => transcode,
+            Some(Verify { transcode, .. }) => transcode,
+            _ => return None,
+        };
+        let mut options = options;
+        if options.allow_existing == Some(false) {
+            options.allow_existing = None;
+        }
+        if options.skip_hash_check == Some(false) {
+            options.skip_hash_check = None;
+        }
+        if options.hard_link == Some(false) {
+            options.hard_link = None;
+        }
+        if options.compress_images == Some(false) {
+            options.compress_images = None;
+        }
+        if options.png_to_jpg == Some(false) {
+            options.png_to_jpg = None;
+        }
+        Some(options)
     }
 
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {

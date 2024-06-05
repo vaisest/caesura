@@ -6,8 +6,10 @@ use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
 use crate::logging::{Info, Verbosity};
+use crate::options::CommandArguments::{Spectrogram, Transcode, Verify};
 use crate::options::{
-    DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
+    ArgumentsParser, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
+    UrlNotHttp,
 };
 
 /// Options for all commands
@@ -76,7 +78,7 @@ pub struct SharedOptions {
 #[injectable]
 impl SharedOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
-        provider.get_shared_options()
+        provider.get()
     }
 }
 
@@ -85,9 +87,6 @@ impl Options for SharedOptions {
         "Shared Options".to_owned()
     }
 
-    /// Merge the current options with an alternative set of options
-    ///
-    /// The current options will take precedence over the alternative options
     fn merge(&mut self, alternative: &Self) {
         if self.api_key.is_none() {
             self.api_key.clone_from(&alternative.api_key);
@@ -148,7 +147,6 @@ impl Options for SharedOptions {
         }
     }
 
-    /// Validate the options
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
@@ -219,6 +217,15 @@ impl Options for SharedOptions {
         }
         OptionRule::show(&errors);
         errors.is_empty()
+    }
+
+    fn from_args() -> Option<Self> {
+        match ArgumentsParser::get() {
+            Some(Spectrogram { shared, .. }) => Some(shared),
+            Some(Transcode { shared, .. }) => Some(shared),
+            Some(Verify { shared, .. }) => Some(shared),
+            _ => None,
+        }
     }
 
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {

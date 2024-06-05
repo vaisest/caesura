@@ -23,59 +23,16 @@ pub struct OptionsProvider {
 impl OptionsProvider {
     #[must_use]
     pub fn new() -> Self {
-        let cli_options = Arguments::get_shared_options().unwrap_or_default();
+        let cli_options = SharedOptions::from_args().unwrap_or_default();
         Self {
             json: Some(read_config_file(&cli_options)),
         }
     }
 
-    /// Get the [`SharedOptions`]
-    #[must_use]
-    pub fn get_shared_options(&self) -> SharedOptions {
-        let options = Arguments::get_shared_options();
-        self.get(options)
-    }
-
-    /// Get the [`SpectrogramOptions`]
-    #[must_use]
-    pub fn get_spectrogram_options(&self) -> SpectrogramOptions {
-        let options = Arguments::get_spectrogram_options();
-        self.get(options)
-    }
-
-    /// Get the [`TranscodeOptions`]
-    #[must_use]
-    pub fn get_transcode_options(&self) -> TranscodeOptions {
-        let options = Arguments::get_transcode_options();
-        // clap seems to ignore None as a default_value so we have to manually set to None
-        // or file options will be ignored
-        if let Some(options) = options {
-            let mut options = options;
-            if options.allow_existing == Some(false) {
-                options.allow_existing = None;
-            }
-            if options.skip_hash_check == Some(false) {
-                options.skip_hash_check = None;
-            }
-            if options.hard_link == Some(false) {
-                options.hard_link = None;
-            }
-            if options.compress_images == Some(false) {
-                options.compress_images = None;
-            }
-            if options.png_to_jpg == Some(false) {
-                options.png_to_jpg = None;
-            }
-            self.get(Some(options))
-        } else {
-            self.get(options)
-        }
-    }
-
     /// Get the [`Options`]
     #[must_use]
-    pub fn get<T: Options>(&self, options: Option<T>) -> T {
-        let mut options = if let Some(options) = options {
+    pub fn get<T: Options>(&self) -> T {
+        let mut options = if let Some(options) = T::from_args() {
             trace!(
                 "{} {} from command line:\n{}",
                 "Parsed".bold(),

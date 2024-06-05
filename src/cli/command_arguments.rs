@@ -4,7 +4,7 @@ use crate::options::{SharedOptions, SpectrogramOptions, TranscodeOptions};
 
 /// Cli sub-commands and arguments
 #[derive(Subcommand, Debug, Clone)]
-pub enum SubCommand {
+pub enum CommandArguments {
     /// Generate spectrograms for each track of a FLAC source.
     Spectrogram {
         #[command(flatten)]
