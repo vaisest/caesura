@@ -2,6 +2,7 @@ use rogue_oxide::errors::AppError;
 use std::path::PathBuf;
 
 use rogue_oxide::fs::DirectoryReader;
+use rogue_oxide::hosting::HostBuilder;
 
 use rogue_oxide::logging::{Debug, Logger};
 use rogue_oxide::options::SharedOptions;
@@ -19,8 +20,8 @@ async fn spectrogram_command() -> Result<(), AppError> {
         ..SharedOptions::default()
     });
     let output_dir = shared_options.output.clone().expect("Should have value");
-    let host = TestHostBuilder::new()
-        .with_shared(shared_options.clone())
+    let host = HostBuilder::new()
+        .with_options(shared_options.clone())
         .build();
     let provider = host.services.get_required_mut::<SourceProvider>();
     let generator = host.services.get_required::<SpectrogramCommand>();

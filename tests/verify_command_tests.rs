@@ -1,4 +1,5 @@
 use rogue_oxide::errors::AppError;
+use rogue_oxide::hosting::HostBuilder;
 use rogue_oxide::logging::{Debug, Logger};
 use rogue_oxide::options::{SharedOptions, TargetOptions};
 use rogue_oxide::source::*;
@@ -17,9 +18,9 @@ async fn verify_command() -> Result<(), AppError> {
         allow_existing: Some(true),
         ..TargetOptions::default()
     });
-    let host = TestHostBuilder::new()
-        .with_shared(shared_options.clone())
-        .with_transcode(target_options)
+    let host = HostBuilder::new()
+        .with_options(shared_options.clone())
+        .with_options(target_options)
         .build();
     let provider = host.services.get_required_mut::<SourceProvider>();
     let source = provider

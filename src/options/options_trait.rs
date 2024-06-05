@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-pub trait Options: Default + Display {
+pub trait Options: Clone + Default + Display {
     /// Get a friendly display name.
     fn get_name() -> String;
 

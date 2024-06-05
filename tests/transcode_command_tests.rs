@@ -1,6 +1,7 @@
 use rogue_oxide::errors::AppError;
 use rogue_oxide::formats::TargetFormatProvider;
 use rogue_oxide::fs::DirectoryReader;
+use rogue_oxide::hosting::HostBuilder;
 
 use rogue_oxide::logging::{Debug, Logger};
 use rogue_oxide::options::{SharedOptions, TargetOptions};
@@ -25,9 +26,9 @@ async fn transcode_command() -> Result<(), AppError> {
         .output
         .clone()
         .expect("Options should be set");
-    let host = TestHostBuilder::new()
-        .with_shared(shared_options.clone())
-        .with_transcode(target_options)
+    let host = HostBuilder::new()
+        .with_options(shared_options.clone())
+        .with_options(target_options)
         .build();
     let provider = host.services.get_required_mut::<SourceProvider>();
     let transcoder = host.services.get_required::<TranscodeCommand>();

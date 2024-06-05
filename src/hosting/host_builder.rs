@@ -2,7 +2,7 @@ use std::process::exit;
 use std::sync::Arc;
 
 use colored::Colorize;
-use di::{singleton_as_self, Injectable, Mut, RefMut, ServiceCollection};
+use di::{singleton_as_self, Injectable, Mut, Ref, RefMut, ServiceCollection};
 use log::error;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
@@ -14,7 +14,10 @@ use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
-use crate::options::{FileOptions, OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, VerifyOptions};
+use crate::options::{
+    FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions,
+    TargetOptions, VerifyOptions,
+};
 use crate::source::SourceProvider;
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
@@ -75,6 +78,13 @@ impl HostBuilder {
             // Add verify services
             .add(VerifyCommand::transient().as_mut());
         this
+    }
+
+    #[must_use]
+    pub fn with_options<T: Options + 'static>(&mut self, options: T) -> &mut Self {
+        self.services
+            .add(singleton_as_self().from(move |_| Ref::new(options.clone())));
+        self
     }
 
     #[must_use]
