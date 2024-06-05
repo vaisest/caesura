@@ -103,7 +103,6 @@ fn create_provider(target: Vec<TargetFormat>, allow_existing: bool) -> TargetFor
         options: Ref::new(TargetOptions {
             target: Some(target),
             allow_existing: Some(allow_existing),
-            ..TargetOptions::default()
         }),
     }
 }

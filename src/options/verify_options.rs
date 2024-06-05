@@ -1,11 +1,11 @@
 use std::fmt::{Display, Formatter};
 
-use crate::cli::ArgumentsParser;
-use crate::cli::CommandArguments::*;
 use clap::{ArgAction, Args};
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
+use crate::cli::ArgumentsParser;
+use crate::cli::CommandArguments::*;
 use crate::options::{Options, OptionsProvider};
 
 /// Options for [`VerifyCommand`]
@@ -51,9 +51,11 @@ impl Options for VerifyOptions {
 
     #[must_use]
     fn from_args() -> Option<Self> {
-        let options = match ArgumentsParser::get() {
-            Some(Verify { verify, .. }) => verify,
-            _ => return None,
+        let Some(Verify {
+            verify: options, ..
+        }) = ArgumentsParser::get()
+        else {
+            return None;
         };
         let mut options = options;
         if options.skip_hash_check == Some(false) {
