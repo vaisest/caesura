@@ -9,7 +9,7 @@ use crate::cli::CommandArguments::*;
 use crate::formats::TargetFormat;
 use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
 
-/// Options for [Transcoder] and [`SourceVerifier`]
+/// Options for [`TranscodeCommand`] and [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct TargetOptions {
     /// Target formats.

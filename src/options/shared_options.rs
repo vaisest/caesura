@@ -12,7 +12,7 @@ use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
 };
 
-/// Options for all commands
+/// Options shared by all commands
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SharedOptions {
     /// API key

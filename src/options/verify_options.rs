@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::options::{Options, OptionsProvider};
 
-/// Options for [Verifyr] and [`SourceVerifier`]
+/// Options for [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct VerifyOptions {
     /// Should the torrent hash check of existing files be skipped?

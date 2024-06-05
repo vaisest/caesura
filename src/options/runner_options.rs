@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::options::{Options, OptionsProvider};
 
-/// Options for all commands
+/// Options for [`JobRunner`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct RunnerOptions {
     /// Number of cpus to use for processing.

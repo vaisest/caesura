@@ -8,7 +8,7 @@ use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
-/// Options for the [`SpectrogramGenerator`]
+/// Options for [`SpectrogramCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SpectrogramOptions {
     /// Output directory to write spectrogram images to
