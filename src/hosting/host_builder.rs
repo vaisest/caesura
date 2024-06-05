@@ -69,7 +69,7 @@ impl HostBuilder {
             .add(SpectrogramJobFactory::transient())
             .add(singleton_as_self().from(|provider| {
                 let options = provider.get_required::<RunnerOptions>();
-                let cpus = options.cpus.expect("Options should be set") as usize;
+                let cpus = options.get_value(|x| x.cpus) as usize;
                 Arc::new(Semaphore::new(cpus))
             }))
             .add(singleton_as_self().from(|_| {

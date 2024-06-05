@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{Options, OptionsProvider};
+use crate::options::{Options, OptionsProvider, ValueProvider};
 
 /// Options for including additional files during [`TranscodeCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -38,9 +38,13 @@ impl Options for FileOptions {
         "Additional File Options".to_owned()
     }
 
-    /// Merge the current options with an alternative set of options
-    ///
-    /// The current options will take precedence over the alternative options
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>,
+    {
+        ValueProvider::get(self, select)
+    }
+
     fn merge(&mut self, alternative: &Self) {
         if self.hard_link.is_none() {
             self.hard_link = alternative.hard_link;
@@ -65,7 +69,6 @@ impl Options for FileOptions {
         }
     }
 
-    /// Validate the options
     #[must_use]
     fn validate(&self) -> bool {
         true

@@ -34,7 +34,7 @@ impl Metadata {
         let year = if torrent.remaster_year.is_none() || torrent.remaster_year == Some(0) {
             group.year as u16
         } else {
-            torrent.remaster_year.expect("Options should be set") as u16
+            torrent.remaster_year.expect("Remaster year should be set") as u16
         };
         let media = torrent.media.clone();
         Metadata {

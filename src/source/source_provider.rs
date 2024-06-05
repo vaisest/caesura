@@ -7,7 +7,7 @@ use crate::api::Api;
 use crate::errors::AppError;
 use crate::formats::ExistingFormatProvider;
 use crate::imdl::imdl_command::ImdlCommand;
-use crate::options::SharedOptions;
+use crate::options::{Options, SharedOptions};
 use crate::source::*;
 
 /// Retrieve [Source] from the [Api] via a [provider design pattern](https://en.wikipedia.org/wiki/Provider_model)
@@ -56,9 +56,7 @@ impl SourceProvider {
         let existing = ExistingFormatProvider::get(&torrent, &group_torrents)?;
         let directory = self
             .options
-            .content_directory
-            .clone()
-            .expect("Option should be set")
+            .get_value(|x| x.content_directory.clone())
             .join(decode_html_entities(&torrent.file_path).to_string());
         let metadata = Metadata::new(&group, &torrent);
         Ok(Source {
@@ -72,23 +70,14 @@ impl SourceProvider {
     }
 
     async fn get_by_url(&mut self, url: &str) -> Result<Source, AppError> {
-        let base = &self
-            .options
-            .indexer_url
-            .clone()
-            .expect("Options should be set");
+        let base = &self.options.get_value(|x| x.indexer_url.clone());
         let torrent_id = get_torrent_id_from_url(url, base)?;
         self.get_by_id(torrent_id).await
     }
 
     async fn get_by_file(&mut self, path: &Path) -> Result<Source, AppError> {
         let summary = ImdlCommand::show(path).await?;
-        let tracker_id = self
-            .options
-            .indexer
-            .clone()
-            .expect("Options should be set")
-            .to_uppercase();
+        let tracker_id = self.options.get_value(|x| x.indexer.clone()).to_uppercase();
         if summary.source == Some(tracker_id.clone()) {
             let url = summary.comment.unwrap_or_default();
             if is_url(url.as_str()) {

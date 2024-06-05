@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
 use crate::formats::TargetFormat;
-use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
+use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider, ValueProvider};
 
 /// Options for [`TranscodeCommand`] and [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -34,9 +34,13 @@ impl Options for TargetOptions {
         "Transcode Options".to_owned()
     }
 
-    /// Merge the current options with an alternative set of options
-    ///
-    /// The current options will take precedence over the alternative options
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>,
+    {
+        ValueProvider::get(self, select)
+    }
+
     fn merge(&mut self, alternative: &Self) {
         if self.target.is_none() {
             self.target.clone_from(&alternative.target);
@@ -59,7 +63,6 @@ impl Options for TargetOptions {
         }
     }
 
-    /// Validate the options
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();

@@ -6,7 +6,7 @@ use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
-use crate::options::{Options, OptionsProvider};
+use crate::options::{Options, OptionsProvider, ValueProvider};
 
 /// Options for [`JobRunner`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -27,6 +27,13 @@ impl RunnerOptions {
 impl Options for RunnerOptions {
     fn get_name() -> String {
         "Runner Options".to_owned()
+    }
+
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>,
+    {
+        ValueProvider::get(self, select)
     }
 
     fn merge(&mut self, alternative: &Self) {

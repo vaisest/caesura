@@ -9,6 +9,7 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
 use crate::naming::Shortener;
 use crate::options::verify_options::VerifyOptions;
+use crate::options::Options;
 use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::SourceRule::*;
@@ -30,7 +31,7 @@ impl VerifyCommand {
         debug_errors(&api_errors, source, "API checks");
         let flac_errors = self.flac_checks(source)?;
         debug_errors(&flac_errors, source, "FLAC file checks");
-        let hash_check = if self.options.skip_hash_check.expect("Options should be set") {
+        let hash_check = if self.options.get_value(|x| x.skip_hash_check) {
             debug!("{} hash check due to settings", "Skipped".bold());
             Vec::new()
         } else {

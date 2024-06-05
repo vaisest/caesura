@@ -5,7 +5,7 @@ use crate::built_info::*;
 use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
-use crate::options::SharedOptions;
+use crate::options::{Options, SharedOptions};
 use crate::source::{get_permalink, Source};
 
 /// Upload transcodes of a FLAC source.
@@ -45,11 +45,7 @@ impl UploadCommand {
     }
 
     fn create_description(&self, source: &Source, transcode_command: &String) -> String {
-        let base = &self
-            .options
-            .indexer_url
-            .clone()
-            .expect("Options should be set");
+        let base = &self.options.get_value(|x| x.indexer_url.clone());
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         return format!(
             "Transcode of [url]{source_url}[/url]\

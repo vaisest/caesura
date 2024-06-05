@@ -3,7 +3,7 @@ use di::{injectable, Ref};
 use crate::formats::target_format::TargetFormat;
 use crate::fs::{AdditionalFile, PathManager};
 use crate::jobs::Job;
-use crate::options::FileOptions;
+use crate::options::{FileOptions, Options};
 use crate::source::Source;
 use crate::transcode::AdditionalJob;
 
@@ -53,9 +53,9 @@ impl AdditionalJobFactory {
             .expect("Source has extension")
             .to_string_lossy()
             .into_owned();
-        let compress_images = self.options.compress_images.expect("Options should be set");
-        let png_to_jpg = self.options.png_to_jpg.expect("Options should be set");
-        let hard_link = self.options.hard_link.expect("Options should be set");
+        let compress_images = self.options.get_value(|x| x.compress_images);
+        let png_to_jpg = self.options.get_value(|x| x.png_to_jpg);
+        let hard_link = self.options.get_value(|x| x.hard_link);
         Job::Additional(AdditionalJob {
             id,
             source_path,

@@ -5,7 +5,7 @@ use di::{injectable, Ref};
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::FlacFile;
 use crate::naming::{SourceName, TargetName};
-use crate::options::SharedOptions;
+use crate::options::{Options, SharedOptions};
 use crate::source::Source;
 
 const SPECTROGRAM_DIR_NAME: &str = "spectrograms";
@@ -21,10 +21,7 @@ pub struct PathManager {
 impl PathManager {
     #[must_use]
     pub fn get_output_dir(&self) -> PathBuf {
-        self.shared_options
-            .output
-            .clone()
-            .expect("Option should be set")
+        self.shared_options.get_value(|x| x.output.clone())
     }
 
     #[must_use]

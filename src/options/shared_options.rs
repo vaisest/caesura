@@ -10,6 +10,7 @@ use crate::cli::CommandArguments::{Spectrogram, Transcode, Upload, Verify};
 use crate::logging::{Info, Verbosity};
 use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
+    ValueProvider,
 };
 
 /// Options shared by all commands
@@ -82,6 +83,13 @@ impl Options for SharedOptions {
         "Shared Options".to_owned()
     }
 
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>,
+    {
+        ValueProvider::get(self, select)
+    }
+
     fn merge(&mut self, alternative: &Self) {
         if self.api_key.is_none() {
             self.api_key.clone_from(&alternative.api_key);
@@ -148,7 +156,7 @@ impl Options for SharedOptions {
         if self.indexer_url.is_none() {
             errors.push(NotSet("Indexer URL".to_owned()));
         } else {
-            let indexer_url = self.indexer_url.as_ref().expect("Options should be set");
+            let indexer_url = self.get_value(|x| x.indexer_url.clone());
             if !indexer_url.starts_with("https://") && !indexer_url.starts_with("http://") {
                 errors.push(UrlNotHttp("Indexer URL".to_owned(), indexer_url.clone()));
             }
@@ -162,7 +170,7 @@ impl Options for SharedOptions {
         if self.tracker_url.is_none() {
             errors.push(NotSet("Tracker URL".to_owned()));
         } else {
-            let tracker_url = self.tracker_url.as_ref().expect("Options should be set");
+            let tracker_url = self.get_value(|x| x.tracker_url.clone());
             if !tracker_url.starts_with("https://") && !tracker_url.starts_with("http://") {
                 errors.push(UrlNotHttp("Tracker URL".to_owned(), tracker_url.clone()));
             }

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{Options, OptionsProvider};
+use crate::options::{Options, OptionsProvider, ValueProvider};
 
 /// Options for [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -28,9 +28,13 @@ impl Options for VerifyOptions {
         "Verify Options".to_owned()
     }
 
-    /// Merge the current options with an alternative set of options
-    ///
-    /// The current options will take precedence over the alternative options
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>,
+    {
+        ValueProvider::get(self, select)
+    }
+
     fn merge(&mut self, alternative: &Self) {
         if self.skip_hash_check.is_none() {
             self.skip_hash_check = alternative.skip_hash_check;
@@ -43,7 +47,6 @@ impl Options for VerifyOptions {
         }
     }
 
-    /// Validate the options
     #[must_use]
     fn validate(&self) -> bool {
         true

@@ -10,7 +10,7 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::JobRunner;
 use crate::logging::Colors;
-use crate::options::SharedOptions;
+use crate::options::{Options, SharedOptions};
 use crate::source::*;
 use crate::transcode::{AdditionalJobFactory, TranscodeJobFactory};
 
@@ -95,11 +95,7 @@ impl TranscodeCommand {
             let content_dir = self.paths.get_transcode_target_dir(source, target);
             let output_path = self.paths.get_torrent_path(source, target);
             let announce_url = self.get_announce_url();
-            let indexer = self
-                .shared_options
-                .indexer
-                .clone()
-                .expect("option should be set");
+            let indexer = self.shared_options.get_value(|x| x.indexer.clone());
             ImdlCommand::create(&content_dir, &output_path, announce_url, indexer).await?;
             debug!("{} torrent {:?}", "Created".bold(), output_path);
         }
@@ -108,16 +104,8 @@ impl TranscodeCommand {
     }
 
     fn get_announce_url(&self) -> String {
-        let tracker_url = self
-            .shared_options
-            .tracker_url
-            .clone()
-            .expect("option should be set");
-        let api_key = self
-            .shared_options
-            .api_key
-            .clone()
-            .expect("option should be set");
+        let tracker_url = self.shared_options.get_value(|x| x.tracker_url.clone());
+        let api_key = self.shared_options.get_value(|x| x.api_key.clone());
         format!("{tracker_url}/{api_key}/announce")
     }
 }

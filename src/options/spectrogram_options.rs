@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::Spectrogram;
-use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider};
+use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider, ValueProvider};
 use crate::spectrogram::Size;
 use clap::Args;
 use di::{injectable, Ref};
@@ -28,9 +28,13 @@ impl Options for SpectrogramOptions {
         "Spectrogram Options".to_owned()
     }
 
-    /// Merge the current options with an alternative set of options
-    ///
-    /// The current options will take precedence over the alternative options
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>,
+    {
+        ValueProvider::get(self, select)
+    }
+
     fn merge(&mut self, alternative: &Self) {
         if self.spectrogram_size.is_none() {
             self.spectrogram_size
@@ -44,7 +48,6 @@ impl Options for SpectrogramOptions {
         }
     }
 
-    /// Validate the options
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();

@@ -2,9 +2,8 @@ use rogue_oxide::errors::AppError;
 use rogue_oxide::formats::TargetFormatProvider;
 use rogue_oxide::fs::DirectoryReader;
 use rogue_oxide::hosting::HostBuilder;
-
 use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::{SharedOptions, TargetOptions};
+use rogue_oxide::options::{Options, SharedOptions, TargetOptions};
 use rogue_oxide::source::SourceProvider;
 use rogue_oxide::testing::*;
 use rogue_oxide::transcode::TranscodeCommand;
@@ -22,10 +21,7 @@ async fn transcode_command() -> Result<(), AppError> {
         allow_existing: Some(true),
         ..TargetOptions::default()
     });
-    let output_dir = shared_options
-        .output
-        .clone()
-        .expect("Options should be set");
+    let output_dir = shared_options.get_value(|x| x.output.clone());
     let host = HostBuilder::new()
         .with_options(shared_options.clone())
         .with_options(target_options)

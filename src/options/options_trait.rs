@@ -4,6 +4,11 @@ pub trait Options: Clone + Default + Display {
     /// Get a friendly display name.
     fn get_name() -> String;
 
+    /// Get a value from the options.
+    fn get_value<TValue, F>(&self, select: F) -> TValue
+    where
+        F: FnOnce(&Self) -> Option<TValue>;
+
     /// Merge values with [`Self`]
     fn merge(&mut self, alternative: &Self);
 
