@@ -16,3 +16,4 @@ pub mod runner_options;
 pub mod shared_options;
 pub mod spectrogram_options;
 pub mod transcode_options;
+pub mod verify_options;

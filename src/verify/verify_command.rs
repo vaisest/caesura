@@ -8,7 +8,7 @@ use crate::formats::TargetFormatProvider;
 use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
 use crate::naming::Shortener;
-use crate::options::TranscodeOptions;
+use crate::options::verify_options::VerifyOptions;
 use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::SourceRule::*;
@@ -17,7 +17,7 @@ use crate::verify::*;
 /// Verify a FLAC source is suitable for transcoding.
 #[injectable]
 pub struct VerifyCommand {
-    options: Ref<TranscodeOptions>,
+    options: Ref<VerifyOptions>,
     api: RefMut<Api>,
     targets: Ref<TargetFormatProvider>,
     paths: Ref<PathManager>,

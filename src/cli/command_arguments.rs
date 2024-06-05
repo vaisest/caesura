@@ -1,5 +1,6 @@
 use clap::Subcommand;
 
+use crate::options::verify_options::VerifyOptions;
 use crate::options::{RunnerOptions, SharedOptions, SpectrogramOptions, TranscodeOptions};
 
 /// Cli sub-commands and arguments
@@ -31,5 +32,7 @@ pub enum CommandArguments {
         shared: SharedOptions,
         #[command(flatten)]
         transcode: TranscodeOptions,
+        #[command(flatten)]
+        verify: VerifyOptions,
     },
 }
