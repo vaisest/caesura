@@ -1,16 +1,15 @@
 use rogue_oxide::errors::AppError;
-use std::path::PathBuf;
-
+use rogue_oxide::formats::TargetFormatProvider;
 use rogue_oxide::fs::DirectoryReader;
 
 use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::SharedOptions;
+use rogue_oxide::options::{SharedOptions, TranscodeOptions};
 use rogue_oxide::source::SourceProvider;
-use rogue_oxide::spectrogram::*;
 use rogue_oxide::testing::*;
+use rogue_oxide::transcode::TranscodeCommand;
 
 #[tokio::test]
-async fn spectrogram_generator() -> Result<(), AppError> {
+async fn transcode_command() -> Result<(), AppError> {
     // Arrange
     Logger::init_new(Debug);
     let shared_options = TestOptionsFactory::shared(SharedOptions {
@@ -18,12 +17,21 @@ async fn spectrogram_generator() -> Result<(), AppError> {
         output: Some(TempDirectory::create("rogue_oxide")),
         ..SharedOptions::default()
     });
-    let output_dir = shared_options.output.clone().expect("Should have value");
+    let transcode_options = TestOptionsFactory::transcode(TranscodeOptions {
+        allow_existing: Some(true),
+        skip_hash_check: Some(true),
+        ..TranscodeOptions::default()
+    });
+    let output_dir = shared_options
+        .output
+        .clone()
+        .expect("Options should be set");
     let host = TestHostBuilder::new()
         .with_shared(shared_options.clone())
+        .with_transcode(transcode_options)
         .build();
     let provider = host.services.get_required_mut::<SourceProvider>();
-    let generator = host.services.get_required::<SpectrogramGenerator>();
+    let transcoder = host.services.get_required::<TranscodeCommand>();
     let source = provider
         .write()
         .expect("Source provider should be writeable")
@@ -32,18 +40,21 @@ async fn spectrogram_generator() -> Result<(), AppError> {
         .expect("Source provider should not fail");
 
     // Act
-    generator.execute(&source).await?;
+    transcoder.execute(&source).await?;
 
     // Assert
-    let generated_files: Vec<PathBuf> = DirectoryReader::new()
+    let generated_files = DirectoryReader::new()
+        .with_extensions(vec!["flac", "mp3"])
         .read(&output_dir)
         .expect("Should be able to read dir");
+    let targets = host.services.get_required::<TargetFormatProvider>();
+    let target_count = targets.get(source.format, &source.existing).len();
     let expected_file_count = DirectoryReader::new()
         .with_extension("flac")
         .read(&source.directory)
         .expect("Should be able to read source dir")
         .len()
-        * 2;
+        * target_count;
     assert_eq!(generated_files.len(), expected_file_count);
     Ok(())
 }

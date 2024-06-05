@@ -3,10 +3,10 @@ use rogue_oxide::logging::{Debug, Logger};
 use rogue_oxide::options::{SharedOptions, TranscodeOptions};
 use rogue_oxide::source::*;
 use rogue_oxide::testing::*;
-use rogue_oxide::verify::SourceVerifier;
+use rogue_oxide::verify::VerifyCommand;
 
 #[tokio::test]
-async fn source_verifier() -> Result<(), AppError> {
+async fn verify_command() -> Result<(), AppError> {
     // Arrange
     Logger::init_new(Debug);
     let shared_options = TestOptionsFactory::shared(SharedOptions {
@@ -27,7 +27,7 @@ async fn source_verifier() -> Result<(), AppError> {
         .expect("Source provider should be writeable")
         .get_by_string(&shared_options.source.unwrap_or_default())
         .await?;
-    let verifier = host.services.get_required_mut::<SourceVerifier>();
+    let verifier = host.services.get_required_mut::<VerifyCommand>();
     let mut verifier = verifier
         .write()
         .expect("verifier should be available to write");

@@ -14,9 +14,9 @@ use crate::options::SharedOptions;
 use crate::source::*;
 use crate::transcode::{AdditionalJobFactory, TranscodeJobFactory};
 
-/// Transcode a [Source].
+/// Transcode each track of a FLAC source to the target formats.
 #[injectable]
-pub struct SourceTranscoder {
+pub struct TranscodeCommand {
     shared_options: Ref<SharedOptions>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
@@ -25,7 +25,7 @@ pub struct SourceTranscoder {
     runner: Ref<JobRunner>,
 }
 
-impl SourceTranscoder {
+impl TranscodeCommand {
     pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
         let targets = self.targets.get(source.format, &source.existing);
         let output_dir = self.paths.get_transcode_dir(source);

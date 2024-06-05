@@ -14,16 +14,16 @@ use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::SourceRule::*;
 use crate::verify::*;
 
-/// Check if a [Source] is suitable for transcoding.
+/// Verify a FLAC source is suitable for transcoding.
 #[injectable]
-pub struct SourceVerifier {
+pub struct VerifyCommand {
     options: Ref<TranscodeOptions>,
     api: RefMut<Api>,
     targets: Ref<TargetFormatProvider>,
     paths: Ref<PathManager>,
 }
 
-impl SourceVerifier {
+impl VerifyCommand {
     pub async fn execute(&mut self, source: &Source) -> Result<bool, AppError> {
         info!("{} {}", "Verifying".bold(), source);
         let api_errors = self.api_checks(source);

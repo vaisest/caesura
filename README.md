@@ -106,6 +106,8 @@ For now it's recommended to run with docker.
 
 #### Verify source
 
+Verify a FLAC source is suitable for transcoding.
+
 ```
 rogue_oxide verify [OPTIONS] [SOURCE]
 ```
@@ -176,6 +178,8 @@ Options:
 
 #### Generate spectrograms
 
+Generate spectrograms for each track of a FLAC source.
+
 ```
 rogue_oxide spectrogram [OPTIONS] [SOURCE]
 ```
@@ -234,6 +238,8 @@ Options:
 </details>
 
 #### Transcode FLACs
+
+Transcode each track of a FLAC source to the target formats.
 
 ```
 rogue_oxide transcode [OPTIONS] [SOURCE]

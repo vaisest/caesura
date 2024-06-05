@@ -6,9 +6,9 @@ use crate::options::SubCommand::*;
 use crate::options::{Arguments, Options, SharedOptions, SpectrogramOptions, TranscodeOptions};
 use crate::source;
 use crate::source::Source;
-use crate::spectrogram::SpectrogramGenerator;
-use crate::transcode::SourceTranscoder;
-use crate::verify::SourceVerifier;
+use crate::spectrogram::SpectrogramCommand;
+use crate::transcode::TranscodeCommand;
+use crate::verify::VerifyCommand;
 
 /// Application host, responsible for executing the application
 ///
@@ -56,7 +56,7 @@ impl Host {
         if !options.validate() {
             return Ok(false);
         }
-        let service = self.services.get_required::<SpectrogramGenerator>();
+        let service = self.services.get_required::<SpectrogramCommand>();
         service.execute(source).await
     }
 
@@ -65,7 +65,7 @@ impl Host {
         if !options.validate() {
             return Ok(false);
         }
-        let service = self.services.get_required::<SourceTranscoder>();
+        let service = self.services.get_required::<TranscodeCommand>();
         service.execute(source).await
     }
 
@@ -74,7 +74,7 @@ impl Host {
         if !options.validate() {
             return Ok(false);
         }
-        let service = self.services.get_required_mut::<SourceVerifier>();
+        let service = self.services.get_required_mut::<VerifyCommand>();
         let mut service = service
             .write()
             .expect("SourceVerifier should be available to write");

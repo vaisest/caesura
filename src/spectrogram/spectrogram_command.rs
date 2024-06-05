@@ -9,15 +9,15 @@ use crate::logging::Colors;
 use crate::source::Source;
 use crate::spectrogram::*;
 
-/// Generate spectrogram images from flac files.
+/// Generate spectrograms for each track of a FLAC source.
 #[injectable]
-pub struct SpectrogramGenerator {
+pub struct SpectrogramCommand {
     paths: Ref<PathManager>,
     factory: Ref<SpectrogramJobFactory>,
     runner: Ref<JobRunner>,
 }
 
-impl SpectrogramGenerator {
+impl SpectrogramCommand {
     /// Generate spectrogram images from flac files.
     pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
         info!("{} spectrograms for {}", "Creating".bold(), source);

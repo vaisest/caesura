@@ -16,9 +16,9 @@ use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
 use crate::options::{OptionsProvider, SharedOptions, SpectrogramOptions, TranscodeOptions};
 use crate::source::SourceProvider;
-use crate::spectrogram::{SpectrogramGenerator, SpectrogramJobFactory};
-use crate::transcode::{AdditionalJobFactory, SourceTranscoder, TranscodeJobFactory};
-use crate::verify::SourceVerifier;
+use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
+use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
+use crate::verify::VerifyCommand;
 
 pub struct HostBuilder {
     pub services: ServiceCollection,
@@ -54,11 +54,11 @@ impl HostBuilder {
             .add(ProgressBarSubscriber::transient())
             .add(TargetFormatProvider::transient())
             // Add transcode services
-            .add(SourceTranscoder::transient())
+            .add(TranscodeCommand::transient())
             .add(TranscodeJobFactory::transient())
             .add(AdditionalJobFactory::transient())
             // Add spectrogram services
-            .add(SpectrogramGenerator::transient())
+            .add(SpectrogramCommand::transient())
             .add(SpectrogramJobFactory::transient())
             .add(singleton_as_self().from(|provider| {
                 let options = provider.get_required::<SharedOptions>();
@@ -70,7 +70,7 @@ impl HostBuilder {
                 RefMut::new(Mut::new(set))
             }))
             // Add verify services
-            .add(SourceVerifier::transient().as_mut());
+            .add(VerifyCommand::transient().as_mut());
         this
     }
 
