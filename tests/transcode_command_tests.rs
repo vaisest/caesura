@@ -3,7 +3,7 @@ use rogue_oxide::formats::TargetFormatProvider;
 use rogue_oxide::fs::DirectoryReader;
 
 use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::{SharedOptions, TranscodeOptions};
+use rogue_oxide::options::{SharedOptions, TargetOptions};
 use rogue_oxide::source::SourceProvider;
 use rogue_oxide::testing::*;
 use rogue_oxide::transcode::TranscodeCommand;
@@ -17,9 +17,9 @@ async fn transcode_command() -> Result<(), AppError> {
         output: Some(TempDirectory::create("rogue_oxide")),
         ..SharedOptions::default()
     });
-    let transcode_options = TestOptionsFactory::transcode(TranscodeOptions {
+    let target_options = TestOptionsFactory::transcode(TargetOptions {
         allow_existing: Some(true),
-        ..TranscodeOptions::default()
+        ..TargetOptions::default()
     });
     let output_dir = shared_options
         .output
@@ -27,7 +27,7 @@ async fn transcode_command() -> Result<(), AppError> {
         .expect("Options should be set");
     let host = TestHostBuilder::new()
         .with_shared(shared_options.clone())
-        .with_transcode(transcode_options)
+        .with_transcode(target_options)
         .build();
     let provider = host.services.get_required_mut::<SourceProvider>();
     let transcoder = host.services.get_required::<TranscodeCommand>();

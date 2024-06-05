@@ -1,7 +1,7 @@
 use di::{singleton_as_self, Ref};
 
 use crate::hosting::{Host, HostBuilder};
-use crate::options::{SharedOptions, SpectrogramOptions, TranscodeOptions};
+use crate::options::{SharedOptions, SpectrogramOptions, TargetOptions};
 
 pub struct TestHostBuilder {
     pub builder: HostBuilder,
@@ -31,7 +31,7 @@ impl TestHostBuilder {
     }
 
     #[must_use]
-    pub fn with_transcode(&mut self, options: TranscodeOptions) -> &mut TestHostBuilder {
+    pub fn with_transcode(&mut self, options: TargetOptions) -> &mut TestHostBuilder {
         self.builder
             .services
             .add(singleton_as_self().from(move |_| Ref::new(options.clone())));

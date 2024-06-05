@@ -1,7 +1,7 @@
 use clap::Subcommand;
 
 use crate::options::verify_options::VerifyOptions;
-use crate::options::{RunnerOptions, SharedOptions, SpectrogramOptions, TranscodeOptions};
+use crate::options::{RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions};
 
 /// Cli sub-commands and arguments
 #[derive(Subcommand, Debug, Clone)]
@@ -23,7 +23,7 @@ pub enum CommandArguments {
         #[command(flatten)]
         runner: RunnerOptions,
         #[command(flatten)]
-        transcode: TranscodeOptions,
+        target: TargetOptions,
     },
 
     /// Verify a FLAC source is suitable for transcoding.
@@ -31,7 +31,7 @@ pub enum CommandArguments {
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
-        transcode: TranscodeOptions,
+        target: TargetOptions,
         #[command(flatten)]
         verify: VerifyOptions,
     },

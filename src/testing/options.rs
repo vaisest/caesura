@@ -1,6 +1,4 @@
-use crate::options::{
-    Options, OptionsProvider, SharedOptions, SpectrogramOptions, TranscodeOptions,
-};
+use crate::options::{Options, OptionsProvider, SharedOptions, SpectrogramOptions, TargetOptions};
 use crate::testing::CONTENT_SAMPLES_DIR;
 use colored::Colorize;
 use log::{debug, warn};
@@ -25,7 +23,7 @@ impl TestOptionsFactory {
     }
 
     #[must_use]
-    pub fn transcode(mut options: TranscodeOptions) -> TranscodeOptions {
+    pub fn transcode(mut options: TargetOptions) -> TargetOptions {
         let provider = OptionsProvider::new();
         options.merge(&provider.get());
         options

@@ -4,7 +4,7 @@ use di::ServiceProvider;
 
 use crate::errors::AppError;
 use crate::logging::*;
-use crate::options::{Options, SharedOptions, SpectrogramOptions, TranscodeOptions};
+use crate::options::{Options, SharedOptions, SpectrogramOptions, TargetOptions};
 use crate::source;
 use crate::source::Source;
 use crate::spectrogram::SpectrogramCommand;
@@ -62,7 +62,7 @@ impl Host {
     }
 
     async fn execute_transcode(&self, source: &Source) -> Result<bool, AppError> {
-        let options = self.services.get_required::<TranscodeOptions>();
+        let options = self.services.get_required::<TargetOptions>();
         if !options.validate() {
             return Ok(false);
         }
@@ -71,7 +71,7 @@ impl Host {
     }
 
     async fn execute_verify(&self, source: &Source) -> Result<bool, AppError> {
-        let options = self.services.get_required::<TranscodeOptions>();
+        let options = self.services.get_required::<TargetOptions>();
         if !options.validate() {
             return Ok(false);
         }

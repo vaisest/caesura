@@ -1,6 +1,6 @@
 use di::Ref;
 use rogue_oxide::formats::{ExistingFormat, SourceFormat, TargetFormat, TargetFormatProvider};
-use rogue_oxide::options::TranscodeOptions;
+use rogue_oxide::options::TargetOptions;
 use std::collections::HashSet;
 
 #[test]
@@ -100,10 +100,10 @@ fn from_flac_applies_allowed_none() {
 
 fn create_provider(target: Vec<TargetFormat>, allow_existing: bool) -> TargetFormatProvider {
     TargetFormatProvider {
-        options: Ref::new(TranscodeOptions {
+        options: Ref::new(TargetOptions {
             target: Some(target),
             allow_existing: Some(allow_existing),
-            ..TranscodeOptions::default()
+            ..TargetOptions::default()
         }),
     }
 }

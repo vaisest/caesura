@@ -3,11 +3,11 @@ use std::collections::HashSet;
 use di::{injectable, Ref};
 
 use crate::formats::{ExistingFormat, SourceFormat, TargetFormat};
-use crate::options::TranscodeOptions;
+use crate::options::TargetOptions;
 
 #[injectable]
 pub struct TargetFormatProvider {
-    pub options: Ref<TranscodeOptions>,
+    pub options: Ref<TargetOptions>,
 }
 
 impl TargetFormatProvider {

@@ -15,7 +15,7 @@ use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
 use crate::options::{
-    OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TranscodeOptions,
+    OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions,
 };
 use crate::options::verify_options::VerifyOptions;
 use crate::source::SourceProvider;
@@ -45,7 +45,7 @@ impl HostBuilder {
             .add(RunnerOptions::singleton())
             .add(SharedOptions::singleton())
             .add(SpectrogramOptions::singleton())
-            .add(TranscodeOptions::singleton())
+            .add(TargetOptions::singleton())
             .add(VerifyOptions::singleton())
             // Add main services
             .add(Logger::singleton())

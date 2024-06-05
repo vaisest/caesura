@@ -11,7 +11,7 @@ use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
 
 /// Options for [Transcoder] and [`SourceVerifier`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct TranscodeOptions {
+pub struct TargetOptions {
     /// Target formats.
     /// Default: flac, 320, and v0
     #[arg(long)]
@@ -37,13 +37,13 @@ pub struct TranscodeOptions {
 }
 
 #[injectable]
-impl TranscodeOptions {
+impl TargetOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
         provider.get()
     }
 }
 
-impl Options for TranscodeOptions {
+impl Options for TargetOptions {
     fn get_name() -> String {
         "Transcode Options".to_owned()
     }
@@ -109,8 +109,12 @@ impl Options for TranscodeOptions {
     #[must_use]
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
-            Some(Transcode { transcode, .. }) => transcode,
-            Some(Verify { transcode, .. }) => transcode,
+            Some(Transcode {
+                target: transcode, ..
+            }) => transcode,
+            Some(Verify {
+                target: transcode, ..
+            }) => transcode,
             _ => return None,
         };
         let mut options = options;
@@ -134,7 +138,7 @@ impl Options for TranscodeOptions {
     }
 }
 
-impl Display for TranscodeOptions {
+impl Display for TargetOptions {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(json) = serde_json::to_string_pretty(self) {
             json
