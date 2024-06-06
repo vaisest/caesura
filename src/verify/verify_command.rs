@@ -104,7 +104,7 @@ impl VerifyCommand {
     async fn hash_check(&mut self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
         let mut api = self.api.write().expect("API should be available");
         let buffer = api.get_torrent_file_as_buffer(source.torrent.id).await?;
-        ImdlCommand::verify(&buffer, &source.directory).await
+        ImdlCommand::verify_from_buffer(&buffer, &source.directory).await
     }
 }
 

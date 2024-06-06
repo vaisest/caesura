@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::trace;
+use log::{error, trace, warn};
 use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
@@ -10,6 +10,7 @@ use crate::built_info::*;
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::PathManager;
+use crate::imdl::ImdlCommand;
 use crate::options::{Options, SharedOptions, UploadOptions};
 use crate::source::{get_permalink, Source};
 
@@ -30,6 +31,18 @@ impl UploadCommand {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
         for target in targets {
+            let torrent_path = self.paths.get_torrent_path(source, &target);
+            if !torrent_path.exists() {
+                return AppError::explained(
+                    "upload",
+                    format!("The torrent file does not exist: {torrent_path:?}"),
+                );
+            }
+            let target_dir = self.paths.get_transcode_target_dir(source, &target);
+            if let Some(error) = ImdlCommand::verify(&torrent_path, &target_dir).await? {
+                error!("{} to verify the torrent content:", "Failed".bold().red(),);
+                error!("{error}");
+            }
             if self
                 .upload_options
                 .get_value(|x| x.copy_transcode_to_content_dir)
@@ -40,7 +53,7 @@ impl UploadCommand {
                 self.copy_torrent(source, &target, target_dir).await?;
             }
             let form = UploadForm {
-                path: self.paths.get_torrent_path(source, &target),
+                path: torrent_path,
                 category_id: source.group.category_id,
                 remaster_year: source.metadata.year,
                 remaster_title: source.torrent.remaster_title.clone(),

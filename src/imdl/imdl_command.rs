@@ -61,7 +61,35 @@ impl ImdlCommand {
     }
 
     /// Verify files match the torrent metadata.
-    pub async fn verify(buffer: &[u8], directory: &PathBuf) -> Result<Vec<SourceRule>, AppError> {
+    pub async fn verify(
+        torrent_file: &PathBuf,
+        directory: &PathBuf,
+    ) -> Result<Option<SourceRule>, AppError> {
+        let output = Command::new(IMDL)
+            .arg("torrent")
+            .arg("verify")
+            .arg("--content")
+            .arg(directory)
+            .arg(torrent_file)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .output()
+            .await
+            .or_else(|e| AppError::io(e, "execute verify torrent"))?;
+        if output.status.success() {
+            Ok(None)
+        } else {
+            let details = String::from_utf8(output.stderr).unwrap_or_default();
+            Ok(Some(IncorrectHash(details)))
+        }
+    }
+
+    /// Verify files match the torrent metadata.
+    pub async fn verify_from_buffer(
+        buffer: &[u8],
+        directory: &PathBuf,
+    ) -> Result<Vec<SourceRule>, AppError> {
         let mut child = Command::new(IMDL)
             .arg("torrent")
             .arg("verify")
