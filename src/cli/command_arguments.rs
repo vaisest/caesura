@@ -2,7 +2,7 @@ use clap::Subcommand;
 
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{
-    FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions,
+    FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions,
 };
 
 /// Cli sub-commands and arguments
@@ -46,5 +46,7 @@ pub enum CommandArguments {
         shared: SharedOptions,
         #[command(flatten)]
         target: TargetOptions,
+        #[command(flatten)]
+        upload: UploadOptions,
     },
 }

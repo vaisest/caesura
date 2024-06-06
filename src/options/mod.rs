@@ -8,6 +8,7 @@ pub use runner_options::*;
 pub use shared_options::*;
 pub use spectrogram_options::*;
 pub use target_options::*;
+pub use upload_options::*;
 pub use value_provider::*;
 pub use verify_options::*;
 
@@ -20,5 +21,6 @@ pub mod runner_options;
 pub mod shared_options;
 pub mod spectrogram_options;
 pub mod target_options;
+pub mod upload_options;
 pub mod value_provider;
 pub mod verify_options;

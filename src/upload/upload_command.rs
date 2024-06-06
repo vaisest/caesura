@@ -1,17 +1,23 @@
+use std::path::PathBuf;
+
+use colored::Colorize;
 use di::{injectable, Ref, RefMut};
+use log::trace;
+use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
 use crate::built_info::*;
 use crate::errors::AppError;
-use crate::formats::TargetFormatProvider;
+use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::PathManager;
-use crate::options::{Options, SharedOptions};
+use crate::options::{Options, SharedOptions, UploadOptions};
 use crate::source::{get_permalink, Source};
 
 /// Upload transcodes of a FLAC source.
 #[injectable]
 pub struct UploadCommand {
     options: Ref<SharedOptions>,
+    upload_options: Ref<UploadOptions>,
     api: RefMut<Api>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
@@ -24,8 +30,15 @@ impl UploadCommand {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
         for target in targets {
-            // TODO SHOULD copy files to content
-
+            if self
+                .upload_options
+                .get_value(|x| x.copy_transcode_to_content_dir)
+            {
+                self.copy_transcode(source, &target).await?;
+            }
+            if let Some(target_dir) = &self.upload_options.copy_torrent_to {
+                self.copy_torrent(source, &target, target_dir).await?;
+            }
             let form = UploadForm {
                 path: self.paths.get_torrent_path(source, &target),
                 category_id: source.group.category_id,
@@ -42,6 +55,56 @@ impl UploadCommand {
             api.upload_torrent(form).await?;
         }
         Ok(true)
+    }
+
+    async fn copy_transcode(&self, source: &Source, target: &TargetFormat) -> Result<(), AppError> {
+        let source_dir = self.paths.get_transcode_target_dir(source, &target);
+        let source_dir_name = source_dir
+            .file_name()
+            .expect("source dir should have a name");
+        let target_dir = self
+            .options
+            .get_value(|x| x.content_directory.clone())
+            .join(source_dir_name);
+        let verb = if self.upload_options.get_value(|x| x.hard_link) {
+            hard_link(&source_dir, &target_dir)
+                .await
+                .or_else(|e| AppError::io(e, "hard link additional file"))?;
+            "Hard Linked"
+        } else {
+            copy(&source_dir, &target_dir)
+                .await
+                .or_else(|e| AppError::io(e, "copy additional file"))?;
+            "Copied"
+        };
+        trace!("{} {source_dir:?} to {target_dir:?}", verb.bold());
+        Ok(())
+    }
+
+    async fn copy_torrent(
+        &self,
+        source: &Source,
+        target: &TargetFormat,
+        target_dir: &PathBuf,
+    ) -> Result<(), AppError> {
+        let source_path = self.paths.get_torrent_path(source, &target);
+        let source_file_name = source_path
+            .file_name()
+            .expect("torrent path should have a name");
+        let target_path = target_dir.join(source_file_name);
+        let verb = if self.upload_options.get_value(|x| x.hard_link) {
+            hard_link(&source_path, &target_path)
+                .await
+                .or_else(|e| AppError::io(e, "hard link additional file"))?;
+            "Hard Linked"
+        } else {
+            copy(&source_path, &target_path)
+                .await
+                .or_else(|e| AppError::io(e, "copy additional file"))?;
+            "Copied"
+        };
+        trace!("{} {source_path:?} to {target_path:?}", verb.bold());
+        Ok(())
     }
 
     #[allow(clippy::uninlined_format_args)]
