@@ -47,7 +47,8 @@ impl Api {
     pub async fn get_torrent_group(&mut self, id: i64) -> Result<GroupResponse, AppError> {
         let url = format!("{}/ajax.php?action=torrentgroup&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent group").await?;
-        self.deserialize(response, "get torrent group response").await
+        self.deserialize(response, "get torrent group response")
+            .await
     }
 
     /// Get the content of the .torrent file as a buffer
