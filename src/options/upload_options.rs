@@ -21,7 +21,7 @@ pub struct UploadOptions {
     /// Copy the torrent file to the provided directory.
     ///
     /// This should be set if you wish to auto-add to your torrent client.
-    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    #[arg(long)]
     pub copy_torrent_to: Option<PathBuf>,
 
     /// Use hard links when copying files.

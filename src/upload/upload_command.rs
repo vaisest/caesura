@@ -82,12 +82,12 @@ impl UploadCommand {
         let verb = if self.upload_options.get_value(|x| x.hard_link) {
             hard_link(&source_dir, &target_dir)
                 .await
-                .or_else(|e| AppError::io(e, "hard link additional file"))?;
+                .or_else(|e| AppError::io(e, "hard link transcode content"))?;
             "Hard Linked"
         } else {
             copy(&source_dir, &target_dir)
                 .await
-                .or_else(|e| AppError::io(e, "copy additional file"))?;
+                .or_else(|e| AppError::io(e, "copy transcode content"))?;
             "Copied"
         };
         trace!("{} {source_dir:?} to {target_dir:?}", verb.bold());
@@ -108,12 +108,12 @@ impl UploadCommand {
         let verb = if self.upload_options.get_value(|x| x.hard_link) {
             hard_link(&source_path, &target_path)
                 .await
-                .or_else(|e| AppError::io(e, "hard link additional file"))?;
+                .or_else(|e| AppError::io(e, "hard link torrent file"))?;
             "Hard Linked"
         } else {
             copy(&source_path, &target_path)
                 .await
-                .or_else(|e| AppError::io(e, "copy additional file"))?;
+                .or_else(|e| AppError::io(e, "copy torrent file"))?;
             "Copied"
         };
         trace!("{} {source_path:?} to {target_path:?}", verb.bold());
