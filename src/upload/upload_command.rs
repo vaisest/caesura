@@ -1,8 +1,8 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{error, trace, warn};
+use log::{error, trace};
 use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
@@ -71,7 +71,7 @@ impl UploadCommand {
     }
 
     async fn copy_transcode(&self, source: &Source, target: &TargetFormat) -> Result<(), AppError> {
-        let source_dir = self.paths.get_transcode_target_dir(source, &target);
+        let source_dir = self.paths.get_transcode_target_dir(source, target);
         let source_dir_name = source_dir
             .file_name()
             .expect("source dir should have a name");
@@ -98,9 +98,9 @@ impl UploadCommand {
         &self,
         source: &Source,
         target: &TargetFormat,
-        target_dir: &PathBuf,
+        target_dir: &Path,
     ) -> Result<(), AppError> {
-        let source_path = self.paths.get_torrent_path(source, &target);
+        let source_path = self.paths.get_torrent_path(source, target);
         let source_file_name = source_path
             .file_name()
             .expect("torrent path should have a name");
