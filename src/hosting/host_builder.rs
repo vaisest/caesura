@@ -14,10 +14,7 @@ use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
-use crate::options::{
-    FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions,
-    TargetOptions, VerifyOptions,
-};
+use crate::options::{FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions};
 use crate::source::SourceProvider;
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
@@ -48,6 +45,7 @@ impl HostBuilder {
             .add(SharedOptions::singleton())
             .add(SpectrogramOptions::singleton())
             .add(TargetOptions::singleton())
+            .add(UploadOptions::singleton())
             .add(VerifyOptions::singleton())
             // Add main services
             .add(Logger::singleton())
