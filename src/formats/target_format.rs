@@ -3,6 +3,7 @@ use crate::formats::TargetFormat::{Flac, V0, _320};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
 
 /// Format to transcode to.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize, ValueEnum)]
@@ -49,6 +50,12 @@ impl TargetFormat {
             _320 => "320",
             V0 => "V0 (VBR)",
         }
+    }
+}
+
+impl Display for TargetFormat {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "{}", self.get_name())
     }
 }
 

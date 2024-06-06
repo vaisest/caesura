@@ -2,7 +2,7 @@ use std::path::Path;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{error, trace};
+use log::{debug, error, info, trace};
 use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
@@ -65,8 +65,12 @@ impl UploadCommand {
                 release_desc: self.create_description(source, &transcode_command),
                 group_id: source.group.id,
             };
-            api.upload_torrent(form).await?;
+            let response = api.upload_torrent(form).await?;
+            debug!("{} {target} for {source}", "Uploaded".bold());
+            let base = &self.options.get_value(|x| x.indexer_url.clone());
+            debug!("{}", get_permalink(base, response.group_id, response.torrent_id));
         }
+        info!("{} {source}", "Uploaded".bold());
         Ok(true)
     }
 
