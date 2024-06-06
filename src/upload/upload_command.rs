@@ -125,9 +125,9 @@ impl UploadCommand {
         let base = &self.options.get_value(|x| x.indexer_url.clone());
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         format!(
-            "Transcode of [url]{source_url}[/url]\
-            Transcode process:\
-            [code]{transcode_command}[/code]\
+            "Transcode of [url]{source_url}[/url]\n\
+            Transcode process:\n\
+            [code]{transcode_command}[/code]\n\
             Created using [url={}]{} v{}[/url]",
             PKG_REPOSITORY, PKG_NAME, PKG_VERSION
         )
