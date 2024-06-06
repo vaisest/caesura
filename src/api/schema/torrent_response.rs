@@ -1,7 +1,8 @@
-use crate::api::{Group, Torrent};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+use crate::api::{Group, Torrent};
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TorrentResponse {
     pub group: Group,

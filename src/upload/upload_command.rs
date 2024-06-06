@@ -54,7 +54,7 @@ impl UploadCommand {
             }
             let form = UploadForm {
                 path: torrent_path,
-                category_id: source.group.category_id,
+                category_id: source.group.category_name.as_int(),
                 remaster_year: source.metadata.year,
                 remaster_title: source.torrent.remaster_title.clone(),
                 remaster_record_label: source.torrent.remaster_record_label.clone(),

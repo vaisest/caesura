@@ -10,7 +10,7 @@ use crate::errors::AppError;
 #[derive(Serialize, Deserialize)]
 pub struct UploadForm {
     pub path: PathBuf,
-    pub category_id: i64,
+    pub category_id: u8,
     pub remaster_year: u16,
     pub remaster_title: String,
     pub remaster_record_label: String,
