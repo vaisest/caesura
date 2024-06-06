@@ -29,7 +29,7 @@ impl AppError {
         Self {
             action: action.to_owned(),
             reason: Explained(explanation),
-            backtrace: Backtrace::force_capture(),
+            backtrace: get_backtrace(),
         }
     }
 
@@ -37,7 +37,7 @@ impl AppError {
         Err(Self {
             action: action.to_owned(),
             reason: Explained(explanation),
-            backtrace: Backtrace::force_capture(),
+            backtrace: get_backtrace(),
         })
     }
 
@@ -49,7 +49,7 @@ impl AppError {
         Err(Self {
             action: action.to_owned(),
             reason: External(domain.to_owned(), error),
-            backtrace: Backtrace::force_capture(),
+            backtrace: get_backtrace(),
         })
     }
 
@@ -62,7 +62,7 @@ impl AppError {
         Err(Self {
             action: action.to_owned(),
             reason: Unexpected(explanation.to_owned(), expected, actual),
-            backtrace: Backtrace::force_capture(),
+            backtrace: get_backtrace(),
         })
     }
 
@@ -147,3 +147,7 @@ impl Display for AppError {
 }
 
 impl Error for AppError {}
+
+fn get_backtrace() -> Backtrace {
+    Backtrace::capture()
+}
