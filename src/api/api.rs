@@ -34,7 +34,7 @@ impl Api {
     pub async fn get_torrent(&mut self, id: i64) -> Result<TorrentResponse, AppError> {
         let url = format!("{}/ajax.php?action=torrent&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent").await?;
-        self.deserialize(response, "deserialize torrent").await
+        self.deserialize(response, "get torrent response").await
     }
 
     /// Get a torrent group by id
@@ -47,8 +47,7 @@ impl Api {
     pub async fn get_torrent_group(&mut self, id: i64) -> Result<GroupResponse, AppError> {
         let url = format!("{}/ajax.php?action=torrentgroup&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent group").await?;
-        self.deserialize(response, "deserialize torrent group")
-            .await
+        self.deserialize(response, "get torrent group response").await
     }
 
     /// Get the content of the .torrent file as a buffer
@@ -58,12 +57,17 @@ impl Api {
     pub async fn get_torrent_file_as_buffer(&mut self, id: i64) -> Result<Vec<u8>, AppError> {
         let url = format!("{}/ajax.php?action=download&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent file").await?;
-        let bytes = response
-            .bytes()
-            .await
-            .expect("Response should not be empty");
-        let buffer = bytes.to_vec();
-        Ok(buffer)
+        let status_code = response.status();
+        if status_code.is_success() {
+            let bytes = response
+                .bytes()
+                .await
+                .expect("Response should not be empty");
+            let buffer = bytes.to_vec();
+            Ok(buffer)
+        } else {
+            AppError::response(status_code, "get torrent file")
+        }
     }
 
     /// Upload the torrent
@@ -77,25 +81,43 @@ impl Api {
         let result = client.post(&url).multipart(form).send().await;
         trace!("{} POST request: {}", "Sent".bold(), &url);
         let response = result.or_else(|e| AppError::request(e, "post upload"))?;
-        let status_code = response.status();
-        if !status_code.is_success() {
-            return AppError::response(status_code, "post upload");
-        }
-        response
-            .json::<UploadResponse>()
-            .await
-            .or_else(|e| AppError::request(e, "deserialize upload response"))
+        self.deserialize(response, "upload torrent response").await
     }
 
     async fn get(&mut self, url: &String, action: &str) -> Result<Response, AppError> {
         let result = self.wait_for_client().await.get(url).send().await;
         trace!("{} GET request: {}", "Sent".bold(), &url);
-        let response = result.or_else(|e| AppError::request(e, action))?;
+        result.or_else(|e| AppError::request(e, action))
+    }
+
+    async fn deserialize<T: DeserializeOwned>(
+        &mut self,
+        response: Response,
+        action: &str,
+    ) -> Result<T, AppError> {
         let status_code = response.status();
+        let json = response.text().await.unwrap_or_default();
+        let deserialized = serde_json::from_str::<ApiResponse<T>>(json.as_str())
+            .or_else(|e| AppError::deserialization(e, format!("deserialize {action}").as_str()));
         if status_code.is_success() {
-            Ok(response)
+            let deserialized = deserialized?;
+            if deserialized.status == "success" {
+                Ok(deserialized.response.expect("response should be set"))
+            } else {
+                AppError::explained(action, format!("{deserialized}"))
+            }
         } else {
-            AppError::response(status_code, action)
+            let number = status_code.as_u16();
+            let status = status_code.canonical_reason().unwrap_or("unknown");
+            let message = if let Ok(message) = deserialized {
+                format!("{message}")
+            } else {
+                json
+            };
+            AppError::explained(
+                action,
+                format!("Received a {number} {status} response:\n{message}"),
+            )
         }
     }
 
@@ -105,21 +127,5 @@ impl Api {
             .await
             .expect("client should be available")
             .get_ref()
-    }
-
-    async fn deserialize<TResponse: DeserializeOwned>(
-        &self,
-        response: Response,
-        action: &str,
-    ) -> Result<TResponse, AppError> {
-        let response = response
-            .json::<ApiResponse<TResponse>>()
-            .await
-            .or_else(|e| AppError::request(e, action))?;
-        if response.status != "success" {
-            AppError::explained(action, "API returned a non-success response".to_owned())
-        } else {
-            Ok(response.response.expect("response should be set"))
-        }
     }
 }
