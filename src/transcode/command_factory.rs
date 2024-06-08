@@ -63,7 +63,7 @@ impl CommandFactory {
             V0 => encode_mp3_v0(output_path),
         }
     }
-    
+
     pub fn to_cli_string(&self) -> String {
         let program = self.program.clone();
         let args = self.args.join(" ");
