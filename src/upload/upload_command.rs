@@ -14,7 +14,7 @@ use crate::imdl::ImdlCommand;
 use crate::jobs::Job;
 use crate::options::{Options, SharedOptions, UploadOptions};
 use crate::source::{get_permalink, Source};
-use crate::transcode::TranscodeJobFactory;
+use crate::transcode::{CommandFactory, TranscodeJobFactory};
 
 /// Upload transcodes of a FLAC source.
 #[injectable]
@@ -138,7 +138,7 @@ impl UploadCommand {
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         let source_title = source.format.get_title();
         let transcode_command = self.get_command(source, target)?;
-        let lines = vec![
+        let lines: Vec<String> = [
             "Created and uploaded with".to_owned(),
             format!(
                 "[pad=0|10|0|37]Tool[/pad] [url={}][b]{}[/b] v{}[/url]",
@@ -150,11 +150,10 @@ impl UploadCommand {
                 "[url={}]Learn how easy it is to create and upload transcodes yourself![/url]",
                 PKG_REPOSITORY
             ),
-        ];
-        let lines: Vec<String> = lines
-            .iter()
-            .map(|line| format!("[quote]{line}[/quote]"))
-            .collect();
+        ]
+        .iter()
+        .map(|line| format!("[quote]{line}[/quote]"))
+        .collect();
         let description = lines.join("");
         Ok(description)
     }
@@ -165,14 +164,17 @@ impl UploadCommand {
         let job = self
             .transcode_job_factory
             .create_single(0, flac, source, target)?;
-        let job = match job {
-            Job::Transcode(transcode_job) => transcode_job,
-            _ => return AppError::explained("get transcode command", "".to_owned()),
+
+        let Job::Transcode(job) = job else {
+            return AppError::explained(
+                "get transcode command",
+                "expected a transcode job".to_owned(),
+            );
         };
         let commands: Vec<String> = job
             .commands
             .iter()
-            .map(|command| command.to_cli_string())
+            .map(CommandFactory::to_cli_string)
             .collect();
         let command = commands.join(" | ");
         let input_path = flac.path.to_string_lossy().to_string();

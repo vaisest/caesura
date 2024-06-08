@@ -15,6 +15,7 @@ pub struct CommandFactory {
 }
 
 impl CommandFactory {
+    #[must_use]
     pub fn create(self) -> Command {
         let mut cmd = Command::new(self.program);
         cmd.args(self.args);
@@ -56,6 +57,7 @@ impl CommandFactory {
         Ok(command)
     }
 
+    #[must_use]
     pub fn new_encode(format: TargetFormat, output_path: &Path) -> CommandFactory {
         match format {
             Flac => encode_flac(output_path),
@@ -64,6 +66,7 @@ impl CommandFactory {
         }
     }
 
+    #[must_use]
     pub fn to_cli_string(&self) -> String {
         let program = self.program.clone();
         let args = self.args.join(" ");
