@@ -30,7 +30,7 @@ impl TranscodeJobFactory {
     }
 
     /// Create a single [`TranscodeJob`] from a `flac_file`.
-    fn create_single(
+    pub fn create_single(
         &self,
         index: usize,
         flac: &FlacFile,

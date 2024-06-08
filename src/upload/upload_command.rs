@@ -9,10 +9,12 @@ use crate::api::{Api, UploadForm};
 use crate::built_info::*;
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
-use crate::fs::PathManager;
+use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
+use crate::jobs::Job;
 use crate::options::{Options, SharedOptions, UploadOptions};
 use crate::source::{get_permalink, Source};
+use crate::transcode::TranscodeJobFactory;
 
 /// Upload transcodes of a FLAC source.
 #[injectable]
@@ -22,12 +24,11 @@ pub struct UploadCommand {
     api: RefMut<Api>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
+    transcode_job_factory: Ref<TranscodeJobFactory>
 }
 
 impl UploadCommand {
     pub async fn execute(&mut self, source: &Source) -> Result<bool, AppError> {
-        // TODO MUST include transcode process
-        let transcode_command = String::new();
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
         for target in targets {
@@ -62,7 +63,7 @@ impl UploadCommand {
                 format: target.get_file_extension().to_uppercase(),
                 bitrate: target.get_bitrate().to_owned(),
                 media: source.torrent.media.clone(),
-                release_desc: self.create_description(source, &transcode_command),
+                release_desc: self.create_description(source, target)?,
                 group_id: source.group.id,
             };
             let response = api.upload_torrent(form).await?;
@@ -125,15 +126,44 @@ impl UploadCommand {
     }
 
     #[allow(clippy::uninlined_format_args)]
-    fn create_description(&self, source: &Source, transcode_command: &String) -> String {
+    fn create_description(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
         let base = &self.options.get_value(|x| x.indexer_url.clone());
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
-        format!(
+        let transcode_command = self.get_command(source, target)?;
+        Ok(format!(
             "Transcode of [url]{source_url}[/url]\n\
             Transcode process:\n\
             [code]{transcode_command}[/code]\n\
             Created using [url={}]{} v{}[/url]",
             PKG_REPOSITORY, PKG_NAME, PKG_VERSION
-        )
+        ))
+    }
+
+    pub fn get_command(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
+        let flacs = Collector::get_flacs(&source.directory);
+        let flac = flacs.first().expect("Should be at least one FLAC");
+        let job = self.transcode_job_factory.create_single(0, flac, source, target)?;
+        let job = match job {
+            Job::Transcode(transcode_job) => transcode_job,
+            _ => return AppError::explained("get transcode command", "".to_owned()),
+        };
+        let commands : Vec<String> = job
+            .commands
+            .iter()
+            .map(|command| command.to_cli_string())
+            .collect();
+        let command = commands.join(" | ");
+        let input_path = flac.path.to_string_lossy().to_string();
+        let output_path = job.output_path.to_string_lossy().to_string();
+        let output_extension = job
+            .output_path
+            .extension()
+            .expect("ouput path should have an extension")
+            .to_string_lossy()
+            .to_string();
+        let command = command
+            .replace(input_path.as_str(), "input.flac")
+            .replace(output_path.as_str(), format!("output.{output_extension}").as_str());
+        Ok(command)
     }
 }
