@@ -15,4 +15,10 @@ impl SourceFormat {
             SourceFormat::Flac => ExistingFormat::Flac,
         }
     }
+    pub fn get_title(&self) -> &str {
+        match self {
+            SourceFormat::Flac24 => "FLAC 24bit Lossless",
+            SourceFormat::Flac => "FLAC Lossless"
+        }
+    }
 }

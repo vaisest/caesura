@@ -24,7 +24,7 @@ pub struct UploadCommand {
     api: RefMut<Api>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
-    transcode_job_factory: Ref<TranscodeJobFactory>
+    transcode_job_factory: Ref<TranscodeJobFactory>,
 }
 
 impl UploadCommand {
@@ -69,7 +69,10 @@ impl UploadCommand {
             let response = api.upload_torrent(form).await?;
             debug!("{} {target} for {source}", "Uploaded".bold());
             let base = &self.options.get_value(|x| x.indexer_url.clone());
-            debug!("{}", get_permalink(base, response.group_id, response.torrent_id));
+            debug!(
+                "{}",
+                get_permalink(base, response.group_id, response.torrent_id)
+            );
         }
         info!("{} {source}", "Uploaded".bold());
         Ok(true)
@@ -126,28 +129,47 @@ impl UploadCommand {
     }
 
     #[allow(clippy::uninlined_format_args)]
-    fn create_description(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
+    fn create_description(
+        &self,
+        source: &Source,
+        target: TargetFormat,
+    ) -> Result<String, AppError> {
         let base = &self.options.get_value(|x| x.indexer_url.clone());
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
+        let source_title = source.format.get_title();
         let transcode_command = self.get_command(source, target)?;
-        Ok(format!(
-            "Transcode of [url]{source_url}[/url]\n\
-            Transcode process:\n\
-            [code]{transcode_command}[/code]\n\
-            Created using [url={}]{} v{}[/url]",
-            PKG_REPOSITORY, PKG_NAME, PKG_VERSION
-        ))
+        let lines = vec![
+            "Created and uploaded with".to_owned(),
+            format!(
+                "[pad=0|10|0|37]Tool[/pad] [url={}][b]{}[/b] v{}[/url]",
+                PKG_REPOSITORY, PKG_NAME, PKG_VERSION
+            ),
+            format!("[pad=0|10|0|20]Source[/pad] [url={source_url}]{source_title}[/url]"),
+            format!("[pad=0|10|0|0]Command[/pad] [code]{transcode_command}[/code]"),
+            format!(
+                "[url={}]Learn how easy it is to create and upload transcodes yourself![/url]",
+                PKG_REPOSITORY
+            ),
+        ];
+        let lines: Vec<String> = lines
+            .iter()
+            .map(|line| format!("[quote]{line}[/quote]"))
+            .collect();
+        let description = lines.join("");
+        Ok(description)
     }
 
     pub fn get_command(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
         let flacs = Collector::get_flacs(&source.directory);
         let flac = flacs.first().expect("Should be at least one FLAC");
-        let job = self.transcode_job_factory.create_single(0, flac, source, target)?;
+        let job = self
+            .transcode_job_factory
+            .create_single(0, flac, source, target)?;
         let job = match job {
             Job::Transcode(transcode_job) => transcode_job,
             _ => return AppError::explained("get transcode command", "".to_owned()),
         };
-        let commands : Vec<String> = job
+        let commands: Vec<String> = job
             .commands
             .iter()
             .map(|command| command.to_cli_string())
@@ -161,9 +183,10 @@ impl UploadCommand {
             .expect("ouput path should have an extension")
             .to_string_lossy()
             .to_string();
-        let command = command
-            .replace(input_path.as_str(), "input.flac")
-            .replace(output_path.as_str(), format!("output.{output_extension}").as_str());
+        let command = command.replace(input_path.as_str(), "input.flac").replace(
+            output_path.as_str(),
+            format!("output.{output_extension}").as_str(),
+        );
         Ok(command)
     }
 }
