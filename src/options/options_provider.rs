@@ -41,11 +41,6 @@ impl OptionsProvider {
             );
             options
         } else {
-            warn!(
-                "{} to parse {} from command line.",
-                "Failed".bold(),
-                T::get_name(),
-            );
             T::default()
         };
         if let Some(json) = &self.json {

@@ -31,7 +31,7 @@ impl TargetOptions {
 
 impl Options for TargetOptions {
     fn get_name() -> String {
-        "Transcode Options".to_owned()
+        "Target Options".to_owned()
     }
 
     fn get_value<TValue, F>(&self, select: F) -> TValue
