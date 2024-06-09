@@ -43,7 +43,14 @@ Each source is verified to ensure it's:
 
 ### Upload
 
-*Work in progress*
+- Copy transcodes to content directory
+- Copy torrent file to client auto-add directory
+
+### Batch
+
+- **[new]** Verify, transcode and upload from each torrent file in a directory. 
+
+*The application will crunch through your torrent directory and automatically determine which are FLAC sources suitable for transcoding.*
 
 ## Getting started
 
@@ -309,7 +316,6 @@ Options:
 ```
 </details>
 
-
 #### Upload
 
 Upload transcodes of a FLAC source.
@@ -380,6 +386,92 @@ Options:
 
   -h, --help
           Print help (see a summary with '-h')
+```
+</details>
+
+#### Batch
+
+Verify, transcode, and upload from multiple FLAC sources in one command.
+
+```
+rogue_oxide upload [OPTIONS] [SOURCE]
+```
+
+<details>
+<summary><code>rogue_oxide upload --help</code></summary>
+
+```
+Usage: rogue_oxide batch [OPTIONS] [SOURCE]
+
+Arguments:
+[SOURCE]
+Source as: path to directory of torrents.
+
+Options:
+      --api-key <API_KEY>
+          API key
+
+      --indexer <INDEXER>
+          ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
+
+      --indexer-url <INDEXER_URL>
+          URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
+
+      --tracker-url <TRACKER_URL>
+          URL of the tracker. Examples: https://flacsfor.me, https://home.opsfet.ch; Default: Dependent on indexer
+
+      --content-directory <CONTENT_DIRECTORY>
+          Directory containing torrent content. Typically this is set as the download directory in your torrent client
+
+      --verbosity <VERBOSITY>
+          Level of logs to display. Default: info
+          
+          [possible values: silent, error, warn, info, debug, trace]
+
+      --config-path <CONFIG_PATH>
+          Path to the configuration file. Default: config.json (in current working directory)
+
+      --output <OUTPUT>
+          Directory where transcodes and spectrograms will be written
+
+      --target <TARGET>
+          Target formats. Default: flac, 320, and v0
+          
+          [possible values: flac, 320, v0]
+
+      --allow-existing
+          Allow transcoding to existing formats
+
+      --skip-hash-check
+          Should the torrent hash check of existing files be skipped?
+
+      --cpus <CPUS>
+          Number of cpus to use for processing. Default: Total number of CPUs
+
+      --spectrogram-size <SPECTROGRAM_SIZE>
+          Output directory to write spectrogram images to
+          
+          [possible values: full, zoom]
+
+      --hard-link
+          Use hard links when copying files
+
+      --compress-images
+          Should images greater than 750 KB be compressed?
+
+      --png-to-jpg
+          Should png images be converted to jpg?
+          
+          Only applied if the image is greated than 750 KB and `compress_images` is true.
+
+      --no-spectrogram
+          Should the spectrogram command be executed?
+
+      --no-upload
+          Should the upload command be executed?
+
+-h, --help
+Print help (see a summary with '-h')
 ```
 </details>
 
