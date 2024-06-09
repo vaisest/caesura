@@ -90,9 +90,9 @@ impl TranscodeCommand {
         );
         for target in targets {
             let jobs = self.additional_job_factory.create(&files, source, *target);
-            self.runner.add(jobs);
+            self.runner.add_without_publish(jobs);
         }
-        self.runner.execute().await?;
+        self.runner.execute_without_publish().await?;
         debug!("{} additional files {}", "Added".bold(), source);
         Ok(())
     }

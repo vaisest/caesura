@@ -57,6 +57,22 @@ impl JobRunner {
         }
     }
 
+    /// Add commands to be run when [execute] is called.
+    pub fn add_without_publish(&self, jobs: Vec<Job>) {
+        for job in jobs {
+            let semaphore = self.semaphore.clone();
+            let mut set = self.set.write().expect("join set to be writeable");
+            set.spawn(async move {
+                let _permit = semaphore
+                    .acquire()
+                    .await
+                    .expect("Semaphore should be available");
+                job.execute().await?;
+                Ok(())
+            });
+        }
+    }
+
     pub async fn execute(&self) -> Result<(), AppError> {
         self.publisher.start("");
         let mut set = self.set.write().expect("join set to be writeable");
@@ -64,6 +80,14 @@ impl JobRunner {
             result.or_else(|e| AppError::task(e, "executing task"))??;
         }
         self.publisher.finish("");
+        Ok(())
+    }
+
+    pub async fn execute_without_publish(&self) -> Result<(), AppError> {
+        let mut set = self.set.write().expect("join set to be writeable");
+        while let Some(result) = set.join_next().await {
+            result.or_else(|e| AppError::task(e, "executing task"))??;
+        }
         Ok(())
     }
 }
