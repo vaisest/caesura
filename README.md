@@ -312,11 +312,11 @@ Options:
 
 #### Upload
 
+Upload transcodes of a FLAC source.
+
 ```
 rogue_oxide upload [OPTIONS] [SOURCE]
 ```
-
-*Work in progress*
 
 <details>
 <summary><code>rogue_oxide upload --help</code></summary>
@@ -346,9 +346,6 @@ Options:
       --content-directory <CONTENT_DIRECTORY>
           Directory containing torrent content. Typically this is set as the download directory in your torrent client
 
-      --cpus <CPUS>
-          Number of cpus to use for processing. Default: Total number of CPUs
-
       --verbosity <VERBOSITY>
           Level of logs to display. Default: info
           
@@ -359,6 +356,27 @@ Options:
 
       --output <OUTPUT>
           Directory where transcodes and spectrograms will be written
+
+      --target <TARGET>
+          Target formats. Default: flac, 320, and v0
+          
+          [possible values: flac, 320, v0]
+
+      --allow-existing
+          Allow transcoding to existing formats
+
+      --copy-transcode-to-content-dir
+          Should the transcoded files be copied to the content directory.
+          
+          This should be enabled if you wish to auto-add to your torrent client.
+
+      --copy-torrent-to <COPY_TORRENT_TO>
+          Copy the torrent file to the provided directory.
+          
+          This should be set if you wish to auto-add to your torrent client.
+
+      --hard-link
+          Use hard links when copying files
 
   -h, --help
           Print help (see a summary with '-h')
@@ -389,10 +407,10 @@ Full configuration:
     "indexer": "abc",
     "indexer_url": "https://example.com",
     "tracker_url": "https://tracker.example.com",
-    "content_directory": "samples/content",
+    "content_directory": "path/to/your/torrent/content_or_downloads",
     "cpus": 6,
     "verbosity": "trace",
-    "output": "samples/output",
+    "output": "path/to/write/output",
 
     "target": ["320", "v0", "flac"],
     "allow_existing": false,
@@ -400,9 +418,13 @@ Full configuration:
     "hard_link": false,
     "compress_images": false,
     
-    "spectrogram_size": ["full", "zoom"], 
-        
-    "source": "123456",
+    "spectrogram_size": ["full", "zoom"],
+
+    "copy_transcode_to_content_dir": false,
+    "copy_torrent_to": "path/to/copy/torrent",
+    "hard_link": false,
+    
+    "source": "123456"
 }
 
 
@@ -410,9 +432,9 @@ Full configuration:
 
 ## Releases and Changes
 
-All release versions follow the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
+Release versions follow the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
-All commit messages follow the [Conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+Commit messages follow the [Conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
 Releases and a full changelog are available via [GitHub Releases](https://github.com/RogueOneEcho/rogue_oxide/releases).
 
