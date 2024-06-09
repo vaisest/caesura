@@ -41,24 +41,20 @@ impl VerifyCommand {
     }
 
     pub async fn execute_internal(&mut self, source: &Source) -> Result<bool, AppError> {
-        info!("{} {}", "Verifying".bold(), source);
+        debug!("{} {}", "Verifying".bold(), source);
         let api_errors = self.api_checks(source);
-        debug_errors(&api_errors, source, "API checks");
         let flac_errors = self.flac_checks(source)?;
-        debug_errors(&flac_errors, source, "FLAC file checks");
         let hash_check = if self.verify_options.get_value(|x| x.skip_hash_check) {
             debug!("{} hash check due to settings", "Skipped".bold());
             Vec::new()
         } else {
-            let hash_check = self.hash_check(source).await?;
-            debug_errors(&hash_check, source, "Hash check");
-            hash_check
+            self.hash_check(source).await?
         };
         let is_verified = api_errors.is_empty() && flac_errors.is_empty() && hash_check.is_empty();
         if is_verified {
             info!("{} {}", "Verified".bold(), source);
         } else {
-            warn!("{} {}", "Skipped".bold().yellow(), source);
+            warn!("{} to verify {}", "Failed".bold().yellow(), source);
             warn_errors(api_errors);
             warn_errors(flac_errors);
             warn_errors(hash_check);
@@ -123,19 +119,8 @@ impl VerifyCommand {
     }
 }
 
-fn debug_errors(errors: &Vec<SourceRule>, source: &Source, title: &str) {
-    if errors.is_empty() {
-        debug!("{} {} {}", "Passed".bold(), title, source);
-    } else {
-        debug!("{} {} {}", "Failed".bold().red(), title, source);
-        for error in errors {
-            debug!("{} {}", "⚠".yellow(), error);
-        }
-    }
-}
-
 fn warn_errors(errors: Vec<SourceRule>) {
     for error in errors {
-        warn!("{}", error);
+        warn!("{error}");
     }
 }
