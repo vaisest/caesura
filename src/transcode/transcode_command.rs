@@ -83,7 +83,7 @@ impl TranscodeCommand {
         targets: &Vec<TargetFormat>,
     ) -> Result<(), AppError> {
         let files = Collector::get_additional(&source.directory);
-        info!(
+        debug!(
             "{} {} additional files",
             "Adding".bold(),
             files.len().to_string().gray()
@@ -93,7 +93,7 @@ impl TranscodeCommand {
             self.runner.add(jobs);
         }
         self.runner.execute().await?;
-        info!("{} additional files {}", "Added".bold(), source);
+        debug!("{} additional files {}", "Added".bold(), source);
         Ok(())
     }
 
@@ -102,7 +102,7 @@ impl TranscodeCommand {
         source: &Source,
         targets: &Vec<TargetFormat>,
     ) -> Result<(), AppError> {
-        info!("{} torrents {}", "Creating".bold(), source);
+        debug!("{} torrents {}", "Creating".bold(), source);
         let torrent_dir = self.paths.get_torrent_dir(source);
         create_dir_all(&torrent_dir)
             .or_else(|e| AppError::io(e, "create torrent output directory"))?;
@@ -112,9 +112,9 @@ impl TranscodeCommand {
             let announce_url = self.get_announce_url();
             let indexer = self.shared_options.get_value(|x| x.indexer.clone());
             ImdlCommand::create(&content_dir, &output_path, announce_url, indexer).await?;
-            debug!("{} torrent {:?}", "Created".bold(), output_path);
+            trace!("{} torrent {:?}", "Created".bold(), output_path);
         }
-        info!("{} torrents {}", "Created".bold(), source);
+        debug!("{} torrents {}", "Created".bold(), source);
         Ok(())
     }
 
