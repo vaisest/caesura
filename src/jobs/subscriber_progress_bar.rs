@@ -37,7 +37,7 @@ impl Subscriber for ProgressBarSubscriber {
 
     /// Called when a scope is finished.
     fn finish(&self, _scope_id: &str) {
-        self.bar.finish();
+        self.bar.finish_and_clear();
     }
 
     /// Called when the status of a job changes.
