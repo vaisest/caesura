@@ -1,3 +1,4 @@
+use crate::batch::BatchCommand;
 use di::ServiceProvider;
 
 use crate::cli::ArgumentsParser;
@@ -33,6 +34,14 @@ impl Host {
         let logger = self.services.get_required::<Logger>();
         Logger::init(logger);
         match ArgumentsParser::get_or_exit() {
+            Batch { .. } => {
+                self.services
+                    .get_required_mut::<BatchCommand>()
+                    .write()
+                    .expect("BatchCommand should be available to write")
+                    .execute()
+                    .await
+            }
             Spectrogram { .. } => {
                 self.services
                     .get_required::<SpectrogramCommand>()

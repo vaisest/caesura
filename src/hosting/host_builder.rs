@@ -8,6 +8,7 @@ use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 
 use crate::api::{Api, ApiFactory};
+use crate::batch::BatchCommand;
 use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
@@ -15,8 +16,8 @@ use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
 use crate::options::{
-    FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions, SpectrogramOptions,
-    TargetOptions, UploadOptions, VerifyOptions,
+    BatchOptions, FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions,
+    SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions,
 };
 use crate::source::SourceProvider;
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
@@ -43,6 +44,7 @@ impl HostBuilder {
         this.services
             // Add options
             .add(OptionsProvider::singleton())
+            .add(BatchOptions::singleton())
             .add(FileOptions::singleton())
             .add(RunnerOptions::singleton())
             .add(SharedOptions::singleton())
@@ -61,10 +63,8 @@ impl HostBuilder {
             .add(DebugSubscriber::transient())
             .add(ProgressBarSubscriber::transient())
             .add(TargetFormatProvider::transient())
-            // Add transcode services
-            .add(TranscodeCommand::transient())
-            .add(TranscodeJobFactory::transient())
-            .add(AdditionalJobFactory::transient())
+            // Add batch services
+            .add(BatchCommand::transient().as_mut())
             // Add spectrogram services
             .add(SpectrogramCommand::transient())
             .add(SpectrogramJobFactory::transient())
@@ -77,6 +77,10 @@ impl HostBuilder {
                 let set: JoinSet<Result<(), AppError>> = JoinSet::new();
                 RefMut::new(Mut::new(set))
             }))
+            // Add transcode services
+            .add(TranscodeCommand::transient())
+            .add(TranscodeJobFactory::transient())
+            .add(AdditionalJobFactory::transient())
             // Add upload services
             .add(UploadCommand::transient().as_mut())
             // Add verify services

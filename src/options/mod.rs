@@ -1,3 +1,4 @@
+pub use batch_options::*;
 pub use errors::*;
 pub use file_options::*;
 pub use options_provider::*;
@@ -12,6 +13,7 @@ pub use upload_options::*;
 pub use value_provider::*;
 pub use verify_options::*;
 
+pub mod batch_options;
 pub mod errors;
 pub mod file_options;
 pub mod options_provider;

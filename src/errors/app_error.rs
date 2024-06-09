@@ -12,12 +12,12 @@ use crate::errors::app_error::Reason::{Explained, External, Unexpected};
 use crate::errors::CommandError;
 
 pub struct AppError {
-    action: String,
-    reason: Reason,
+    pub action: String,
+    pub reason: Reason,
     pub backtrace: Backtrace,
 }
 
-enum Reason {
+pub enum Reason {
     Explained(String),
     External(String, Box<dyn Error + Send + Sync>),
     Unexpected(String, String, String),

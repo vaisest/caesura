@@ -37,29 +37,34 @@ impl VerifyCommand {
             .expect("Source provider should be writeable")
             .get()
             .await?;
-        self.execute_internal(&source).await
+        let errors = self.execute_internal(&source).await?;
+        let is_verified = errors.is_empty();
+        if is_verified {
+            info!("{} {}", "Verified".bold(), source);
+        } else {
+            warn!("{} to verify {}", "Failed".bold().yellow(), source);
+            for error in errors {
+                warn!("{error}");
+            }
+        }
+        Ok(is_verified)
     }
 
-    pub async fn execute_internal(&mut self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute_internal(&mut self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
         debug!("{} {}", "Verifying".bold(), source);
-        let api_errors = self.api_checks(source);
-        let flac_errors = self.flac_checks(source)?;
-        let hash_check = if self.verify_options.get_value(|x| x.skip_hash_check) {
+        let mut api_errors = self.api_checks(source);
+        let mut flac_errors = self.flac_checks(source)?;
+        let mut hash_check = if self.verify_options.get_value(|x| x.skip_hash_check) {
             debug!("{} hash check due to settings", "Skipped".bold());
             Vec::new()
         } else {
             self.hash_check(source).await?
         };
-        let is_verified = api_errors.is_empty() && flac_errors.is_empty() && hash_check.is_empty();
-        if is_verified {
-            info!("{} {}", "Verified".bold(), source);
-        } else {
-            warn!("{} to verify {}", "Failed".bold().yellow(), source);
-            warn_errors(api_errors);
-            warn_errors(flac_errors);
-            warn_errors(hash_check);
-        }
-        Ok(is_verified)
+        let mut errors: Vec<SourceRule> = Vec::new();
+        errors.append(&mut api_errors);
+        errors.append(&mut flac_errors);
+        errors.append(&mut hash_check);
+        Ok(errors)
     }
 
     fn api_checks(&self, source: &Source) -> Vec<SourceRule> {
@@ -116,11 +121,5 @@ impl VerifyCommand {
         let mut api = self.api.write().expect("API should be available");
         let buffer = api.get_torrent_file_as_buffer(source.torrent.id).await?;
         ImdlCommand::verify_from_buffer(&buffer, &source.directory).await
-    }
-}
-
-fn warn_errors(errors: Vec<SourceRule>) {
-    for error in errors {
-        warn!("{error}");
     }
 }

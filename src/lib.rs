@@ -1,4 +1,5 @@
 pub mod api;
+pub mod batch;
 pub mod cli;
 pub mod dependencies;
 pub mod errors;

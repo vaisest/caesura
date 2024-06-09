@@ -1,11 +1,14 @@
 use std::path::{Path, PathBuf};
 
+use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use html_escape::decode_html_entities;
+use log::debug;
 
 use crate::api::Api;
-use crate::errors::AppError;
+use crate::errors::{AppError, Reason};
 use crate::formats::ExistingFormatProvider;
+use crate::fs::DirectoryReader;
 use crate::imdl::imdl_command::ImdlCommand;
 use crate::options::{Options, SharedOptions};
 use crate::source::*;
@@ -98,6 +101,35 @@ impl SourceProvider {
                 summary.source.unwrap_or_default(),
             )
         }
+    }
+
+    pub async fn get_by_directory(&mut self, directory: &Path) -> Result<Vec<Source>, AppError> {
+        if !directory.is_dir() {
+            return AppError::explained(
+                "get source by directory",
+                "path is not a directory".to_owned(),
+            );
+        }
+        let paths = DirectoryReader::new()
+            .with_extension("torrent")
+            .with_max_depth(0)
+            .read(directory)
+            .or_else(|e| AppError::io(e, "read source directory"))?;
+        let mut sources: Vec<Source> = Vec::new();
+        for path in paths {
+            match self.get_by_file(&path).await {
+                Ok(source) => sources.push(source),
+                Err(error) => {
+                    let explanation = match error.reason {
+                        Reason::Explained(explanation) => explanation,
+                        Reason::Unexpected(explanation, _, _) => explanation,
+                        Reason::External(_, _) => "unknown reason".to_owned(),
+                    };
+                    debug!("{} {explanation} {path:?}", "Skipped".bold());
+                }
+            }
+        }
+        Ok(sources)
     }
 }
 

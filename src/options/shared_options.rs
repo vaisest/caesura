@@ -6,7 +6,7 @@ use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
-use crate::cli::CommandArguments::{Spectrogram, Transcode, Upload, Verify};
+use crate::cli::CommandArguments::{Batch, Spectrogram, Transcode, Upload, Verify};
 use crate::logging::{Info, Verbosity};
 use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
@@ -218,6 +218,7 @@ impl Options for SharedOptions {
 
     fn from_args() -> Option<Self> {
         match ArgumentsParser::get() {
+            Some(Batch { shared, .. }) => Some(shared),
             Some(Spectrogram { shared, .. }) => Some(shared),
             Some(Transcode { shared, .. }) => Some(shared),
             Some(Verify { shared, .. }) => Some(shared),

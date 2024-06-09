@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use crate::cli::ArgumentsParser;
-use crate::cli::CommandArguments::Spectrogram;
+use crate::cli::CommandArguments::{Batch, Spectrogram};
 use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider, ValueProvider};
 use crate::spectrogram::Size;
 use clap::Args;
@@ -62,6 +62,7 @@ impl Options for SpectrogramOptions {
     #[must_use]
     fn from_args() -> Option<SpectrogramOptions> {
         match ArgumentsParser::get() {
+            Some(Batch { spectrogram, .. }) => Some(spectrogram),
             Some(Spectrogram { spectrogram, .. }) => Some(spectrogram),
             _ => None,
         }

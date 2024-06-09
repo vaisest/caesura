@@ -55,6 +55,7 @@ impl Options for RunnerOptions {
 
     fn from_args() -> Option<Self> {
         match ArgumentsParser::get() {
+            Some(Batch { runner, .. }) => Some(runner),
             Some(Spectrogram { runner, .. }) => Some(runner),
             Some(Transcode { runner, .. }) => Some(runner),
             _ => None,

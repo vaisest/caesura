@@ -2,20 +2,39 @@ use clap::Subcommand;
 
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{
-    FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions,
+    BatchOptions, FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions,
+    UploadOptions,
 };
 
 /// Cli sub-commands and arguments
 #[derive(Subcommand, Debug, Clone)]
 pub enum CommandArguments {
+    /// Verify, transcode, and upload from multiple FLAC sources in one command.
+    Batch {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        target: TargetOptions,
+        #[command(flatten)]
+        verify: VerifyOptions,
+        #[command(flatten)]
+        runner: RunnerOptions,
+        #[command(flatten)]
+        spectrogram: SpectrogramOptions,
+        #[command(flatten)]
+        file: FileOptions,
+        #[command(flatten)]
+        batch: BatchOptions,
+    },
+
     /// Generate spectrograms for each track of a FLAC source.
     Spectrogram {
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
-        runner: RunnerOptions,
-        #[command(flatten)]
         spectrogram: SpectrogramOptions,
+        #[command(flatten)]
+        runner: RunnerOptions,
     },
 
     /// Transcode each track of a FLAC source to the target formats.
@@ -23,21 +42,11 @@ pub enum CommandArguments {
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
-        runner: RunnerOptions,
-        #[command(flatten)]
         target: TargetOptions,
         #[command(flatten)]
         file: FileOptions,
-    },
-
-    /// Verify a FLAC source is suitable for transcoding.
-    Verify {
         #[command(flatten)]
-        shared: SharedOptions,
-        #[command(flatten)]
-        target: TargetOptions,
-        #[command(flatten)]
-        verify: VerifyOptions,
+        runner: RunnerOptions,
     },
 
     /// Upload transcodes of a FLAC source.
@@ -48,5 +57,15 @@ pub enum CommandArguments {
         target: TargetOptions,
         #[command(flatten)]
         upload: UploadOptions,
+    },
+
+    /// Verify a FLAC source is suitable for transcoding.
+    Verify {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        target: TargetOptions,
+        #[command(flatten)]
+        verify: VerifyOptions,
     },
 }

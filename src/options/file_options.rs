@@ -76,8 +76,10 @@ impl Options for FileOptions {
 
     #[must_use]
     fn from_args() -> Option<Self> {
-        let Some(Transcode { file: options, .. }) = ArgumentsParser::get() else {
-            return None;
+        let options = match ArgumentsParser::get() {
+            Some(Batch { file, .. }) => file,
+            Some(Transcode { file, .. }) => file,
+            _ => return None,
         };
         let mut options = options;
         if options.hard_link == Some(false) {

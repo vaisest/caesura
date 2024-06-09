@@ -80,9 +80,10 @@ impl Options for TargetOptions {
     #[must_use]
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
+            Some(Batch { target, .. }) => target,
             Some(Transcode { target, .. }) => target,
-            Some(Verify { target, .. }) => target,
             Some(Upload { target, .. }) => target,
+            Some(Verify { target, .. }) => target,
             _ => return None,
         };
         let mut options = options;

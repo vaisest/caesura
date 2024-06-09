@@ -37,7 +37,7 @@ impl SpectrogramCommand {
     }
 
     /// Generate spectrogram images from flac files.
-    async fn execute_internal(&self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute_internal(&self, source: &Source) -> Result<bool, AppError> {
         info!("{} spectrograms for {}", "Creating".bold(), source);
         let collection = Collector::get_flacs(&source.directory);
         let jobs = self.factory.create(&collection, source);

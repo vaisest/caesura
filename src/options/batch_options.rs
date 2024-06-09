@@ -8,24 +8,28 @@ use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
 use crate::options::{Options, OptionsProvider, ValueProvider};
 
-/// Options for [`VerifyCommand`]
+/// Options for [`BatchCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct VerifyOptions {
-    /// Should the torrent hash check of existing files be skipped?
+pub struct BatchOptions {
+    /// Should the spectrogram command be executed?
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub skip_hash_check: Option<bool>,
+    pub no_spectrogram: Option<bool>,
+
+    /// Should the upload command be executed?
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub no_upload: Option<bool>,
 }
 
 #[injectable]
-impl VerifyOptions {
+impl BatchOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
         provider.get()
     }
 }
 
-impl Options for VerifyOptions {
+impl Options for BatchOptions {
     fn get_name() -> String {
-        "Verify Options".to_owned()
+        "Batch Options".to_owned()
     }
 
     fn get_value<TValue, F>(&self, select: F) -> TValue
@@ -36,14 +40,20 @@ impl Options for VerifyOptions {
     }
 
     fn merge(&mut self, alternative: &Self) {
-        if self.skip_hash_check.is_none() {
-            self.skip_hash_check = alternative.skip_hash_check;
+        if self.no_spectrogram.is_none() {
+            self.no_spectrogram = alternative.no_spectrogram;
+        }
+        if self.no_upload.is_none() {
+            self.no_upload = alternative.no_upload;
         }
     }
 
     fn apply_defaults(&mut self) {
-        if self.skip_hash_check.is_none() {
-            self.skip_hash_check = Some(false);
+        if self.no_spectrogram.is_none() {
+            self.no_spectrogram = Some(false);
+        }
+        if self.no_upload.is_none() {
+            self.no_upload = Some(false);
         }
     }
 
@@ -53,15 +63,18 @@ impl Options for VerifyOptions {
     }
 
     #[must_use]
+    #[allow(clippy::manual_let_else)]
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
-            Some(Batch { verify, .. }) => verify,
-            Some(Verify { verify, .. }) => verify,
+            Some(Batch { batch, .. }) => batch,
             _ => return None,
         };
         let mut options = options;
-        if options.skip_hash_check == Some(false) {
-            options.skip_hash_check = None;
+        if options.no_spectrogram == Some(false) {
+            options.no_spectrogram = None;
+        }
+        if options.no_upload == Some(false) {
+            options.no_upload = None;
         }
         Some(options)
     }
@@ -71,7 +84,7 @@ impl Options for VerifyOptions {
     }
 }
 
-impl Display for VerifyOptions {
+impl Display for BatchOptions {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(json) = serde_json::to_string_pretty(self) {
             json
