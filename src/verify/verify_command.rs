@@ -9,7 +9,7 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
 use crate::naming::Shortener;
 use crate::options::verify_options::VerifyOptions;
-use crate::options::Options;
+use crate::options::{Options, SharedOptions};
 use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::SourceRule::*;
@@ -18,20 +18,35 @@ use crate::verify::*;
 /// Verify a FLAC source is suitable for transcoding.
 #[injectable]
 pub struct VerifyCommand {
-    options: Ref<VerifyOptions>,
+    shared_options: Ref<SharedOptions>,
+    verify_options: Ref<VerifyOptions>,
+    source_provider: RefMut<SourceProvider>,
     api: RefMut<Api>,
     targets: Ref<TargetFormatProvider>,
     paths: Ref<PathManager>,
 }
 
 impl VerifyCommand {
-    pub async fn execute(&mut self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&mut self) -> Result<bool, AppError> {
+        if !self.shared_options.validate() || !self.verify_options.validate() {
+            return Ok(false);
+        }
+        let source = self
+            .source_provider
+            .write()
+            .expect("Source provider should be writeable")
+            .get()
+            .await?;
+        self.execute_internal(&source).await
+    }
+
+    pub async fn execute_internal(&mut self, source: &Source) -> Result<bool, AppError> {
         info!("{} {}", "Verifying".bold(), source);
         let api_errors = self.api_checks(source);
         debug_errors(&api_errors, source, "API checks");
         let flac_errors = self.flac_checks(source)?;
         debug_errors(&flac_errors, source, "FLAC file checks");
-        let hash_check = if self.options.get_value(|x| x.skip_hash_check) {
+        let hash_check = if self.verify_options.get_value(|x| x.skip_hash_check) {
             debug!("{} hash check due to settings", "Skipped".bold());
             Vec::new()
         } else {

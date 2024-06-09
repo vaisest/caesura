@@ -28,12 +28,12 @@ async fn spectrogram_command() -> Result<(), AppError> {
     let source = provider
         .write()
         .expect("Source provider should be writeable")
-        .get_by_string(&shared_options.source.unwrap_or_default())
+        .get()
         .await
         .expect("Source provider should not fail");
 
     // Act
-    generator.execute(&source).await?;
+    generator.execute().await?;
 
     // Assert
     let generated_files: Vec<PathBuf> = DirectoryReader::new()

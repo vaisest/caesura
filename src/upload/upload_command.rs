@@ -13,14 +13,15 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::Job;
 use crate::options::{Options, SharedOptions, UploadOptions};
-use crate::source::{get_permalink, Source};
+use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{CommandFactory, TranscodeJobFactory};
 
 /// Upload transcodes of a FLAC source.
 #[injectable]
 pub struct UploadCommand {
-    options: Ref<SharedOptions>,
+    shared_options: Ref<SharedOptions>,
     upload_options: Ref<UploadOptions>,
+    source_provider: RefMut<SourceProvider>,
     api: RefMut<Api>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
@@ -28,7 +29,20 @@ pub struct UploadCommand {
 }
 
 impl UploadCommand {
-    pub async fn execute(&mut self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&mut self) -> Result<bool, AppError> {
+        if !self.shared_options.validate() || !self.upload_options.validate() {
+            return Ok(false);
+        }
+        let source = self
+            .source_provider
+            .write()
+            .expect("Source provider should be writeable")
+            .get()
+            .await?;
+        self.execute_internal(&source).await
+    }
+
+    pub async fn execute_internal(&mut self, source: &Source) -> Result<bool, AppError> {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
         for target in targets {
@@ -68,7 +82,7 @@ impl UploadCommand {
             };
             let response = api.upload_torrent(form).await?;
             debug!("{} {target} for {source}", "Uploaded".bold());
-            let base = &self.options.get_value(|x| x.indexer_url.clone());
+            let base = &self.shared_options.get_value(|x| x.indexer_url.clone());
             debug!(
                 "{}",
                 get_permalink(base, response.group_id, response.torrent_id)
@@ -84,7 +98,7 @@ impl UploadCommand {
             .file_name()
             .expect("source dir should have a name");
         let target_dir = self
-            .options
+            .shared_options
             .get_value(|x| x.content_directory.clone())
             .join(source_dir_name);
         let verb = if self.upload_options.get_value(|x| x.hard_link) {
@@ -134,7 +148,7 @@ impl UploadCommand {
         source: &Source,
         target: TargetFormat,
     ) -> Result<String, AppError> {
-        let base = &self.options.get_value(|x| x.indexer_url.clone());
+        let base = &self.shared_options.get_value(|x| x.indexer_url.clone());
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         let source_title = source.format.get_title();
         let transcode_command = self.get_command(source, target)?;

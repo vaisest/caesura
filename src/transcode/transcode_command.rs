@@ -1,7 +1,7 @@
 use std::fs::create_dir_all;
 
 use colored::Colorize;
-use di::{injectable, Ref};
+use di::{injectable, Ref, RefMut};
 use log::*;
 
 use crate::errors::AppError;
@@ -10,7 +10,7 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::JobRunner;
 use crate::logging::Colors;
-use crate::options::{Options, SharedOptions};
+use crate::options::{Options, SharedOptions, TargetOptions};
 use crate::source::*;
 use crate::transcode::{AdditionalJobFactory, TranscodeJobFactory};
 
@@ -18,6 +18,8 @@ use crate::transcode::{AdditionalJobFactory, TranscodeJobFactory};
 #[injectable]
 pub struct TranscodeCommand {
     shared_options: Ref<SharedOptions>,
+    target_options: Ref<TargetOptions>,
+    source_provider: RefMut<SourceProvider>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
     transcode_job_factory: Ref<TranscodeJobFactory>,
@@ -26,7 +28,20 @@ pub struct TranscodeCommand {
 }
 
 impl TranscodeCommand {
-    pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&self) -> Result<bool, AppError> {
+        if !self.shared_options.validate() || !self.target_options.validate() {
+            return Ok(false);
+        }
+        let source = self
+            .source_provider
+            .write()
+            .expect("Source provider should be writeable")
+            .get()
+            .await?;
+        self.execute_internal(&source).await
+    }
+
+    pub async fn execute_internal(&self, source: &Source) -> Result<bool, AppError> {
         let targets = self.targets.get(source.format, &source.existing);
         let output_dir = self.paths.get_transcode_dir(source);
         self.execute_transcode(source, &targets).await?;

@@ -18,6 +18,11 @@ pub struct SourceProvider {
 }
 
 impl SourceProvider {
+    pub async fn get(&mut self) -> Result<Source, AppError> {
+        let source_input = self.options.source.clone().unwrap_or_default();
+        self.get_by_string(&source_input).await
+    }
+
     pub async fn get_by_string(&mut self, input: &String) -> Result<Source, AppError> {
         if is_id_number(input) {
             let id = input.parse::<i64>().expect("ID should be a number");
