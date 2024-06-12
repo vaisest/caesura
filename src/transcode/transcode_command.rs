@@ -51,6 +51,7 @@ impl TranscodeCommand {
         Ok(true)
     }
 
+    #[must_use]
     pub fn skip_completed(
         &self,
         source: &Source,
@@ -64,9 +65,9 @@ impl TranscodeCommand {
                     "{} {target} as it has already been transcoded.",
                     "Skipping".bold()
                 );
-                debug!("{path:?}")
+                debug!("{path:?}");
             } else {
-                out.push(target.clone());
+                out.push(*target);
             }
         }
         out
