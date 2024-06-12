@@ -4,13 +4,9 @@ use di::{injectable, Ref};
 
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::FlacFile;
-use crate::naming::{SourceName, TranscodeName};
+use crate::naming::{SpectrogramName, TranscodeName};
 use crate::options::{Options, SharedOptions};
 use crate::source::Source;
-
-const SPECTROGRAM_DIR_NAME: &str = "spectrograms";
-const TORRENT_DIR_NAME: &str = "torrents";
-const TRANSCODE_DIR_NAME: &str = "transcodes";
 
 #[injectable]
 pub struct PathManager {
@@ -27,20 +23,12 @@ impl PathManager {
     #[must_use]
     pub fn get_spectrogram_dir(&self, source: &Source) -> PathBuf {
         self.get_output_dir()
-            .join(SourceName::get(&source.metadata))
-            .join(SPECTROGRAM_DIR_NAME)
-    }
-
-    #[must_use]
-    pub fn get_transcode_dir(&self, source: &Source) -> PathBuf {
-        self.get_output_dir()
-            .join(SourceName::get(&source.metadata))
-            .join(TRANSCODE_DIR_NAME)
+            .join(SpectrogramName::get(&source.metadata))
     }
 
     #[must_use]
     pub fn get_transcode_target_dir(&self, source: &Source, target: &TargetFormat) -> PathBuf {
-        self.get_transcode_dir(source)
+        self.get_output_dir()
             .join(TranscodeName::get(&source.metadata, target))
     }
 
@@ -76,15 +64,8 @@ impl PathManager {
     }
 
     #[must_use]
-    pub fn get_torrent_dir(&self, source: &Source) -> PathBuf {
-        self.get_output_dir()
-            .join(SourceName::get(&source.metadata))
-            .join(TORRENT_DIR_NAME)
-    }
-
-    #[must_use]
     pub fn get_torrent_path(&self, source: &Source, target: &TargetFormat) -> PathBuf {
         let filename = TranscodeName::get(&source.metadata, target) + ".torrent";
-        self.get_torrent_dir(source).join(filename)
+        self.get_output_dir().join(filename)
     }
 }

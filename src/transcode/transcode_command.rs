@@ -1,5 +1,3 @@
-use std::fs::create_dir_all;
-
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
@@ -50,12 +48,6 @@ impl TranscodeCommand {
         self.execute_transcode(source, &targets).await?;
         self.execute_additional(source, &targets).await?;
         self.execute_torrent(source, &targets).await?;
-        let output_dir = self.paths.get_transcode_dir(source);
-        debug!(
-            "{} {}",
-            "in".gray(),
-            output_dir.to_string_lossy().to_string().gray()
-        );
         Ok(true)
     }
     
@@ -125,9 +117,6 @@ impl TranscodeCommand {
         targets: &Vec<TargetFormat>,
     ) -> Result<(), AppError> {
         debug!("{} torrents {}", "Creating".bold(), source);
-        let torrent_dir = self.paths.get_torrent_dir(source);
-        create_dir_all(&torrent_dir)
-            .or_else(|e| AppError::io(e, "create torrent output directory"))?;
         for target in targets {
             let content_dir = self.paths.get_transcode_target_dir(source, target);
             let output_path = self.paths.get_torrent_path(source, target);
