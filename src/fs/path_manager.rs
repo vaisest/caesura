@@ -4,7 +4,7 @@ use di::{injectable, Ref};
 
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::FlacFile;
-use crate::naming::{SourceName, TargetName};
+use crate::naming::{SourceName, TranscodeName};
 use crate::options::{Options, SharedOptions};
 use crate::source::Source;
 
@@ -41,7 +41,7 @@ impl PathManager {
     #[must_use]
     pub fn get_transcode_target_dir(&self, source: &Source, target: &TargetFormat) -> PathBuf {
         self.get_transcode_dir(source)
-            .join(TargetName::get(&source.metadata, target))
+            .join(TranscodeName::get(&source.metadata, target))
     }
 
     #[must_use]
@@ -68,7 +68,7 @@ impl PathManager {
         let target = targets.last().expect("Should contain at least 1");
         let filename = flac.file_name.clone();
         let extension = target.get_file_extension();
-        PathBuf::from(TargetName::get(&source.metadata, target))
+        PathBuf::from(TranscodeName::get(&source.metadata, target))
             .join(&flac.sub_dir)
             .join(format!("{filename}.{extension}"))
             .to_string_lossy()
@@ -84,7 +84,7 @@ impl PathManager {
 
     #[must_use]
     pub fn get_torrent_path(&self, source: &Source, target: &TargetFormat) -> PathBuf {
-        let filename = TargetName::get(&source.metadata, target) + ".torrent";
+        let filename = TranscodeName::get(&source.metadata, target) + ".torrent";
         self.get_torrent_dir(source).join(filename)
     }
 }

@@ -2,9 +2,9 @@ use crate::formats::TargetFormat;
 use crate::naming::{Sanitizer, SourceName};
 use crate::source::Metadata;
 
-pub struct TargetName;
+pub struct TranscodeName;
 
-impl TargetName {
+impl TranscodeName {
     #[must_use]
     pub fn get(metadata: &Metadata, target: &TargetFormat) -> String {
         let prefix = SourceName::get(metadata);
