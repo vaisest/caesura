@@ -42,25 +42,28 @@ impl TranscodeCommand {
     pub async fn execute_internal(&self, source: &Source) -> Result<bool, AppError> {
         let targets = self.targets.get(source.format, &source.existing);
         let targets = self.skip_completed(source, &targets);
-        if targets.is_empty() {            
-            return Ok(true)
+        if targets.is_empty() {
+            return Ok(true);
         }
         self.execute_transcode(source, &targets).await?;
         self.execute_additional(source, &targets).await?;
         self.execute_torrent(source, &targets).await?;
         Ok(true)
     }
-    
+
     pub fn skip_completed(
         &self,
         source: &Source,
         targets: &Vec<TargetFormat>,
     ) -> Vec<TargetFormat> {
-        let mut out : Vec<TargetFormat> = Vec::new();
+        let mut out: Vec<TargetFormat> = Vec::new();
         for target in targets {
             let path = self.paths.get_torrent_path(source, target);
             if path.exists() {
-                warn!("{} {target} as it has already been transcoded.", "Skipping".bold());
+                warn!(
+                    "{} {target} as it has already been transcoded.",
+                    "Skipping".bold()
+                );
                 debug!("{path:?}")
             } else {
                 out.push(target.clone());
