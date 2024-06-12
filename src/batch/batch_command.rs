@@ -50,6 +50,58 @@ impl BatchCommand {
             .expect("SourceProvider should be writeable")
             .get_by_directory(&source_directory)
             .await?;
+        let verified = self.verify(sources).await?;
+        self.create_spectrograms(&verified).await?;
+        let transcoded = self.transcode(verified).await?;
+        if self.batch_options.get_value(|x| x.no_upload) {
+            debug!("{} upload due to settings", "Skipped".bold());
+            return Ok(true);
+        }
+        self.upload(transcoded).await?;
+        Ok(true)
+    }
+
+    async fn upload(&mut self, transcoded: Vec<Source>) -> Result<(), AppError> {
+        let mut uploaded: Vec<Source> = Vec::new();
+        for source in transcoded {
+            let is_uploaded = self
+                .upload
+                .write()
+                .expect("UploadCommand should be writeable")
+                .execute_internal(&source)
+                .await?;
+            if is_uploaded {
+                uploaded.push(source);
+            } else {
+                warn!("{} to upload {source}", "Failed".bold());
+            }
+        }
+        Ok(())
+    }
+
+    async fn transcode(&mut self, verified: Vec<Source>) -> Result<Vec<Source>, AppError> {
+        let mut transcoded: Vec<Source> = Vec::new();
+        for source in verified {
+            let is_transcoded = self.transcode.execute_internal(&source).await?;
+            if is_transcoded {
+                transcoded.push(source);
+            } else {
+                warn!("{} to transcode {source}", "Failed".bold());
+            }
+        }
+        Ok(transcoded)
+    }
+
+    async fn create_spectrograms(&mut self, verified: &Vec<Source>) -> Result<(), AppError> {
+        if !self.batch_options.get_value(|x| x.no_spectrogram) {
+            for source in verified {
+                self.spectrogram.execute_internal(source).await?;
+            }
+        }
+        Ok(())
+    }
+
+    async fn verify(&mut self, sources: Vec<Source>) -> Result<Vec<Source>, AppError> {
         let mut verified: Vec<Source> = Vec::new();
         for source in sources {
             let errors = self
@@ -65,38 +117,6 @@ impl BatchCommand {
                 debug!("{} {error} {source}", "Skipped".bold());
             }
         }
-        if !self.batch_options.get_value(|x| x.no_spectrogram) {
-            for source in &verified {
-                self.spectrogram.execute_internal(source).await?;
-            }
-        }
-        let mut transcoded: Vec<Source> = Vec::new();
-        for source in verified {
-            let is_transcoded = self.transcode.execute_internal(&source).await?;
-            if is_transcoded {
-                transcoded.push(source);
-            } else {
-                warn!("{} to transcode {source}", "Failed".bold());
-            }
-        }
-        if self.batch_options.get_value(|x| x.no_upload) {
-            debug!("{} upload due to settings", "Skipped".bold());
-            return Ok(true);
-        }
-        let mut uploaded: Vec<Source> = Vec::new();
-        for source in transcoded {
-            let is_uploaded = self
-                .upload
-                .write()
-                .expect("UploadCommand should be writeable")
-                .execute_internal(&source)
-                .await?;
-            if is_uploaded {
-                uploaded.push(source);
-            } else {
-                warn!("{} to upload {source}", "Failed".bold());
-            }
-        }
-        Ok(true)
+        Ok(verified)
     }
 }
