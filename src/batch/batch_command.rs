@@ -61,19 +61,29 @@ impl BatchCommand {
         Ok(true)
     }
 
-    async fn upload(&mut self, transcoded: Vec<Source>) -> Result<(), AppError> {
-        let mut uploaded: Vec<Source> = Vec::new();
-        for source in transcoded {
-            let is_uploaded = self
-                .upload
+    async fn verify(&mut self, sources: Vec<Source>) -> Result<Vec<Source>, AppError> {
+        let mut verified: Vec<Source> = Vec::new();
+        for source in sources {
+            let errors = self
+                .verify
                 .write()
-                .expect("UploadCommand should be writeable")
+                .expect("VerifyCommand should be writeable")
                 .execute_internal(&source)
                 .await?;
-            if is_uploaded {
-                uploaded.push(source);
+            if errors.is_empty() {
+                verified.push(source);
             } else {
-                warn!("{} to upload {source}", "Failed".bold());
+                let error = errors.first().expect("should be at least one error");
+                debug!("{} {error} {source}", "Skipped".bold());
+            }
+        }
+        Ok(verified)
+    }
+
+    async fn create_spectrograms(&mut self, verified: &Vec<Source>) -> Result<(), AppError> {
+        if !self.batch_options.get_value(|x| x.no_spectrogram) {
+            for source in verified {
+                self.spectrogram.execute_internal(source).await?;
             }
         }
         Ok(())
@@ -92,31 +102,21 @@ impl BatchCommand {
         Ok(transcoded)
     }
 
-    async fn create_spectrograms(&mut self, verified: &Vec<Source>) -> Result<(), AppError> {
-        if !self.batch_options.get_value(|x| x.no_spectrogram) {
-            for source in verified {
-                self.spectrogram.execute_internal(source).await?;
+    async fn upload(&mut self, transcoded: Vec<Source>) -> Result<(), AppError> {
+        let mut uploaded: Vec<Source> = Vec::new();
+        for source in transcoded {
+            let is_uploaded = self
+                .upload
+                .write()
+                .expect("UploadCommand should be writeable")
+                .execute_internal(&source)
+                .await?;
+            if is_uploaded {
+                uploaded.push(source);
+            } else {
+                warn!("{} to upload {source}", "Failed".bold());
             }
         }
         Ok(())
-    }
-
-    async fn verify(&mut self, sources: Vec<Source>) -> Result<Vec<Source>, AppError> {
-        let mut verified: Vec<Source> = Vec::new();
-        for source in sources {
-            let errors = self
-                .verify
-                .write()
-                .expect("VerifyCommand should be writeable")
-                .execute_internal(&source)
-                .await?;
-            if errors.is_empty() {
-                verified.push(source);
-            } else {
-                let error = errors.first().expect("should be at least one error");
-                debug!("{} {error} {source}", "Skipped".bold());
-            }
-        }
-        Ok(verified)
     }
 }
