@@ -91,29 +91,46 @@ impl BatchCommand {
 
     async fn transcode(&mut self, verified: Vec<Source>) -> Result<Vec<Source>, AppError> {
         let mut transcoded: Vec<Source> = Vec::new();
+        let mut index = 0;
         for source in verified {
+            if let Some(limit) = self.batch_options.transcode_limit {
+                if index >= limit {
+                    warn!(
+                        "{} as the transcode limit has been reached: {limit}",
+                        "Skipping".bold()
+                    );
+                    break;
+                }
+            }
             let is_transcoded = self.transcode.execute_internal(&source).await?;
             if is_transcoded {
                 transcoded.push(source);
             } else {
                 warn!("{} to transcode {source}", "Failed".bold());
             }
+            index += 1;
         }
         Ok(transcoded)
     }
 
     async fn upload(&mut self, transcoded: Vec<Source>) -> Result<(), AppError> {
-        let mut uploaded: Vec<Source> = Vec::new();
-        for source in transcoded {
+        for (index, source) in transcoded.iter().enumerate() {
+            if let Some(limit) = self.batch_options.upload_limit {
+                if index >= limit {
+                    warn!(
+                        "{} as the upload limit has been reached: {limit}",
+                        "Skipping".bold()
+                    );
+                    break;
+                }
+            }
             let is_uploaded = self
                 .upload
                 .write()
                 .expect("UploadCommand should be writeable")
                 .execute_internal(&source)
                 .await?;
-            if is_uploaded {
-                uploaded.push(source);
-            } else {
+            if !is_uploaded {
                 warn!("{} to upload {source}", "Failed".bold());
             }
         }
