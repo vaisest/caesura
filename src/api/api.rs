@@ -3,6 +3,7 @@ use di::{injectable, Ref};
 use log::*;
 use reqwest::{Client, Response};
 use serde::de::DeserializeOwned;
+use std::time::{Duration, SystemTime};
 use tower::limit::RateLimit;
 use tower::ServiceExt;
 
@@ -86,8 +87,15 @@ impl Api {
     }
 
     async fn get(&mut self, url: &String, action: &str) -> Result<Response, AppError> {
-        let result = self.wait_for_client().await.get(url).send().await;
-        trace!("{} GET request: {}", "Sent".bold(), &url);
+        trace!("{} request GET {}", "Sending".bold(), &url);
+        let client = self.wait_for_client().await;
+        let start = SystemTime::now();
+        let result = client.get(url).send().await;
+        let elapsed = start
+            .elapsed()
+            .expect("elapsed should not fail")
+            .as_secs_f64();
+        trace!("{} response after {elapsed:.3}", "Received".bold());
         result.or_else(|e| AppError::request(e, action))
     }
 
@@ -123,10 +131,21 @@ impl Api {
     }
 
     async fn wait_for_client(&mut self) -> &Client {
-        self.client
+        let start = SystemTime::now();
+        let client = self
+            .client
             .ready()
             .await
             .expect("client should be available")
-            .get_ref()
+            .get_ref();
+        let duration = start.elapsed().expect("duration should not fail");
+        if duration > Duration::from_millis(200) {
+            trace!(
+                "{} {:.3} for rate limiter",
+                "Waited".bold(),
+                duration.as_secs_f64()
+            );
+        }
+        client
     }
 }
