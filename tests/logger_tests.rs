@@ -1,5 +1,5 @@
-use log::*;
 use caesura::logging::{Logger, Verbosity};
+use log::*;
 
 #[test]
 fn test() {

@@ -89,6 +89,7 @@ impl BatchCommand {
         Ok(())
     }
 
+    #[allow(clippy::explicit_counter_loop)]
     async fn transcode(&mut self, verified: Vec<Source>) -> Result<Vec<Source>, AppError> {
         let mut transcoded: Vec<Source> = Vec::new();
         let mut index = 0;
@@ -128,7 +129,7 @@ impl BatchCommand {
                 .upload
                 .write()
                 .expect("UploadCommand should be writeable")
-                .execute_internal(&source)
+                .execute_internal(source)
                 .await?;
             if !is_uploaded {
                 warn!("{} to upload {source}", "Failed".bold());

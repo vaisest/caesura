@@ -1,6 +1,6 @@
-use di::Ref;
 use caesura::formats::{ExistingFormat, SourceFormat, TargetFormat, TargetFormatProvider};
 use caesura::options::TargetOptions;
+use di::Ref;
 use std::collections::HashSet;
 
 #[test]
