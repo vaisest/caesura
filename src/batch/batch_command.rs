@@ -24,6 +24,7 @@ pub struct BatchCommand {
     spectrogram_options: Ref<SpectrogramOptions>,
     file_options: Ref<FileOptions>,
     batch_options: Ref<BatchOptions>,
+    id_provider: Ref<IdProvider>,
     source_provider: RefMut<SourceProvider>,
     verify: RefMut<VerifyCommand>,
     spectrogram: Ref<SpectrogramCommand>,
@@ -44,97 +45,60 @@ impl BatchCommand {
         }
         let source_directory = self.shared_options.get_value(|x| x.source.clone());
         let source_directory = PathBuf::from(source_directory);
-        let sources: Vec<Source> = self
-            .source_provider
-            .write()
-            .expect("SourceProvider should be writeable")
-            .get_from_directory(&source_directory)
-            .await?;
-        let verified = self.verify(sources).await?;
-        self.create_spectrograms(&verified).await?;
-        let transcoded = self.transcode(verified).await?;
-        if self.batch_options.get_value(|x| x.no_upload) {
-            debug!("{} upload due to settings", "Skipped".bold());
-            return Ok(true);
+        let ids: Vec<i64> = self.id_provider.get_by_directory(&source_directory).await?;
+        let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
+        let skip_upload = self.batch_options.get_value(|x| x.no_upload);
+        for (index, id) in ids.iter().enumerate() {
+            let source = self.get_source(*id).await?;
+            if !self.verify(&source).await? {
+                warn!("{} to verify {source}", "Failed".bold());
+                continue;
+            }
+            if !skip_spectrogram {
+                self.spectrogram.execute_internal(&source).await?;
+            }
+            self.transcode.execute_internal(&source).await?;
+            if !skip_upload {
+                self.upload
+                    .write()
+                    .expect("UploadCommand should be writeable")
+                    .execute_internal(&source)
+                    .await?;
+            }
+            if let Some(limit) = self.batch_options.limit {
+                if index >= limit {
+                    warn!(
+                        "{} as the batch limit has been reached: {limit}",
+                        "Skipping".bold()
+                    );
+                    break;
+                }
+            }
         }
-        self.upload(transcoded).await?;
         Ok(true)
     }
 
-    async fn verify(&mut self, sources: Vec<Source>) -> Result<Vec<Source>, AppError> {
-        let mut verified: Vec<Source> = Vec::new();
-        for source in sources {
-            let errors = self
-                .verify
-                .write()
-                .expect("VerifyCommand should be writeable")
-                .execute_internal(&source)
-                .await?;
-            if errors.is_empty() {
-                verified.push(source);
-            } else {
-                let error = errors.first().expect("should be at least one error");
-                debug!("{} {error} {source}", "Skipped".bold());
-            }
-        }
-        Ok(verified)
+    async fn get_source(&mut self, id: i64) -> Result<Source, AppError> {
+        self.source_provider
+            .write()
+            .expect("SourceProvider should be writable")
+            .get(id)
+            .await
     }
 
-    async fn create_spectrograms(&mut self, verified: &Vec<Source>) -> Result<(), AppError> {
-        if !self.batch_options.get_value(|x| x.no_spectrogram) {
-            for source in verified {
-                self.spectrogram.execute_internal(source).await?;
-            }
+    async fn verify(&mut self, source: &Source) -> Result<bool, AppError> {
+        let errors = self
+            .verify
+            .write()
+            .expect("VerifyCommand should be writeable")
+            .execute_internal(source)
+            .await?;
+        if errors.is_empty() {
+            Ok(true)
+        } else {
+            let error = errors.first().expect("should be at least one error");
+            debug!("{} {error} {source}", "Skipped".bold());
+            Ok(false)
         }
-        Ok(())
-    }
-
-    #[allow(clippy::explicit_counter_loop)]
-    async fn transcode(&mut self, verified: Vec<Source>) -> Result<Vec<Source>, AppError> {
-        let mut transcoded: Vec<Source> = Vec::new();
-        let mut index = 0;
-        for source in verified {
-            if let Some(limit) = self.batch_options.transcode_limit {
-                if index >= limit {
-                    warn!(
-                        "{} as the transcode limit has been reached: {limit}",
-                        "Skipping".bold()
-                    );
-                    break;
-                }
-            }
-            let is_transcoded = self.transcode.execute_internal(&source).await?;
-            if is_transcoded {
-                transcoded.push(source);
-            } else {
-                warn!("{} to transcode {source}", "Failed".bold());
-            }
-            index += 1;
-        }
-        Ok(transcoded)
-    }
-
-    async fn upload(&mut self, transcoded: Vec<Source>) -> Result<(), AppError> {
-        for (index, source) in transcoded.iter().enumerate() {
-            if let Some(limit) = self.batch_options.upload_limit {
-                if index >= limit {
-                    warn!(
-                        "{} as the upload limit has been reached: {limit}",
-                        "Skipping".bold()
-                    );
-                    break;
-                }
-            }
-            let is_uploaded = self
-                .upload
-                .write()
-                .expect("UploadCommand should be writeable")
-                .execute_internal(source)
-                .await?;
-            if !is_uploaded {
-                warn!("{} to upload {source}", "Failed".bold());
-            }
-        }
-        Ok(())
     }
 }

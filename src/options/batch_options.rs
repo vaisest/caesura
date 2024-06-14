@@ -19,13 +19,9 @@ pub struct BatchOptions {
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub no_upload: Option<bool>,
 
-    /// Limit the number of torrents transcoded in one execution.
+    /// Limit the number of torrents to batch process.
     #[arg(long)]
-    pub transcode_limit: Option<usize>,
-
-    /// Limit the number of torrents uploaded in one execution.
-    #[arg(long)]
-    pub upload_limit: Option<usize>,
+    pub limit: Option<usize>,
 }
 
 #[injectable]
@@ -54,11 +50,8 @@ impl Options for BatchOptions {
         if self.no_upload.is_none() {
             self.no_upload = alternative.no_upload;
         }
-        if self.transcode_limit.is_none() {
-            self.transcode_limit = alternative.transcode_limit;
-        }
-        if self.upload_limit.is_none() {
-            self.upload_limit = alternative.upload_limit;
+        if self.limit.is_none() {
+            self.limit = alternative.limit;
         }
     }
 
