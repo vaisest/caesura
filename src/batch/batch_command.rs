@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, info};
+use log::{debug, info, warn};
 
 use crate::errors::AppError;
 use crate::options::{
@@ -51,7 +51,9 @@ impl BatchCommand {
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
         let mut count = 0;
         for id in ids {
-            let source = self.get_source(id).await?;
+            let Some(source) = self.get_source(id).await else {
+                continue;
+            };
             if !self.verify(&source).await? {
                 continue;
             }
@@ -77,16 +79,23 @@ impl BatchCommand {
             }
         }
         info!("{} batch process of {count} items", "Completed".bold());
-
         Ok(true)
     }
 
-    async fn get_source(&mut self, id: i64) -> Result<Source, AppError> {
-        self.source_provider
+    async fn get_source(&mut self, id: i64) -> Option<Source> {
+        let result = self
+            .source_provider
             .write()
             .expect("SourceProvider should be writable")
             .get(id)
-            .await
+            .await;
+        match result {
+            Ok(source) => Some(source),
+            Err(error) => {
+                warn!("{} {error}", "Skipping".bold());
+                None
+            }
+        }
     }
 
     async fn verify(&mut self, source: &Source) -> Result<bool, AppError> {
