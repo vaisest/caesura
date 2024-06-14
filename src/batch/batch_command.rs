@@ -46,6 +46,7 @@ impl BatchCommand {
         let source_directory = self.shared_options.get_value(|x| x.source.clone());
         let source_directory = PathBuf::from(source_directory);
         let ids: Vec<i64> = self.id_provider.get_by_directory(&source_directory).await?;
+        debug!("{} {} sources", "Processing".bold(), ids.len());
         let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
         let mut count = 0;

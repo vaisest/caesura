@@ -2,17 +2,19 @@ use std::path::{Path, PathBuf};
 
 use colored::Colorize;
 use di::{injectable, Ref};
-use log::debug;
+use log::trace;
 
 use crate::errors::{AppError, Reason};
 use crate::fs::DirectoryReader;
 use crate::imdl::ImdlCommand;
+use crate::logging::{Logger, Verbosity};
 use crate::options::{Options, SharedOptions};
 use crate::source::*;
 
 /// Retrieve the id of a source.
 #[injectable]
 pub struct IdProvider {
+    logger: Ref<Logger>,
     options: Ref<SharedOptions>,
 }
 
@@ -77,18 +79,29 @@ impl IdProvider {
             .read(directory)
             .or_else(|e| AppError::io(e, "read source directory"))?;
         let mut ids: Vec<i64> = Vec::new();
+        let mut skipped: Vec<(String, PathBuf)> = Vec::new();
         for path in paths {
             match self.get_by_file(&path).await {
                 Ok(id) => ids.push(id),
                 Err(error) => {
-                    let explanation = match error.reason {
-                        Reason::Explained(explanation) => explanation,
-                        Reason::Unexpected(explanation, _, _) => explanation,
-                        Reason::External(_, _) => "unknown reason".to_owned(),
-                    };
-                    debug!("{} {explanation} {path:?}", "Skipped".bold());
+                    if self.logger.enabled_threshold == Verbosity::Trace {
+                        let explanation = match error.reason {
+                            Reason::Explained(explanation) => explanation,
+                            Reason::Unexpected(explanation, _, _) => explanation,
+                            Reason::External(_, _) => "unknown reason".to_owned(),
+                        };
+                        skipped.push((explanation, path));
+                    }
                 }
             }
+        }
+        if !skipped.is_empty() {
+            let lines: Vec<String> = skipped
+                .iter()
+                .map(|(explanation, path)| format!("{explanation} {path:?}"))
+                .collect();
+            let lines = lines.join("\n");
+            trace!("{}\n{}", "Skipped".bold(), lines);
         }
         Ok(ids)
     }
