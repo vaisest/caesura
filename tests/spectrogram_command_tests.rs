@@ -28,7 +28,7 @@ async fn spectrogram_command() -> Result<(), AppError> {
     let source = provider
         .write()
         .expect("Source provider should be writeable")
-        .get()
+        .get_from_options()
         .await
         .expect("Source provider should not fail");
 

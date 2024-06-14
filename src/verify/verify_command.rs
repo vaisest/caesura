@@ -35,7 +35,7 @@ impl VerifyCommand {
             .source_provider
             .write()
             .expect("Source provider should be writeable")
-            .get()
+            .get_from_options()
             .await?;
         let errors = self.execute_internal(&source).await?;
         let is_verified = errors.is_empty();

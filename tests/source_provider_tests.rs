@@ -28,7 +28,7 @@ async fn source_provider() -> Result<(), AppError> {
     let source = provider
         .write()
         .expect("Source provider should be writeable")
-        .get_by_string(&shared_options.source.unwrap_or_default())
+        .get_from_options()
         .await?;
 
     // Assert

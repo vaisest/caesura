@@ -34,7 +34,7 @@ impl TranscodeCommand {
             .source_provider
             .write()
             .expect("Source provider should be writeable")
-            .get()
+            .get_from_options()
             .await?;
         self.execute_internal(&source).await
     }

@@ -19,7 +19,7 @@ use crate::options::{
     BatchOptions, FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions,
     SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions,
 };
-use crate::source::SourceProvider;
+use crate::source::{IdProvider, SourceProvider};
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
 use crate::upload::UploadCommand;
@@ -55,6 +55,7 @@ impl HostBuilder {
             // Add main services
             .add(Logger::singleton())
             .add(PathManager::transient())
+            .add(IdProvider::transient())
             .add(SourceProvider::transient().as_mut())
             .add(ApiFactory::transient())
             .add(Api::singleton().as_mut())

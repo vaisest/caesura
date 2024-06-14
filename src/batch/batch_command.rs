@@ -44,11 +44,11 @@ impl BatchCommand {
         }
         let source_directory = self.shared_options.get_value(|x| x.source.clone());
         let source_directory = PathBuf::from(source_directory);
-        let sources = self
+        let sources: Vec<Source> = self
             .source_provider
             .write()
             .expect("SourceProvider should be writeable")
-            .get_by_directory(&source_directory)
+            .get_from_directory(&source_directory)
             .await?;
         let verified = self.verify(sources).await?;
         self.create_spectrograms(&verified).await?;
