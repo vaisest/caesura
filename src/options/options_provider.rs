@@ -1,3 +1,4 @@
+use std::fs::read_to_string;
 use std::path::PathBuf;
 
 use colored::Colorize;
@@ -86,16 +87,13 @@ fn read_config_file(options: &SharedOptions) -> String {
         .clone()
         .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
     trace!("{} options from file: {:?}", "Reading".bold(), path);
-    match std::fs::read_to_string(path) {
-        Ok(content) => content,
-        Err(error) => {
-            force_init_logger();
-            warn!(
-                "{} to read config file: {}",
-                "Failed".bold().yellow(),
-                error
-            );
-            "{}".to_owned()
-        }
-    }
+    read_to_string(path).unwrap_or_else(|error| {
+        force_init_logger();
+        warn!(
+            "{} to read config file: {}",
+            "Failed".bold().yellow(),
+            error
+        );
+        "{}".to_owned()
+    })
 }
