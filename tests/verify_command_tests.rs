@@ -1,9 +1,9 @@
-use rogue_oxide::errors::AppError;
-use rogue_oxide::hosting::HostBuilder;
-use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::{SharedOptions, TargetOptions};
-use rogue_oxide::testing::*;
-use rogue_oxide::verify::VerifyCommand;
+use caesura::errors::AppError;
+use caesura::hosting::HostBuilder;
+use caesura::logging::{Debug, Logger};
+use caesura::options::{SharedOptions, TargetOptions};
+use caesura::testing::*;
+use caesura::verify::VerifyCommand;
 
 #[tokio::test]
 async fn verify_command() -> Result<(), AppError> {

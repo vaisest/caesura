@@ -1,10 +1,10 @@
-use rogue_oxide::errors::AppError;
-use rogue_oxide::fs::DirectoryReader;
-use rogue_oxide::hosting::HostBuilder;
-use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::{SharedOptions, TargetOptions};
-use rogue_oxide::source::*;
-use rogue_oxide::testing::*;
+use caesura::errors::AppError;
+use caesura::fs::DirectoryReader;
+use caesura::hosting::HostBuilder;
+use caesura::logging::{Debug, Logger};
+use caesura::options::{SharedOptions, TargetOptions};
+use caesura::source::*;
+use caesura::testing::*;
 
 #[tokio::test]
 async fn source_provider() -> Result<(), AppError> {

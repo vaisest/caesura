@@ -1,10 +1,10 @@
 [package]
-name = "rogue_oxide"
+name = "caesura"
 edition = "2021"
 build = "build.rs"
 authors = ["DevYukine <devyukine@gmx.de>", "RogueOneEcho"]
 description = "An all-in-one command line tool to **transcode FLAC** audio files and **upload to gazelle** based indexers/trackers. "
-repository = "https://github.com/RogueOneEcho/rogue_oxide"
+repository = "https://github.com/RogueOneEcho/caesura"
 license = "AGPL-3.0-only"
 exclude = [".github", ".editorconfig", ".idea", "samples/"]
 

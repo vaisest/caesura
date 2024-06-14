@@ -1,5 +1,5 @@
 use log::*;
-use rogue_oxide::logging::{Logger, Verbosity};
+use caesura::logging::{Logger, Verbosity};
 
 #[test]
 fn test() {

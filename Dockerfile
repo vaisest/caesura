@@ -12,4 +12,4 @@ COPY . .
 RUN cargo install --path .
 
 # Run
-ENTRYPOINT ["rogue_oxide"]
+ENTRYPOINT ["caesura"]

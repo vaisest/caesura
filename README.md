@@ -1,12 +1,12 @@
-## About
+# <p style="text-align: center">caesura 𝄓</p>
 
-An all-in-one command line tool to **transcode FLAC** audio files and **upload to gazelle** based indexers/trackers. 
+An all-in-one command line tool to automate transcoding FLAC or FLAC 24 bit source torrent to MP3 320 (CBR) and MP3 V0 (VBR), then upload to gazelle based trackers.
 
 ## Features
 
 All gazelle based indexers/trackers are supported
 - RED
-- **[[new](https://github.com/DevYukine/red_oxide/issues/7)]** OPS.
+- **[[wip](https://github.com/RogueOneEcho/caesura/issues/7)]** OPS.
 
 Tested on Linux, theoretically works on Windows.
 
@@ -63,7 +63,7 @@ The quickest path to get running is using docker compose, but that will require 
 1. Build
 
 ```bash
-docker build -t rogue_oxide .
+docker build -t caesura .
 ```
 
 2. Run
@@ -73,13 +73,13 @@ docker run \
 --user 1000:1000 \
 -v ./path/to/your/config.json:/app/config.json \
 -v /path/to/your/data:/data \
-rogue_oxide verify "123456"
+caesura verify "123456"
 ```
 
 #### Docker Compose
 
 ```bash
-docker compose run rogue_oxide verify "123456"
+docker compose run caesura verify "123456"
 ```
 
 #### Linux
@@ -116,14 +116,14 @@ For now it's recommended to run with docker.
 Verify a FLAC source is suitable for transcoding.
 
 ```
-rogue_oxide verify [OPTIONS] [SOURCE]
+caesura verify [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary><code>rogue_oxide verify --help</code></summary>
+<summary><code>caesura verify --help</code></summary>
 
 ```
-Usage: rogue_oxide verify [OPTIONS] [SOURCE]
+Usage: caesura verify [OPTIONS] [SOURCE]
 
 Arguments:
   [SOURCE]
@@ -188,14 +188,14 @@ Options:
 Generate spectrograms for each track of a FLAC source.
 
 ```
-rogue_oxide spectrogram [OPTIONS] [SOURCE]
+caesura spectrogram [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary><code>rogue_oxide spectrogram --help</code></summary>
+<summary><code>caesura spectrogram --help</code></summary>
 
 ```
-Usage: rogue_oxide spectrogram [OPTIONS] [SOURCE]
+Usage: caesura spectrogram [OPTIONS] [SOURCE]
 
 Arguments:
   [SOURCE]
@@ -249,14 +249,14 @@ Options:
 Transcode each track of a FLAC source to the target formats.
 
 ```
-rogue_oxide transcode [OPTIONS] [SOURCE]
+caesura transcode [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary><code>rogue_oxide transcode --help</code></summary>
+<summary><code>caesura transcode --help</code></summary>
 
 ```
-Usage: rogue_oxide transcode [OPTIONS] [SOURCE]
+Usage: caesura transcode [OPTIONS] [SOURCE]
 
 Arguments:
   [SOURCE]
@@ -321,14 +321,14 @@ Options:
 Upload transcodes of a FLAC source.
 
 ```
-rogue_oxide upload [OPTIONS] [SOURCE]
+caesura upload [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary><code>rogue_oxide upload --help</code></summary>
+<summary><code>caesura upload --help</code></summary>
 
 ```
-Usage: rogue_oxide upload [OPTIONS] [SOURCE]
+Usage: caesura upload [OPTIONS] [SOURCE]
 
 Arguments:
   [SOURCE]
@@ -394,14 +394,14 @@ Options:
 Verify, transcode, and upload from multiple FLAC sources in one command.
 
 ```
-rogue_oxide upload [OPTIONS] [SOURCE]
+caesura upload [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary><code>rogue_oxide upload --help</code></summary>
+<summary><code>caesura upload --help</code></summary>
 
 ```
-Usage: rogue_oxide batch [OPTIONS] [SOURCE]
+Usage: caesura batch [OPTIONS] [SOURCE]
 
 Arguments:
 [SOURCE]
@@ -528,13 +528,13 @@ Release versions follow the [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 Commit messages follow the [Conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
-Releases and a full changelog are available via [GitHub Releases](https://github.com/RogueOneEcho/rogue_oxide/releases).
+Releases and a full changelog are available via [GitHub Releases](https://github.com/RogueOneEcho/caesura/releases).
 
 ## History
 
 [**DevYukine**](https://github.com/DevYukine) completed the **initial work** and released it as [**red_oxide**](https://github.com/DevYukine/red_oxide) under an [MIT license](LICENSE.HISTORIC.md).
 
-[**RogueOneEcho**](https://github.com/RogueOneEcho) forked the project to complete a major refactor, **fix some issues**, add **new features** and improve logging and error handling. The fork is released as [**rogue_oxide**](https://github.com/RogueOneEcho/rogue_oxide) under an [AGPL license](LICENSE.md).
+[**RogueOneEcho**](https://github.com/RogueOneEcho) forked the project to complete a major refactor, **fix some issues**, add **new features** and improve logging and error handling. The fork is released as [**caesura**](https://github.com/RogueOneEcho/caesura) under an [AGPL license](LICENSE.md).
 
 *The main difference between the former MIT license and the present AGPL license is that if you intend to distribute a modified version of the code - even to run it on a server - you must also provide the modified source code under an AGPL license.*
 

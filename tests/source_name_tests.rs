@@ -1,5 +1,5 @@
-use rogue_oxide::naming::{Shortener, SourceName};
-use rogue_oxide::source::Metadata;
+use caesura::naming::{Shortener, SourceName};
+use caesura::source::Metadata;
 
 #[test]
 fn get_shortened() {

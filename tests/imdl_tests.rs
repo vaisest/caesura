@@ -1,9 +1,9 @@
-use rogue_oxide::errors::AppError;
+use caesura::errors::AppError;
 use std::path::PathBuf;
 
-use rogue_oxide::fs::DirectoryReader;
-use rogue_oxide::imdl::imdl_command::ImdlCommand;
-use rogue_oxide::testing::TORRENTS_SAMPLES_DIR;
+use caesura::fs::DirectoryReader;
+use caesura::imdl::imdl_command::ImdlCommand;
+use caesura::testing::TORRENTS_SAMPLES_DIR;
 
 #[tokio::test]
 #[ignore]

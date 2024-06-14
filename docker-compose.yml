@@ -1,6 +1,6 @@
 services:
-  rogue_oxide:
-    container_name: rogue_oxide
+  caesura:
+    container_name: caesura
     build: .
     volumes:
     - ./config.json:/app/config.json:ro

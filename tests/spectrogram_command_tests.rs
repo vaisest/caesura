@@ -1,14 +1,14 @@
-use rogue_oxide::errors::AppError;
+use caesura::errors::AppError;
 use std::path::PathBuf;
 
-use rogue_oxide::fs::DirectoryReader;
-use rogue_oxide::hosting::HostBuilder;
+use caesura::fs::DirectoryReader;
+use caesura::hosting::HostBuilder;
 
-use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::SharedOptions;
-use rogue_oxide::source::SourceProvider;
-use rogue_oxide::spectrogram::*;
-use rogue_oxide::testing::*;
+use caesura::logging::{Debug, Logger};
+use caesura::options::SharedOptions;
+use caesura::source::SourceProvider;
+use caesura::spectrogram::*;
+use caesura::testing::*;
 
 #[tokio::test]
 async fn spectrogram_command() -> Result<(), AppError> {
@@ -16,7 +16,7 @@ async fn spectrogram_command() -> Result<(), AppError> {
     Logger::init_new(Debug);
     let shared_options = TestOptionsFactory::from_with_env(SharedOptions {
         verbosity: Some(Debug),
-        output: Some(TempDirectory::create("rogue_oxide")),
+        output: Some(TempDirectory::create("caesura")),
         ..SharedOptions::default()
     });
     let output_dir = shared_options.output.clone().expect("Should have value");

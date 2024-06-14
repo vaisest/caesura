@@ -1,12 +1,12 @@
-use rogue_oxide::errors::AppError;
-use rogue_oxide::formats::TargetFormatProvider;
-use rogue_oxide::fs::DirectoryReader;
-use rogue_oxide::hosting::HostBuilder;
-use rogue_oxide::logging::{Debug, Logger};
-use rogue_oxide::options::{Options, SharedOptions, TargetOptions};
-use rogue_oxide::source::SourceProvider;
-use rogue_oxide::testing::*;
-use rogue_oxide::transcode::TranscodeCommand;
+use caesura::errors::AppError;
+use caesura::formats::TargetFormatProvider;
+use caesura::fs::DirectoryReader;
+use caesura::hosting::HostBuilder;
+use caesura::logging::{Debug, Logger};
+use caesura::options::{Options, SharedOptions, TargetOptions};
+use caesura::source::SourceProvider;
+use caesura::testing::*;
+use caesura::transcode::TranscodeCommand;
 
 #[tokio::test]
 async fn transcode_command() -> Result<(), AppError> {
@@ -14,7 +14,7 @@ async fn transcode_command() -> Result<(), AppError> {
     Logger::init_new(Debug);
     let shared_options = TestOptionsFactory::from_with_env(SharedOptions {
         verbosity: Some(Debug),
-        output: Some(TempDirectory::create("rogue_oxide")),
+        output: Some(TempDirectory::create("caesura")),
         ..SharedOptions::default()
     });
     let target_options = TestOptionsFactory::from(TargetOptions {
