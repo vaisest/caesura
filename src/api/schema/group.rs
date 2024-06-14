@@ -20,5 +20,5 @@ pub struct Group {
     pub vanity_house: bool,
     pub is_bookmarked: bool,
     pub tags: Vec<String>,
-    pub music_info: MusicInfo,
+    pub music_info: Option<MusicInfo>,
 }
