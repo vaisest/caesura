@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, warn};
+use log::{debug, info};
 
 use crate::errors::AppError;
 use crate::options::{
@@ -48,16 +48,18 @@ impl BatchCommand {
         let ids: Vec<i64> = self.id_provider.get_by_directory(&source_directory).await?;
         let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
-        for (index, id) in ids.iter().enumerate() {
-            let source = self.get_source(*id).await?;
+        let mut count = 0;
+        for id in ids {
+            let source = self.get_source(id).await?;
             if !self.verify(&source).await? {
-                warn!("{} to verify {source}", "Failed".bold());
                 continue;
             }
             if !skip_spectrogram {
                 self.spectrogram.execute_internal(&source).await?;
             }
-            self.transcode.execute_internal(&source).await?;
+            if !self.transcode.execute_internal(&source).await? {
+                continue;
+            }
             if !skip_upload {
                 self.upload
                     .write()
@@ -65,16 +67,16 @@ impl BatchCommand {
                     .execute_internal(&source)
                     .await?;
             }
+            count += 1;
             if let Some(limit) = self.batch_options.limit {
-                if index >= limit {
-                    warn!(
-                        "{} as the batch limit has been reached: {limit}",
-                        "Skipping".bold()
-                    );
+                if count >= limit {
+                    info!("{} batch limit: {limit}", "Reached".bold());
                     break;
                 }
             }
         }
+        info!("{} batch process of {count} items", "Completed".bold());
+
         Ok(true)
     }
 
