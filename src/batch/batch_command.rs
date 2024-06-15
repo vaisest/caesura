@@ -1,6 +1,6 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, info, trace, warn};
+use log::{debug, info, trace};
 
 use crate::batch::BatchCacheFactory;
 use crate::batch::BatchItem;
@@ -59,6 +59,7 @@ impl BatchCommand {
                 Ok(id) => id,
                 Err(error) => {
                     cache.update(&item.path, |item| item.set_skipped(error.to_string()));
+                    debug!("{} {item}", "Skipping".bold());
                     trace!("{error}");
                     continue;
                 }
@@ -67,12 +68,15 @@ impl BatchCommand {
                 Ok(source) => source,
                 Err(error) => {
                     cache.update(&item.path, |item| item.set_skipped(error.to_string()));
+                    debug!("{} {item}", "Skipping".bold());
                     trace!("{error}");
                     continue;
                 }
             };
             if let Some(reason) = self.verify(&source).await? {
                 cache.update(&item.path, |item| item.set_skipped(reason.to_string()));
+                debug!("{} {item}", "Skipping".bold());
+                trace!("{reason}");
                 continue;
             }
             if !skip_spectrogram {
