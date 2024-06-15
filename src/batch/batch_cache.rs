@@ -23,12 +23,13 @@ impl BatchCache {
     }
 
     pub fn get_queue(&mut self) -> Vec<BatchItem> {
-        let mut queue: Vec<BatchItem> = self.items
+        let mut queue: Vec<BatchItem> = self
+            .items
             .values()
             .filter(|x| x.skipped.is_none() && !x.uploaded)
             .map(Clone::clone)
             .collect();
-        queue.sort_by_key(|x|x.path.to_string_lossy().to_string());
+        queue.sort_by_key(|x| x.path.to_string_lossy().to_string());
         queue
     }
 
