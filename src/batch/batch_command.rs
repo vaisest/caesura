@@ -66,8 +66,8 @@ impl BatchCommand {
             let source = match self.get_source(id).await {
                 Ok(source) => source,
                 Err(error) => {
-                    cache.update(&item.path, |item| item.set_failed(error.to_string()));
-                    warn!("{error}");
+                    cache.update(&item.path, |item| item.set_skipped(error.to_string()));
+                    trace!("{error}");
                     continue;
                 }
             };
