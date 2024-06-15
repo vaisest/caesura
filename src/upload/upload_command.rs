@@ -16,7 +16,7 @@ use crate::options::{Options, SharedOptions, UploadOptions};
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{CommandFactory, TranscodeJobFactory};
 
-const MUSIC_CATEGORY_ID : u8 = 0;
+const MUSIC_CATEGORY_ID: u8 = 0;
 
 /// Upload transcodes of a FLAC source.
 #[injectable]
