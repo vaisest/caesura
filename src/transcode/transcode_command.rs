@@ -1,7 +1,7 @@
-use std::fmt::Display;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
+use std::fmt::Display;
 
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
@@ -141,7 +141,7 @@ impl TranscodeCommand {
     }
 }
 
-fn join_humanized<T:Display>(strings: &[T]) -> String {
+fn join_humanized<T: Display>(strings: &[T]) -> String {
     let count = strings.len();
     if count == 0 {
         String::new()
@@ -149,10 +149,10 @@ fn join_humanized<T:Display>(strings: &[T]) -> String {
         format!("{}", strings.first().expect("should be 1"))
     } else {
         let last = strings.last().expect("should be at least 2");
-        let separated : Vec<String> = strings
+        let separated: Vec<String> = strings
             .iter()
             .take(count - 1)
-            .map(|x|format!("{x}"))
+            .map(|x| format!("{x}"))
             .collect();
         format!("{} and {last}", separated.join(", "))
     }
