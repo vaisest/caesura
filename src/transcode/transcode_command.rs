@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
@@ -80,9 +81,9 @@ impl TranscodeCommand {
     ) -> Result<(), AppError> {
         let flacs = Collector::get_flacs(&source.directory);
         info!(
-            "{} to {:?} for {} FLACs in {}",
+            "{} to {} for {} FLACs in {}",
             "Transcoding".bold(),
-            targets,
+            join_humanized(targets),
             flacs.len().to_string().gray(),
             source
         );
@@ -137,5 +138,22 @@ impl TranscodeCommand {
         let tracker_url = self.shared_options.get_value(|x| x.tracker_url.clone());
         let api_key = self.shared_options.get_value(|x| x.api_key.clone());
         format!("{tracker_url}/{api_key}/announce")
+    }
+}
+
+fn join_humanized<T:Display>(strings: &[T]) -> String {
+    let count = strings.len();
+    if count == 0 {
+        String::new()
+    } else if count == 1 {
+        format!("{}", strings.first().expect("should be 1"))
+    } else {
+        let last = strings.last().expect("should be at least 2");
+        let separated : Vec<String> = strings
+            .iter()
+            .take(count - 1)
+            .map(|x|format!("{x}"))
+            .collect();
+        format!("{} and {last}", separated.join(", "))
     }
 }
