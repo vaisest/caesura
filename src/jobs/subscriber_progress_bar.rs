@@ -27,6 +27,7 @@ impl ProgressBarSubscriber {
 impl Subscriber for ProgressBarSubscriber {
     /// Called when a new scope is started.
     fn start(&self, _scope_id: &str) {
+        self.bar.reset();
         let total = self
             .set
             .read()
@@ -37,7 +38,7 @@ impl Subscriber for ProgressBarSubscriber {
 
     /// Called when a scope is finished.
     fn finish(&self, _scope_id: &str) {
-        self.bar.finish_and_clear();
+        self.bar.finish();
     }
 
     /// Called when the status of a job changes.
