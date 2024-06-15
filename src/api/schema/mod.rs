@@ -1,6 +1,5 @@
 pub use api_response::*;
 pub use artist::*;
-pub use category::*;
 pub use group::*;
 pub use group_response::*;
 pub use music_info::*;
@@ -11,7 +10,6 @@ pub use upload_response::*;
 
 pub mod api_response;
 pub mod artist;
-pub mod category;
 pub mod group;
 pub mod group_response;
 pub mod music_info;

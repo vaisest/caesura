@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter};
 pub const MAX_PATH_LENGTH: usize = 180;
 
 pub enum SourceRule {
+    IncorrectCategory(String),
     SceneNotSupported,
     LossyMasterNeedsApproval,
     LossyWebNeedsApproval,
@@ -23,6 +24,7 @@ pub enum SourceRule {
 impl Display for SourceRule {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let message = match self {
+            IncorrectCategory(category) => format!("Category was not Music: {category}"),
             SceneNotSupported => "Scene releases are not supported".to_owned(),
             LossyMasterNeedsApproval => "Lossy master releases need approval".to_owned(),
             LossyWebNeedsApproval => "Lossy web releases need approval".to_owned(),

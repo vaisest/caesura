@@ -16,6 +16,8 @@ use crate::options::{Options, SharedOptions, UploadOptions};
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{CommandFactory, TranscodeJobFactory};
 
+const MUSIC_CATEGORY_ID : u8 = 0;
+
 /// Upload transcodes of a FLAC source.
 #[injectable]
 pub struct UploadCommand {
@@ -69,7 +71,7 @@ impl UploadCommand {
             }
             let form = UploadForm {
                 path: torrent_path,
-                category_id: source.group.category_name.as_int(),
+                category_id: MUSIC_CATEGORY_ID,
                 remaster_year: source.metadata.year,
                 remaster_title: source.torrent.remaster_title.clone(),
                 remaster_record_label: source.torrent.remaster_record_label.clone(),

@@ -69,6 +69,9 @@ impl VerifyCommand {
 
     fn api_checks(&self, source: &Source) -> Vec<SourceRule> {
         let mut errors: Vec<SourceRule> = Vec::new();
+        if source.group.category_name != "Music" {
+            errors.push(IncorrectCategory(source.group.category_name.clone()));
+        }
         if source.torrent.scene {
             errors.push(SceneNotSupported);
         }

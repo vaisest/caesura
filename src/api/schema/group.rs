@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::api::{Category, MusicInfo};
+use crate::api::MusicInfo;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -15,7 +15,7 @@ pub struct Group {
     pub catalogue_number: String,
     pub release_type: i64,
     pub category_id: i64,
-    pub category_name: Category,
+    pub category_name: String,
     pub time: String,
     pub vanity_house: bool,
     pub is_bookmarked: bool,
