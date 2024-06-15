@@ -106,7 +106,7 @@ impl BatchCommand {
                     continue;
                 }
             }
-            cache.save()?;
+            cache.save(false)?;
             count += 1;
             if let Some(limit) = self.batch_options.limit {
                 if count >= limit {
@@ -115,6 +115,7 @@ impl BatchCommand {
                 }
             }
         }
+        cache.save(true)?;
         info!("{} batch process of {count} items", "Completed".bold());
         Ok(true)
     }

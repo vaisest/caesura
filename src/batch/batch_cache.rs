@@ -34,12 +34,15 @@ impl BatchCache {
         self.items.entry(key).and_modify(function);
     }
 
-    pub fn save(&self) -> Result<(), AppError> {
+    pub fn save(&self, sort: bool) -> Result<(), AppError> {
         if let Some(path) = &self.path {
             trace!("{} cache file: {path:?}", "Writing".bold());
             let file = File::create(path).or_else(|e| AppError::io(e, "open batch cache"))?;
             let mut writer = BufWriter::new(file);
-            let items: Vec<&BatchItem> = self.items.values().collect();
+            let mut items: Vec<&BatchItem> = self.items.values().collect();
+            if sort {
+                items.sort_by_key(|x| x.path.to_string_lossy().to_string());
+            }
             serde_json::to_writer_pretty(&mut writer, &items)
                 .or_else(|e| AppError::deserialization(e, "serialize batch cache"))?;
             writer
