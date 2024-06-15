@@ -2,7 +2,8 @@ use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{debug, info, trace, warn};
 
-use crate::batch::{BatchCache, BatchItem};
+use crate::batch::BatchCacheFactory;
+use crate::batch::BatchItem;
 use crate::errors::AppError;
 use crate::options::{
     BatchOptions, FileOptions, Options, SharedOptions, SpectrogramOptions, TargetOptions,
@@ -23,6 +24,7 @@ pub struct BatchCommand {
     spectrogram_options: Ref<SpectrogramOptions>,
     file_options: Ref<FileOptions>,
     batch_options: Ref<BatchOptions>,
+    batch_cache_factory: RefMut<BatchCacheFactory>,
     id_provider: Ref<IdProvider>,
     source_provider: RefMut<SourceProvider>,
     verify: RefMut<VerifyCommand>,
@@ -42,15 +44,13 @@ impl BatchCommand {
         {
             return Ok(false);
         }
-
-        let mut cache = match &self.batch_options.cache {
-            None => BatchCache::new(),
-            Some(path) => BatchCache::from_file(path)?,
-        };
-        let source = self.shared_options.get_value(|x| x.source.clone());
-        cache.load_from(source)?;
+        let mut cache = self
+            .batch_cache_factory
+            .write()
+            .expect("BatchCacheFactory should be writeable")
+            .create()?;
         let queue = cache.get_queue();
-        debug!("{} {} sources", "Processing".bold(), queue.len());
+        debug!("{} {} sources", "Queued".bold(), queue.len());
         let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
         let mut count = 0;
@@ -100,6 +100,7 @@ impl BatchCommand {
                     continue;
                 }
             }
+            cache.save()?;
             count += 1;
             if let Some(limit) = self.batch_options.limit {
                 if count >= limit {
@@ -107,9 +108,6 @@ impl BatchCommand {
                     break;
                 }
             }
-        }
-        if let Some(path) = &self.batch_options.cache {
-            cache.write(path)?;
         }
         info!("{} batch process of {count} items", "Completed".bold());
         Ok(true)

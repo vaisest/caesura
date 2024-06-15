@@ -8,7 +8,7 @@ use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 
 use crate::api::{Api, ApiFactory};
-use crate::batch::BatchCommand;
+use crate::batch::{BatchCacheFactory, BatchCommand};
 use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
@@ -66,6 +66,7 @@ impl HostBuilder {
             .add(TargetFormatProvider::transient())
             // Add batch services
             .add(BatchCommand::transient().as_mut())
+            .add(BatchCacheFactory::transient().as_mut())
             // Add spectrogram services
             .add(SpectrogramCommand::transient())
             .add(SpectrogramJobFactory::transient())
