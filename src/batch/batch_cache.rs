@@ -64,11 +64,8 @@ impl BatchCache {
         trace!("{} cache file: {path:?}", "Writing".bold());
         let file = File::create(path).or_else(|e| AppError::io(e, "open batch cache"))?;
         let mut writer = BufWriter::new(file);
-        let items: Vec<BatchItem> = self
-            .items
-            .into_values()
-            .collect();
-        serde_json::to_writer(&mut writer, &items)
+        let items: Vec<BatchItem> = self.items.into_values().collect();
+        serde_json::to_writer_pretty(&mut writer, &items)
             .or_else(|e| AppError::deserialization(e, "serialize batch cache"))?;
         writer
             .flush()
