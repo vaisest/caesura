@@ -67,7 +67,7 @@ impl OptionsProvider {
             }
         }
         options.apply_defaults();
-        debug!("{} {}: {}", "Using".bold(), T::get_name(), options);
+        trace!("{} {}: {}", "Using".bold(), T::get_name(), options);
         options
     }
 }
