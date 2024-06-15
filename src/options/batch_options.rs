@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use std::path::PathBuf;
 
 use clap::{ArgAction, Args};
 use di::{injectable, Ref};
@@ -6,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{Options, OptionsProvider, ValueProvider};
+use crate::options::{DoesNotExist, OptionRule, Options, OptionsProvider, ValueProvider};
 
 /// Options for [`BatchCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -22,6 +23,10 @@ pub struct BatchOptions {
     /// Limit the number of torrents to batch process.
     #[arg(long)]
     pub limit: Option<usize>,
+
+    /// Path to cache file.
+    #[arg(long)]
+    pub cache: Option<PathBuf>,
 }
 
 #[injectable]
@@ -53,6 +58,9 @@ impl Options for BatchOptions {
         if self.limit.is_none() {
             self.limit = alternative.limit;
         }
+        if self.cache.is_none() {
+            self.cache.clone_from(&alternative.cache);
+        }
     }
 
     fn apply_defaults(&mut self) {
@@ -66,7 +74,17 @@ impl Options for BatchOptions {
 
     #[must_use]
     fn validate(&self) -> bool {
-        true
+        let mut errors: Vec<OptionRule> = Vec::new();
+        if let Some(cache) = &self.cache {
+            if !cache.exists() && !cache.is_file() {
+                errors.push(DoesNotExist(
+                    "Cache File".to_owned(),
+                    cache.to_string_lossy().to_string(),
+                ));
+            }
+        }
+        OptionRule::show(&errors);
+        errors.is_empty()
     }
 
     #[must_use]

@@ -1,6 +1,5 @@
 use di::{injectable, Ref, RefMut};
 use html_escape::decode_html_entities;
-use std::path::Path;
 
 use crate::api::Api;
 use crate::errors::AppError;
@@ -50,15 +49,5 @@ impl SourceProvider {
     pub async fn get_from_options(&mut self) -> Result<Source, AppError> {
         let id = self.id_provider.get_by_options().await?;
         self.get(id).await
-    }
-
-    pub async fn get_from_directory(&mut self, directory: &Path) -> Result<Vec<Source>, AppError> {
-        let ids = self.id_provider.get_by_directory(directory).await?;
-        let mut sources: Vec<Source> = Vec::new();
-        for id in ids {
-            let source = self.get(id).await?;
-            sources.push(source);
-        }
-        Ok(sources)
     }
 }

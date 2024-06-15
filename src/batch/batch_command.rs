@@ -1,9 +1,8 @@
-use std::path::PathBuf;
-
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, info, warn};
+use log::{debug, info, trace, warn};
 
+use crate::batch::{BatchCache, BatchItem};
 use crate::errors::AppError;
 use crate::options::{
     BatchOptions, FileOptions, Options, SharedOptions, SpectrogramOptions, TargetOptions,
@@ -43,32 +42,63 @@ impl BatchCommand {
         {
             return Ok(false);
         }
-        let source_directory = self.shared_options.get_value(|x| x.source.clone());
-        let source_directory = PathBuf::from(source_directory);
-        let ids: Vec<i64> = self.id_provider.get_by_directory(&source_directory).await?;
-        debug!("{} {} sources", "Processing".bold(), ids.len());
+
+        let mut cache = match &self.batch_options.cache {
+            None => BatchCache::new(),
+            Some(path) => BatchCache::from_file(path)?,
+        };
+        let source = self.shared_options.get_value(|x| x.source.clone());
+        cache.load_from(source)?;
+        let queue = cache.get_queue();
+        debug!("{} {} sources", "Processing".bold(), queue.len());
         let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
         let mut count = 0;
-        for id in ids {
-            let Some(source) = self.get_source(id).await else {
-                continue;
+        for item in queue {
+            let id = match self.id_provider.get_by_file(&item.path).await {
+                Ok(id) => id,
+                Err(error) => {
+                    cache.update(&item.path, |item| item.set_skipped(error.to_string()));
+                    trace!("{error}");
+                    continue;
+                }
             };
-            if !self.verify(&source).await? {
+            let source = match self.get_source(id).await {
+                Ok(source) => source,
+                Err(error) => {
+                    cache.update(&item.path, |item| item.set_failed(error.to_string()));
+                    warn!("{error}");
+                    continue;
+                }
+            };
+            if let Some(reason) = self.verify(&source).await? {
+                cache.update(&item.path, |item| item.set_skipped(reason.to_string()));
                 continue;
             }
             if !skip_spectrogram {
                 self.spectrogram.execute_internal(&source).await?;
             }
             if !self.transcode.execute_internal(&source).await? {
+                cache.update(&item.path, |item| {
+                    item.set_failed("transcode failed".to_owned());
+                });
                 continue;
             }
             if !skip_upload {
-                self.upload
+                if self
+                    .upload
                     .write()
                     .expect("UploadCommand should be writeable")
                     .execute_internal(&source)
-                    .await?;
+                    .await?
+                {
+                    cache.update(&item.path, BatchItem::set_uploaded);
+                } else {
+                    cache.update(&item.path, |item| {
+                        item.set_failed("upload failed".to_owned());
+                    });
+                    continue;
+                }
             }
             count += 1;
             if let Some(limit) = self.batch_options.limit {
@@ -78,39 +108,36 @@ impl BatchCommand {
                 }
             }
         }
+        if let Some(path) = &self.batch_options.cache {
+            cache.write(path)?;
+        }
         info!("{} batch process of {count} items", "Completed".bold());
         Ok(true)
     }
 
-    async fn get_source(&mut self, id: i64) -> Option<Source> {
-        let result = self
-            .source_provider
+    async fn get_source(&mut self, id: i64) -> Result<Source, AppError> {
+        self.source_provider
             .write()
             .expect("SourceProvider should be writable")
             .get(id)
-            .await;
-        match result {
-            Ok(source) => Some(source),
-            Err(error) => {
-                warn!("{} {error}", "Skipping".bold());
-                None
-            }
-        }
+            .await
     }
 
-    async fn verify(&mut self, source: &Source) -> Result<bool, AppError> {
-        let errors = self
+    async fn verify(&mut self, source: &Source) -> Result<Option<String>, AppError> {
+        let errors: Vec<String> = self
             .verify
             .write()
             .expect("VerifyCommand should be writeable")
             .execute_internal(source)
-            .await?;
+            .await?
+            .iter()
+            .map(ToString::to_string)
+            .collect();
         if errors.is_empty() {
-            Ok(true)
+            Ok(None)
         } else {
-            let error = errors.first().expect("should be at least one error");
-            debug!("{} {error} {source}", "Skipped".bold());
-            Ok(false)
+            let reason = errors.join(". ");
+            Ok(Some(reason))
         }
     }
 }

@@ -41,7 +41,7 @@ impl AppError {
         })
     }
 
-    fn external<T>(
+    pub fn external<T>(
         action: &str,
         domain: &str,
         error: Box<dyn Error + Send + Sync>,
