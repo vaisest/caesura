@@ -61,11 +61,11 @@ impl TranscodeCommand {
         for target in targets {
             let path = self.paths.get_torrent_path(source, target);
             if path.exists() {
-                warn!(
+                debug!(
                     "{} {target} as it has already been transcoded.",
                     "Skipping".bold()
                 );
-                debug!("{path:?}");
+                trace!("{path:?}");
             } else {
                 out.push(*target);
             }
