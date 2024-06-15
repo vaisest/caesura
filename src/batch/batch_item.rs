@@ -8,6 +8,8 @@ pub struct BatchItem {
     pub path: PathBuf,
     pub skipped: Option<String>,
     pub failed: Option<String>,
+    #[serde(default)]
+    pub transcoded: bool,
     pub uploaded: bool,
 }
 
@@ -18,6 +20,7 @@ impl BatchItem {
             path,
             skipped: None,
             uploaded: false,
+            transcoded: false,
             failed: None,
         }
     }
@@ -28,6 +31,10 @@ impl BatchItem {
 
     pub fn set_failed(&mut self, reason: String) {
         self.failed = Some(reason);
+    }
+
+    pub fn set_transcoded(&mut self) {
+        self.transcoded = true;
     }
 
     pub fn set_uploaded(&mut self) {

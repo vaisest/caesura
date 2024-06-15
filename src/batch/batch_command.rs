@@ -49,10 +49,10 @@ impl BatchCommand {
             .write()
             .expect("BatchCacheFactory should be writeable")
             .create()?;
-        let queue = cache.get_queue();
-        debug!("{} {} sources", "Queued".bold(), queue.len());
         let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
+        let queue = cache.get_queue(skip_upload);
+        debug!("{} {} sources", "Queued".bold(), queue.len());
         let mut count = 0;
         for item in queue {
             let id = match self.id_provider.get_by_file(&item.path).await {
@@ -74,7 +74,7 @@ impl BatchCommand {
                 }
             };
             if let Some(reason) = self.verify(&source).await? {
-                cache.update(&item.path, |item| item.set_skipped(reason.to_string()));
+                cache.update(&item.path, |item| item.set_skipped(reason.clone()));
                 debug!("{} {item}", "Skipping".bold());
                 trace!("{reason}");
                 continue;
@@ -82,7 +82,9 @@ impl BatchCommand {
             if !skip_spectrogram {
                 self.spectrogram.execute_internal(&source).await?;
             }
-            if !self.transcode.execute_internal(&source).await? {
+            if self.transcode.execute_internal(&source).await? {
+                cache.update(&item.path, BatchItem::set_transcoded);
+            } else {
                 cache.update(&item.path, |item| {
                     item.set_failed("transcode failed".to_owned());
                 });

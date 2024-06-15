@@ -15,11 +15,11 @@ pub struct BatchCache {
 }
 
 impl BatchCache {
-    pub fn get_queue(&mut self) -> Vec<BatchItem> {
+    pub fn get_queue(&mut self, skip_upload: bool) -> Vec<BatchItem> {
         let mut queue: Vec<BatchItem> = self
             .items
             .values()
-            .filter(|x| x.skipped.is_none() && !x.uploaded)
+            .filter(|x| x.skipped.is_none() && !x.uploaded && (!skip_upload || !x.transcoded))
             .map(Clone::clone)
             .collect();
         queue.sort_by_key(|x| x.path.to_string_lossy().to_string());
