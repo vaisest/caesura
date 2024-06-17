@@ -98,9 +98,9 @@ cargo install imdl
 sudo apt install flac lame sox imagemagick --yes
 ```
 
-4. Install red_oxide
+4. Install caesura
 ```bash
-cargo install red_oxide
+cargo install caesura
 ```
 
 #### Windows
