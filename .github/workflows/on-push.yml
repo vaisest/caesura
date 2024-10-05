@@ -7,17 +7,21 @@ jobs:
   on-push:
     runs-on: ubuntu-latest
     steps:
+
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         fetch-tags: true
+
     - id: cache-samples
       uses: actions/cache@v4
       with:
        path: samples/content
        key: cache-samples
+
     - if: steps.cache-samples.outputs.cache-hit != 'true'
       run: ./samples/download-sample
+
     - run: |
         curl "https://github.com/casey/intermodal/releases/download/v0.1.14/imdl-v0.1.14-x86_64-unknown-linux-musl.tar.gz" \
           --location \
@@ -29,25 +33,42 @@ jobs:
           --directory "/usr/local/bin" \
           --file - \
           "imdl"
+
     - run: sudo apt-get update
+
     - run: sudo apt-get install flac lame sox imagemagick --yes
-    - run: cargo build --release
-    - run: cargo test --release --no-fail-fast
-      env:
-        API_KEY: ${{ secrets.API_KEY }}
-        SOURCE: ${{ secrets.SOURCE }}
-    - run: cargo check --quiet --all-targets --message-format short
-      continue-on-error: true
-    - run: cargo clippy --quiet --all-targets --message-format short
-      continue-on-error: true
-    - run: cargo fmt --quiet --check
-      continue-on-error: true
+
     - id: release
       env:
         GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       run: ${{ secrets.RELEASE_SCRIPT }}
+
     - run: echo "${{ steps.release.outputs.version}}"
+
     - run: cat "release-notes.md"
+
+    - run: cargo install cargo-edit
+      if: ${{ steps.release.outputs.version != ''}}
+
+    - run: cargo set-version ${{ steps.release.outputs.version }}
+      if: ${{ steps.release.outputs.version != ''}}
+
+    - run: cargo build --release
+
+    - run: cargo test --release --no-fail-fast
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
+        SOURCE: ${{ secrets.SOURCE }}
+
+    - run: cargo check --quiet --all-targets --message-format short
+      continue-on-error: true
+
+    - run: cargo clippy --quiet --all-targets --message-format short
+      continue-on-error: true
+
+    - run: cargo fmt --quiet --check
+      continue-on-error: true
+
     - name: gh release create
       if: ${{ steps.release.outputs.version != '' && ! contains(steps.release.outputs.version, '-') }}
       env:
@@ -58,6 +79,7 @@ jobs:
         --title "v${{ steps.release.outputs.version }}"
         --notes-file release-notes.md
         --target ${{ github.ref_name }}
+
     - name: gh release create --prerelease
       if: ${{ steps.release.outputs.version != '' && contains(steps.release.outputs.version, '-') }}
       env:
@@ -69,10 +91,7 @@ jobs:
         --notes-file release-notes.md
         --target ${{ github.ref_name }}
         --prerelease
-    - run: cargo install cargo-edit
-      if: ${{ steps.release.outputs.version != ''}}
-    - run: cargo set-version ${{ steps.release.outputs.version }}
-      if: ${{ steps.release.outputs.version != ''}}
+
     - name: gh release upload
       run: >
         gh release upload
@@ -83,6 +102,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       if: ${{ steps.release.outputs.version != ''}}
+
     - run: cargo publish --allow-dirty
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
