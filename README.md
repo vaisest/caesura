@@ -82,7 +82,30 @@ caesura verify "123456"
 docker compose run caesura verify "123456"
 ```
 
-#### Linux
+#### Linux and MacOS
+
+1. [Install Rust](https://www.rust-lang.org/tools/install)
+
+2. [Install Homebrew](https://brew.sh/)
+
+3. [Install Intermodal](https://github.com/casey/intermodal#installation)
+
+```bash
+cargo install imdl
+```
+
+4. Install FLAC, LAME, SOX and ImageMagick dependencies.
+
+```bash
+brew install flac lame sox imagemagick
+```
+
+5. Install caesura
+```bash
+cargo install caesura
+```
+
+#### Ubuntu
 
 1. [Install Rust](https://www.rust-lang.org/tools/install)
 
@@ -92,7 +115,7 @@ docker compose run caesura verify "123456"
 cargo install imdl
 ```
 
-3. Install FLAC, LAME, SOX and ImageMagick
+3. Install FLAC, LAME, SOX and ImageMagick dependencies.
 
 ```bash
 sudo apt install flac lame sox imagemagick --yes
