@@ -71,7 +71,7 @@ docker build -t caesura .
 ```bash
 docker run \
 --user 1000:1000 \
--v ./path/to/your/config.json:/app/config.json \
+-v ./path/to/your/config.json:/config.json \
 -v /path/to/your/data:/data \
 caesura verify "123456"
 ```
@@ -79,7 +79,7 @@ caesura verify "123456"
 #### Docker Compose
 
 ```bash
-docker compose run caesura verify "123456"
+docker compose run --rm caesura verify "123456"
 ```
 
 #### Linux and MacOS
