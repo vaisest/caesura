@@ -70,12 +70,24 @@ impl AppError {
         Self::external(action, "FLAC", Box::new(error))
     }
 
-    pub fn command<T>(error: CommandError, action: &str, domain: &str) -> Result<T, AppError> {
-        Self::external(action, domain, Box::new(error))
+    #[allow(clippy::wildcard_enum_match_arm)]
+    pub fn command<T>(error: IOError, action: &str, program: &str) -> Result<T, AppError> {
+        match error.kind() {
+            std::io::ErrorKind::NotFound => {
+                Self::explained(action, format!("Could not find dependency: {program}"))
+            }
+            _ => {
+                Self::io(error, action)
+            }
+        }
     }
 
     pub fn io<T>(error: IOError, action: &str) -> Result<T, AppError> {
         Self::external(action, "file system", Box::new(error))
+    }
+
+    pub fn output<T>(error: CommandError, action: &str, domain: &str) -> Result<T, AppError> {
+        Self::external(action, domain, Box::new(error))
     }
 
     pub fn request<T>(error: reqwest::Error, action: &str) -> Result<T, AppError> {

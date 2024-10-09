@@ -40,7 +40,7 @@ impl ImdlCommand {
             .arg("--force")
             .output()
             .await
-            .or_else(|e| AppError::io(e, "execute create torrent"))?;
+            .or_else(|e| AppError::command(e, "execute create torrent", IMDL))?;
         OutputHandler::execute(output, "create torrent", "IMDL")
     }
 
@@ -53,7 +53,7 @@ impl ImdlCommand {
             .arg(path)
             .output()
             .await
-            .or_else(|e| AppError::io(e, "execute read torrent"))?;
+            .or_else(|e| AppError::command(e, "execute read torrent", IMDL))?;
         let output = OutputHandler::execute(output, "read torrent", "IMDL")?;
         let reader = output.stdout.reader();
         serde_json::from_reader(reader)
@@ -76,7 +76,7 @@ impl ImdlCommand {
             .stderr(Stdio::piped())
             .output()
             .await
-            .or_else(|e| AppError::io(e, "execute verify torrent"))?;
+            .or_else(|e| AppError::command(e, "execute verify torrent", IMDL))?;
         if output.status.success() {
             Ok(None)
         } else {
@@ -100,17 +100,17 @@ impl ImdlCommand {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
-            .or_else(|e| AppError::io(e, "execute verify torrent"))?;
+            .or_else(|e| AppError::command(e, "execute verify torrent", IMDL))?;
         let mut stdin = child.stdin.take().expect("stdin should be available");
         stdin
             .write_all(buffer)
             .await
-            .or_else(|e| AppError::io(e, "writing buffer to verify torrent"))?;
+            .or_else(|e| AppError::command(e, "writing buffer to verify torrent", IMDL))?;
         drop(stdin);
         let output = child
             .wait_with_output()
             .await
-            .or_else(|e| AppError::io(e, "get output of verify torrent"))?;
+            .or_else(|e| AppError::command(e, "get output of verify torrent", IMDL))?;
         if output.status.success() {
             Ok(Vec::new())
         } else {

@@ -64,7 +64,7 @@ impl SpectrogramJob {
             .arg(&self.output_path)
             .output()
             .await
-            .or_else(|e| AppError::io(e, "execute generate spectrogram"))?;
+            .or_else(|e| AppError::command(e, "execute generate spectrogram", SOX))?;
         OutputHandler::execute(output, "generate spectrogram", "IMDL")
     }
 
@@ -91,7 +91,7 @@ impl SpectrogramJob {
             .arg(&self.output_path)
             .output()
             .await
-            .or_else(|e| AppError::io(e, "execute generating spectrogram"))?;
+            .or_else(|e| AppError::command(e, "execute generate spectrogram", SOX))?;
         OutputHandler::execute(output, "generate spectrogram", "IMDL")
     }
 }

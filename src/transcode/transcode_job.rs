@@ -27,6 +27,7 @@ impl TranscodeJob {
             .or_else(|e| AppError::io(e, "create transcode output directory"))?;
         let mut buffer = vec![];
         for factory in self.commands {
+            let program = factory.program.clone();
             let command = format!(
                 "{} \"{}\"",
                 factory.program.clone(),
@@ -39,7 +40,7 @@ impl TranscodeJob {
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
                 .spawn()
-                .or_else(|e| AppError::io(e, "execute transcode job"))?;
+                .or_else(|e| AppError::command(e, "execute transcode job", program.as_str()))?;
             if !buffer.is_empty() {
                 let mut stdin = child.stdin.take().expect("stdin should be available");
                 stdin

@@ -17,7 +17,7 @@ impl OutputHandler {
                 exit_signal: output.status.signal(),
                 exit_stopped_signal: output.status.stopped_signal(),
             };
-            AppError::command(error, action, domain)
+            AppError::output(error, action, domain)
         }
     }
 }

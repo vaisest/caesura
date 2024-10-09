@@ -111,6 +111,6 @@ async fn compress_image(
         .arg(output_path)
         .output()
         .await
-        .or_else(|e| AppError::io(e, "execute compress image"))?;
+        .or_else(|e| AppError::command(e, "execute compress image", CONVERT))?;
     OutputHandler::execute(output, "compress image", "convert")
 }
