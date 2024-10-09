@@ -39,7 +39,7 @@ impl TranscodeJob {
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
                 .spawn()
-                .expect("Process should be able to spawn");
+                .or_else(|e| AppError::io(e, "execute transcode job"))?;
             if !buffer.is_empty() {
                 let mut stdin = child.stdin.take().expect("stdin should be available");
                 stdin
