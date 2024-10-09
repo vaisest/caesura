@@ -33,7 +33,7 @@ impl Host {
     pub async fn execute(&self) -> Result<bool, AppError> {
         let logger = self.services.get_required::<Logger>();
         Logger::init(logger);
-        match ArgumentsParser::get_or_exit() {
+        match ArgumentsParser::get_or_show_help() {
             Batch { .. } => {
                 self.services
                     .get_required_mut::<BatchCommand>()

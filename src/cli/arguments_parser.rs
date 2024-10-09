@@ -1,5 +1,5 @@
-use clap::Parser;
-
+use clap::{CommandFactory, Parser};
+use log::debug;
 use crate::cli::command_arguments::CommandArguments;
 
 /// Command line argument parser.
@@ -16,9 +16,13 @@ impl ArgumentsParser {
     ///
     /// Exiting triggers the clap help documentation etc to be displayed.
     #[must_use]
-    pub fn get_or_exit() -> CommandArguments {
+    pub fn get_or_show_help() -> CommandArguments {
         match ArgumentsParser::try_parse() {
-            Ok(cli) => cli.command.expect("Parsed arguments should have a command"),
+            Ok(cli) => cli.command.unwrap_or_else(|| {
+                debug!("No command provided. Showing help documentation:\n");
+                ArgumentsParser::command().print_help().expect("Help should always print");
+                std::process::exit(1);
+            }),
             Err(error) => error.exit(),
         }
     }
