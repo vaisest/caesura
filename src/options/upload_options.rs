@@ -63,6 +63,9 @@ impl Options for UploadOptions {
         if self.hard_link.is_none() {
             self.hard_link = alternative.hard_link;
         }
+        if self.dry_run.is_none() {
+            self.dry_run = alternative.dry_run;
+        }
     }
 
     fn apply_defaults(&mut self) {
