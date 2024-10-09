@@ -91,6 +91,10 @@ impl BatchCommand {
                 continue;
             }
             if !skip_upload {
+                if let Some(wait_before_upload) = self.batch_options.get_wait_before_upload() {
+                    info!("{} {wait_before_upload:?} before upload", "Waiting".bold());
+                    tokio::time::sleep(wait_before_upload).await;
+                }
                 if self
                     .upload
                     .write()

@@ -10,6 +10,7 @@ pub enum OptionRule {
     UrlNotHttp(String, String),
     UrlInvalidSuffix(String, String),
     DoesNotExist(String, String),
+    DurationInvalid(String, String),
 }
 
 impl Display for OptionRule {
@@ -24,6 +25,7 @@ impl Display for OptionRule {
                 format!("{name} must not end with /: {value}")
             }
             DoesNotExist(name, value) => format!("{name} does not exist: {value}"),
+            DurationInvalid(name, value) => format!("{name} could not be parsed: {value}"),
         };
         output.fmt(formatter)
     }

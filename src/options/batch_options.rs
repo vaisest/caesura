@@ -24,6 +24,12 @@ pub struct BatchOptions {
     #[arg(long)]
     pub limit: Option<usize>,
 
+    /// Wait for a duration before uploading the torrent.
+    ///
+    /// The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
+    #[arg(long)]
+    pub wait_before_upload: Option<String>,
+
     /// Path to cache file.
     #[arg(long)]
     pub cache: Option<PathBuf>,
@@ -33,6 +39,12 @@ pub struct BatchOptions {
 impl BatchOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
         provider.get()
+    }
+
+    #[must_use]
+    pub fn get_wait_before_upload(&self) -> Option<std::time::Duration> {
+        let wait_before_upload = self.wait_before_upload.clone()?;
+        humantime::parse_duration(wait_before_upload.as_str()).ok()
     }
 }
 
@@ -58,6 +70,10 @@ impl Options for BatchOptions {
         if self.limit.is_none() {
             self.limit = alternative.limit;
         }
+        if self.wait_before_upload.is_none() {
+            self.wait_before_upload
+                .clone_from(&alternative.wait_before_upload);
+        }
         if self.cache.is_none() {
             self.cache.clone_from(&alternative.cache);
         }
@@ -75,6 +91,16 @@ impl Options for BatchOptions {
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
+
+        if let Some(wait_before_upload) = &self.wait_before_upload {
+            if self.get_wait_before_upload().is_none() {
+                errors.push(OptionRule::DurationInvalid(
+                    "Wait Before Upload".to_owned(),
+                    wait_before_upload.clone(),
+                ));
+            }
+        }
+
         if let Some(cache) = &self.cache {
             if !cache.exists() && !cache.is_file() {
                 errors.push(DoesNotExist(
