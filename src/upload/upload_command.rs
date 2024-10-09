@@ -161,9 +161,8 @@ impl UploadCommand {
         let source_title = source.format.get_title();
         let transcode_command = self.get_command(source, target)?;
         let lines: Vec<String> = [
-            "Created and uploaded with".to_owned(),
             format!(
-                "[pad=0|10|0|37]Tool[/pad] [url={}][b]{}[/b] v{}[/url]",
+                "Created and uploaded with [url={}][b]{}[/b] v{}[/url]",
                 PKG_REPOSITORY, PKG_NAME, PKG_VERSION
             ),
             format!("[pad=0|10|0|20]Source[/pad] [url={source_url}]{source_title}[/url]"),
