@@ -2,7 +2,7 @@ use std::path::Path;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, error, info, trace};
+use log::{debug, error, info, trace, warn};
 use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
@@ -82,6 +82,12 @@ impl UploadCommand {
                 release_desc: self.create_description(source, target)?,
                 group_id: source.group.id,
             };
+            if self.upload_options.get_value(|x| x.dry_run) {
+                warn!("{} upload as this is a dry run", "Skipping".bold());
+                info!("{} data of {target} for {source}:", "Upload".bold());
+                info!("{}", form);
+                continue;
+            }
             let response = api.upload_torrent(form).await?;
             debug!("{} {target} for {source}", "Uploaded".bold());
             let base = &self.shared_options.get_value(|x| x.indexer_url.clone());

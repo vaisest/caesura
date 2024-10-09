@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
@@ -7,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::AppError;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UploadForm {
     pub path: PathBuf,
     pub category_id: u8,
@@ -49,5 +50,16 @@ impl UploadForm {
             .text("release_desc", self.release_desc)
             .text("groupid", self.group_id.to_string());
         Ok(form)
+    }
+}
+
+impl Display for UploadForm {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        let output = if let Ok(json) = serde_json::to_string_pretty(self) {
+            json
+        } else {
+            format!("{self:?}")
+        };
+        output.fmt(formatter)
     }
 }

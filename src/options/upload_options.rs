@@ -27,6 +27,10 @@ pub struct UploadOptions {
     /// Use hard links when copying files.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub hard_link: Option<bool>,
+
+    /// Don't upload, just show the data that would be uploaded.
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub dry_run: Option<bool>,
 }
 
 #[injectable]
@@ -68,6 +72,9 @@ impl Options for UploadOptions {
         if self.hard_link.is_none() {
             self.hard_link = Some(false);
         }
+        if self.dry_run.is_none() {
+            self.dry_run = Some(false);
+        }
     }
 
     #[must_use]
@@ -89,6 +96,9 @@ impl Options for UploadOptions {
         }
         if options.hard_link == Some(false) {
             options.hard_link = None;
+        }
+        if options.dry_run == Some(false) {
+            options.dry_run = None;
         }
         Some(options)
     }
