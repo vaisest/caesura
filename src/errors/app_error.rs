@@ -76,9 +76,7 @@ impl AppError {
             std::io::ErrorKind::NotFound => {
                 Self::explained(action, format!("Could not find dependency: {program}"))
             }
-            _ => {
-                Self::io(error, action)
-            }
+            _ => Self::io(error, action),
         }
     }
 
