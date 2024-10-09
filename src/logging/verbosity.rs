@@ -37,9 +37,9 @@ impl Verbosity {
     pub fn get_id(self) -> ColoredString {
         match self {
             Silent => "NONE".dark_gray(),
-            Error => "ERRO".red().dimmed(),
-            Warn => "WARN".yellow().dimmed(),
-            Info => "INFO".blue().dimmed(),
+            Error => "ERRO".red(),
+            Warn => "WARN".yellow(),
+            Info => "INFO".blue(),
             Debug => "DBUG".dark_gray(),
             Trace => "TRCE".dark_gray(),
         }
@@ -51,10 +51,10 @@ impl Verbosity {
         match self {
             Silent => " ".dark_gray(),
             Error => "!".red(),
-            Warn => "⚠".yellow(),
-            Info => "i".blue(),
-            Debug => " ".dark_gray(),
-            Trace => "↶".dark_gray(),
+            Warn => "△".yellow(),
+            Info => "○".blue(),
+            Debug => "*".dark_gray(),
+            Trace => "↩".dark_gray(),
         }
     }
 
