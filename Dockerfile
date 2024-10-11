@@ -17,7 +17,7 @@ RUN cargo build --release
 
 
 FROM alpine:latest
-RUN apk add --no-cache flac lame sox imagemagick
+RUN apk add --no-cache flac lame sox imagemagick imagemagick-jpeg
 COPY --from=builder /bin/imdl /bin/imdl
 COPY --from=builder /src/target/release/caesura /bin/caesura
 WORKDIR /
