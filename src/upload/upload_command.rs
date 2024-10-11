@@ -69,10 +69,12 @@ impl UploadCommand {
             if let Some(target_dir) = &self.upload_options.copy_torrent_to {
                 self.copy_torrent(source, &target, target_dir).await?;
             }
+            #[allow(clippy::cast_sign_loss)]
+            let remaster_year = source.torrent.remaster_year.unwrap_or(0) as u16;
             let form = UploadForm {
                 path: torrent_path,
                 category_id: MUSIC_CATEGORY_ID,
-                remaster_year: source.metadata.year,
+                remaster_year,
                 remaster_title: source.torrent.remaster_title.clone(),
                 remaster_record_label: source.torrent.remaster_record_label.clone(),
                 remaster_catalogue_number: source.torrent.remaster_catalogue_number.clone(),
