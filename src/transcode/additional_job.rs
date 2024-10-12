@@ -12,8 +12,8 @@ use crate::errors::{AppError, OutputHandler};
 
 const IMAGE_EXTENSIONS: [&str; 4] = ["gif", "jpg", "jpeg", "png"];
 const MAX_FILE_SIZE: u64 = 750_000;
-const MAX_PIXEL_SIZE: u32 = 1920_u32;
-const QUALITY: u32 = 90_u32;
+const MAX_PIXEL_SIZE: u32 = 1280_u32;
+const QUALITY: u32 = 80_u32;
 
 pub struct AdditionalJob {
     pub id: String,
