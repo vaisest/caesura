@@ -34,11 +34,10 @@ pub struct SharedOptions {
     pub indexer_url: Option<String>,
 
     #[allow(clippy::doc_markdown)]
-    /// URL of the tracker.
-    /// Examples: https://flacsfor.me, https://home.opsfet.ch;
-    /// Default: Dependent on indexer
+    /// Announce URL including passkey
+    /// Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
     #[arg(long)]
-    pub tracker_url: Option<String>,
+    pub announce_url: Option<String>,
 
     /// Directory containing torrent content.
     /// Typically this is set as the download directory in your torrent client.
@@ -100,8 +99,8 @@ impl Options for SharedOptions {
         if self.indexer_url.is_none() {
             self.indexer_url.clone_from(&alternative.indexer_url);
         }
-        if self.tracker_url.is_none() {
-            self.tracker_url.clone_from(&alternative.tracker_url);
+        if self.announce_url.is_none() {
+            self.announce_url.clone_from(&alternative.announce_url);
         }
         if self.content_directory.is_none() {
             self.content_directory
@@ -129,13 +128,6 @@ impl Options for SharedOptions {
             self.indexer_url = match self.indexer.as_deref() {
                 Some("red") => Some("https://redacted.ch".to_owned()),
                 Some("ops") => Some("https://orpheus.network".to_owned()),
-                _ => None,
-            }
-        }
-        if self.tracker_url.is_none() {
-            self.tracker_url = match self.indexer.as_deref() {
-                Some("red") => Some("https://flacsfor.me".to_owned()),
-                Some("ops") => Some("https://home.opsfet.ch".to_owned()),
                 _ => None,
             }
         }
@@ -167,17 +159,17 @@ impl Options for SharedOptions {
                 ));
             }
         }
-        if self.tracker_url.is_none() {
-            errors.push(NotSet("Tracker URL".to_owned()));
+        if self.announce_url.is_none() {
+            errors.push(NotSet("Announce URL".to_owned()));
         } else {
-            let tracker_url = self.get_value(|x| x.tracker_url.clone());
-            if !tracker_url.starts_with("https://") && !tracker_url.starts_with("http://") {
-                errors.push(UrlNotHttp("Tracker URL".to_owned(), tracker_url.clone()));
+            let announce_url = self.get_value(|x| x.announce_url.clone());
+            if !announce_url.starts_with("https://") && !announce_url.starts_with("http://") {
+                errors.push(UrlNotHttp("Announce URL".to_owned(), announce_url.clone()));
             }
-            if tracker_url.ends_with('/') {
+            if announce_url.ends_with('/') {
                 errors.push(UrlInvalidSuffix(
-                    "Tracker URL".to_owned(),
-                    tracker_url.clone(),
+                    "Announce URL".to_owned(),
+                    announce_url.clone(),
                 ));
             }
         }

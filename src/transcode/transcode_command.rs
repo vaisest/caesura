@@ -125,19 +125,13 @@ impl TranscodeCommand {
         for target in targets {
             let content_dir = self.paths.get_transcode_target_dir(source, target);
             let output_path = self.paths.get_torrent_path(source, target);
-            let announce_url = self.get_announce_url();
+            let announce_url = self.shared_options.get_value(|x| x.announce_url.clone());
             let indexer = self.shared_options.get_value(|x| x.indexer.clone());
             ImdlCommand::create(&content_dir, &output_path, announce_url, indexer).await?;
             trace!("{} torrent {:?}", "Created".bold(), output_path);
         }
         debug!("{} torrents {}", "Created".bold(), source);
         Ok(())
-    }
-
-    fn get_announce_url(&self) -> String {
-        let tracker_url = self.shared_options.get_value(|x| x.tracker_url.clone());
-        let api_key = self.shared_options.get_value(|x| x.api_key.clone());
-        format!("{tracker_url}/{api_key}/announce")
     }
 }
 
