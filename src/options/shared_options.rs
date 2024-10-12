@@ -16,59 +16,65 @@ use crate::options::{
 /// Options shared by all commands
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SharedOptions {
-    /// API key
+    /// API key with torrent permissions for the indexer.
     #[arg(long)]
     pub api_key: Option<String>,
 
     /// ID of the tracker as it appears in the source field of a torrent.
-    /// Examples: red, pth, ops;
-    /// Default: red
+    /// 
+    /// Examples: `red`, `pth`, `ops`
+    /// 
+    /// Default: `red`
     #[arg(long)]
     pub indexer: Option<String>,
 
-    #[allow(clippy::doc_markdown)]
     /// URL of the indexer.
-    /// Examples: https://redacted.ch, https://orpheus.network;
+    /// 
+    /// Examples: `https://redacted.ch`, `https://orpheus.network`
+    /// 
     /// Default: Dependent on indexer
     #[arg(long)]
     pub indexer_url: Option<String>,
 
-    #[allow(clippy::doc_markdown)]
     /// Announce URL including passkey
-    /// Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
+    /// 
+    /// Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
     #[arg(long)]
     pub announce_url: Option<String>,
 
     /// Directory containing torrent content.
+    /// 
     /// Typically this is set as the download directory in your torrent client.
+    /// 
     /// Default: ./content
     #[arg(long)]
     pub content_directory: Option<PathBuf>,
 
     /// Level of logs to display.
-    /// Default: info
+    /// 
+    /// Default: `info`
     #[arg(long, value_enum)]
     pub verbosity: Option<Verbosity>,
 
     /// Path to the configuration file.
-    /// Default: config.json (in current working directory)
+    /// 
+    /// Default: `./config.json`
     #[arg(long)]
     pub config_path: Option<PathBuf>,
 
-    #[allow(clippy::doc_markdown)]
     /// Source as: torrent id, path to torrent file, or indexer url.
     ///
     /// Examples:
-    /// 4871992,
-    /// path/to/something.torrent,
-    /// https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or
-    /// https://example.com/torrents.php?torrentid=4871992
+    /// `4871992`,
+    /// `path/to/something.torrent`,
+    /// `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or
+    /// `https://example.com/torrents.php?torrentid=4871992`
     #[arg(value_name = "SOURCE")]
     pub source: Option<String>,
 
     /// Directory where transcodes and spectrograms will be written.
     ///
-    /// Default: ./output
+    /// Default: `./output`
     #[arg(long)]
     pub output: Option<PathBuf>,
 }

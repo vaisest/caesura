@@ -12,6 +12,8 @@ use crate::options::{Options, OptionsProvider, ValueProvider};
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct VerifyOptions {
     /// Should the torrent hash check of existing files be skipped?
+    /// 
+    /// Note: This is only useful for development and should probably not be used.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub skip_hash_check: Option<bool>,
 }

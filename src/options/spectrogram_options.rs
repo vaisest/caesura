@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// Options for [`SpectrogramCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SpectrogramOptions {
-    /// Output directory to write spectrogram images to
+    /// Sizes of spectrograms to generate.
     #[arg(long)]
     pub spectrogram_size: Option<Vec<Size>>,
 }

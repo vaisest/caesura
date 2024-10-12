@@ -11,7 +11,7 @@ use crate::options::{Options, OptionsProvider, ValueProvider};
 /// Options for including additional files during [`TranscodeCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct FileOptions {
-    /// Use hard links when copying files
+    /// Should hard links be used when copying files?
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub hard_link: Option<bool>,
 
@@ -21,13 +21,13 @@ pub struct FileOptions {
 
     /// Maximum file size in bytes beyond which images are compressed
     ///
-    /// Defaults to 750 KB
+    /// Default: 750KB
     #[arg(long)]
     pub max_file_size: Option<u64>,
 
     /// Maximum size in pixels for images
     ///
-    /// Defaults to 1280 px
+    /// Default:  1280
     ///
     /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
     #[arg(long)]
@@ -35,7 +35,7 @@ pub struct FileOptions {
 
     /// Quality percentage to apply for jpg compression.
     ///
-    /// Defaults to 80%
+    /// Default: 80
     ///
     /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
     #[arg(long)]

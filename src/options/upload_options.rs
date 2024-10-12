@@ -12,23 +12,29 @@ use crate::options::{Options, OptionsProvider, ValueProvider};
 /// Options for including additional files during [`TranscodeCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct UploadOptions {
-    /// Should the transcoded files be copied to the content directory.
+    /// Should the transcoded files be copied to the content directory?
     ///
     /// This should be enabled if you wish to auto-add to your torrent client.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub copy_transcode_to_content_dir: Option<bool>,
 
-    /// Copy the torrent file to the provided directory.
+    /// Directory the torrent file is copied to.
     ///
     /// This should be set if you wish to auto-add to your torrent client.
     #[arg(long)]
     pub copy_torrent_to: Option<PathBuf>,
 
-    /// Use hard links when copying files.
+    /// Should files be hard linked instead of copied?
+    /// 
+    /// Enabling this option requires the source and destination to be on the same filesystem or mounted volume.
+    /// 
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub hard_link: Option<bool>,
 
-    /// Don't upload, just show the data that would be uploaded.
+    /// Is this a dry run?
+    /// 
+    /// If enabled data won't be uploaded and will instead be printed to the console.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub dry_run: Option<bool>,
 }

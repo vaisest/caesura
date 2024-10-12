@@ -12,6 +12,7 @@ use crate::options::{Options, OptionsProvider, ValueProvider};
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct RunnerOptions {
     /// Number of cpus to use for processing.
+    /// 
     /// Default: Total number of CPUs
     #[arg(long)]
     pub cpus: Option<u16>,

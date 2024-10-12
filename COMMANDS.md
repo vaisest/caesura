@@ -47,47 +47,73 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
 * `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
 
-   Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
 
 ###### **Options:**
 
-* `--api-key <API_KEY>` — API key
-* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
-* `--indexer-url <INDEXER_URL>` — URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content. Typically this is set as the download directory in your torrent client. Default: ./content
-* `--verbosity <VERBOSITY>` — Level of logs to display. Default: info
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: `red`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Dependent on indexer
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: ./content
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file. Default: config.json (in current working directory)
+* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+
+   Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
-   Default: ./output
-* `--target <TARGET>` — Target formats. Default: flac, 320, and v0
+   Default: `./output`
+* `--target <TARGET>` — Formats to attempt to transcode to.
+
+   Default: `flac`, `320`, and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
+
+   Note: This is only useful for development and should probably not be used.
 * `--skip-hash-check` — Should the torrent hash check of existing files be skipped?
-* `--cpus <CPUS>` — Number of cpus to use for processing. Default: Total number of CPUs
-* `--spectrogram-size <SPECTROGRAM_SIZE>` — Output directory to write spectrogram images to
+
+   Note: This is only useful for development and should probably not be used.
+* `--cpus <CPUS>` — Number of cpus to use for processing.
+
+   Default: Total number of CPUs
+* `--spectrogram-size <SPECTROGRAM_SIZE>` — Sizes of spectrograms to generate
 
   Possible values: `full`, `zoom`
 
-* `--hard-link` — Use hard links when copying files
+* `--hard-link` — Should hard links be used when copying files?
 * `--compress-images` — Should images greater than the maximum file size be compressed?
 * `--max-file-size <MAX_FILE_SIZE>` — Maximum file size in bytes beyond which images are compressed
 
-   Defaults to 750 KB
+   Default: 750KB
 * `--max-pixel-size <MAX_PIXEL_SIZE>` — Maximum size in pixels for images
 
-   Defaults to 1280 px
+   Default:  1280
 
    Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 * `--jpg-quality <JPG_QUALITY>` — Quality percentage to apply for jpg compression.
 
-   Defaults to 80%
+   Default: 80
 
    Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 * `--png-to-jpg` — Should png images be converted to jpg?
@@ -99,7 +125,9 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 * `--wait-before-upload <WAIT_BEFORE_UPLOAD>` — Wait for a duration before uploading the torrent.
 
    The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
-* `--cache <CACHE>` — Path to cache file
+* `--cache <CACHE>` — Path to cache file.
+
+   Default: `output/cache.json`
 
 
 
@@ -113,28 +141,48 @@ Generate spectrograms for each track of a FLAC source
 
 * `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
 
-   Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
 
 ###### **Options:**
 
-* `--api-key <API_KEY>` — API key
-* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
-* `--indexer-url <INDEXER_URL>` — URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content. Typically this is set as the download directory in your torrent client. Default: ./content
-* `--verbosity <VERBOSITY>` — Level of logs to display. Default: info
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: `red`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Dependent on indexer
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: ./content
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file. Default: config.json (in current working directory)
+* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+
+   Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
-   Default: ./output
-* `--spectrogram-size <SPECTROGRAM_SIZE>` — Output directory to write spectrogram images to
+   Default: `./output`
+* `--spectrogram-size <SPECTROGRAM_SIZE>` — Sizes of spectrograms to generate
 
   Possible values: `full`, `zoom`
 
-* `--cpus <CPUS>` — Number of cpus to use for processing. Default: Total number of CPUs
+* `--cpus <CPUS>` — Number of cpus to use for processing.
+
+   Default: Total number of CPUs
 
 
 
@@ -148,47 +196,71 @@ Transcode each track of a FLAC source to the target formats
 
 * `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
 
-   Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
 
 ###### **Options:**
 
-* `--api-key <API_KEY>` — API key
-* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
-* `--indexer-url <INDEXER_URL>` — URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content. Typically this is set as the download directory in your torrent client. Default: ./content
-* `--verbosity <VERBOSITY>` — Level of logs to display. Default: info
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: `red`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Dependent on indexer
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: ./content
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file. Default: config.json (in current working directory)
+* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+
+   Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
-   Default: ./output
-* `--target <TARGET>` — Target formats. Default: flac, 320, and v0
+   Default: `./output`
+* `--target <TARGET>` — Formats to attempt to transcode to.
+
+   Default: `flac`, `320`, and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
-* `--hard-link` — Use hard links when copying files
+
+   Note: This is only useful for development and should probably not be used.
+* `--hard-link` — Should hard links be used when copying files?
 * `--compress-images` — Should images greater than the maximum file size be compressed?
 * `--max-file-size <MAX_FILE_SIZE>` — Maximum file size in bytes beyond which images are compressed
 
-   Defaults to 750 KB
+   Default: 750KB
 * `--max-pixel-size <MAX_PIXEL_SIZE>` — Maximum size in pixels for images
 
-   Defaults to 1280 px
+   Default:  1280
 
    Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 * `--jpg-quality <JPG_QUALITY>` — Quality percentage to apply for jpg compression.
 
-   Defaults to 80%
+   Default: 80
 
    Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 * `--png-to-jpg` — Should png images be converted to jpg?
 
    Only applied if the image is greated than `max_file_size` and `compress_images` is true.
-* `--cpus <CPUS>` — Number of cpus to use for processing. Default: Total number of CPUs
+* `--cpus <CPUS>` — Number of cpus to use for processing.
+
+   Default: Total number of CPUs
 
 
 
@@ -202,36 +274,64 @@ Upload transcodes of a FLAC source
 
 * `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
 
-   Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
 
 ###### **Options:**
 
-* `--api-key <API_KEY>` — API key
-* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
-* `--indexer-url <INDEXER_URL>` — URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content. Typically this is set as the download directory in your torrent client. Default: ./content
-* `--verbosity <VERBOSITY>` — Level of logs to display. Default: info
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: `red`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Dependent on indexer
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: ./content
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file. Default: config.json (in current working directory)
+* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+
+   Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
-   Default: ./output
-* `--target <TARGET>` — Target formats. Default: flac, 320, and v0
+   Default: `./output`
+* `--target <TARGET>` — Formats to attempt to transcode to.
+
+   Default: `flac`, `320`, and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
-* `--copy-transcode-to-content-dir` — Should the transcoded files be copied to the content directory.
+
+   Note: This is only useful for development and should probably not be used.
+* `--copy-transcode-to-content-dir` — Should the transcoded files be copied to the content directory?
 
    This should be enabled if you wish to auto-add to your torrent client.
-* `--copy-torrent-to <COPY_TORRENT_TO>` — Copy the torrent file to the provided directory.
+* `--copy-torrent-to <COPY_TORRENT_TO>` — Directory the torrent file is copied to.
 
    This should be set if you wish to auto-add to your torrent client.
-* `--hard-link` — Use hard links when copying files
-* `--dry-run` — Don't upload, just show the data that would be uploaded
+* `--hard-link` — Should files be hard linked instead of copied?
+
+   Enabling this option requires the source and destination to be on the same filesystem or mounted volume.
+
+   Default: `false`
+* `--dry-run` — Is this a dry run?
+
+   If enabled data won't be uploaded and will instead be printed to the console.
 
 
 
@@ -245,27 +345,60 @@ Verify a FLAC source is suitable for transcoding
 
 * `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
 
-   Examples: 4871992, path/to/something.torrent, https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992, or https://example.com/torrents.php?torrentid=4871992
+   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
 
 ###### **Options:**
 
-* `--api-key <API_KEY>` — API key
-* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent. Examples: red, pth, ops; Default: red
-* `--indexer-url <INDEXER_URL>` — URL of the indexer. Examples: https://redacted.ch, https://orpheus.network; Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey Examples: https://flacsfor.me/a1b2c3d4e5f6/announce, https://home.opsfet.ch/a1b2c3d4e5f6/announce;
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content. Typically this is set as the download directory in your torrent client. Default: ./content
-* `--verbosity <VERBOSITY>` — Level of logs to display. Default: info
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: `red`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Dependent on indexer
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: ./content
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file. Default: config.json (in current working directory)
+* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+
+   Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
-   Default: ./output
-* `--target <TARGET>` — Target formats. Default: flac, 320, and v0
+   Default: `./output`
+* `--target <TARGET>` — Formats to attempt to transcode to.
+
+   Default: `flac`, `320`, and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
+
+   Note: This is only useful for development and should probably not be used.
 * `--skip-hash-check` — Should the torrent hash check of existing files be skipped?
+
+   Note: This is only useful for development and should probably not be used.
+
+
+
+<hr/>
+
+<small><i>
+    This document was generated automatically by
+    <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
+</i></small>
 
