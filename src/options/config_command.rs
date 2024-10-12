@@ -4,7 +4,7 @@ use crate::options::{
 };
 use di::{injectable, Ref};
 use serde_json::Value;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// Config a FLAC source is suitable for transcoding.
 #[injectable]
@@ -28,7 +28,7 @@ impl ConfigCommand {
         Ok(true)
     }
 
-    fn get_options_hashmap(&self) -> Result<HashMap<String, Value>, serde_json::Error> {
+    fn get_options_hashmap(&self) -> Result<BTreeMap<String, Value>, serde_json::Error> {
         let options = [
             serde_json::to_value(&*self.shared_options)?,
             serde_json::to_value(&*self.verify_options)?,
@@ -37,7 +37,7 @@ impl ConfigCommand {
             serde_json::to_value(&*self.file_options)?,
             serde_json::to_value(&*self.batch_options)?,
         ];
-        let mut data: HashMap<String, Value> = HashMap::new();
+        let mut data: BTreeMap<String, Value> = BTreeMap::new();
         for option in &options {
             if let Some(map) = option.as_object() {
                 data.extend(map.clone());
