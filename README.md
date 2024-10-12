@@ -54,85 +54,189 @@ Each source is verified to ensure it's:
 
 ## Getting started
 
-The quickest path to get running is using docker compose, but that will require a little familiarity with docker. But the benefits are reproducability and peace of mind through isolation. 
+Docker is the recommended way to run the application across all platforms.
+- All dependencies are built into the image
+- Runs in an isolated environment reducing risks to your system
 
-### Install
+### 0. Install Docker
 
-#### Docker
 
-1. Build
+[Install Docker Engine](https://docs.docker.com/engine/install/) for your OS.
+
+### 1. Run the `help` command
+
+Run the `help` command to see the available commands and options.
 
 ```bash
-docker build -t caesura .
+docker run ghcr.io/rogueoneecho/caesura --help
 ```
 
-2. Run
+> [!TIP]
+> Docker will automatically pull the latest version of the image in order to run it.
+
+> [!TIP]
+> You can append `--help` to any command to see the available options.
+> 
+> ```bash
+> docker run ghcr.io/rogueoneecho/caesura verify --help
+> ```
+
+### 2. Create a configuration file
+
+Run the `config` command to print the default configuration and redirect it to `config.json`.
+
+```bash
+docker run ghcr.io/rogueoneecho/caesura:latest config > config.json
+```
+
+> [!NOTE]
+> You can ignore the "Failed to read config file" warning.
+
+Edit `config.json` in your preferred text editor. Set the following fields for your indexer:
+- `announce_url` Your personal announce URL. Find it on upload page.
+- `api_key` Create an API key with `Torrents` permission `Settings > Access Settings > Create an API Key`
+- `content_directory` the directory containing torrent content. Typically this is set as the download directory in your torrent client. Defaults to `./content`.
+- `indexer` the id of the indexer: `red`, `pth`, `ops`.
+- `indexer_url` the URL of the indexer: `https://redacted.ch`, `https://orpheus.network`.
+- `output` the directory where transcodes, spectrograms and .torrent files will be written. Defaults to `./output`.
+
+### 3. Verify a source
+
+Run the `verify` command with the source as an argument.
+
+> [!NOTE]
+> Because the application is running in a Docker container, you need to mount the config file, content directory and output directory.
+
+> [!TIP]
+> For the source you can use a permalink, the numeric torrent id or a path to a torrent file:
 
 ```bash
 docker run \
---user 1000:1000 \
--v ./path/to/your/config.json:/config.json \
--v /path/to/your/data:/data \
-caesura verify "123456"
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+verify https://redacted.ch/torrents.php?id=80518&torrentid=142659#torrent142659
 ```
 
-#### Docker Compose
+If it looks good you can proceed to the next step, otherwise try another source.
+
+### 4. Generate spectrograms of a source
+
+Run the `spectrogram` command with the source as an argument.
 
 ```bash
-docker compose run --rm caesura verify "123456"
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+spectrogram 142659
 ```
 
-#### Linux and MacOS
+Inspect the spectrograms in the output directory.
 
-1. [Install Rust](https://www.rust-lang.org/tools/install)
+### 5. Transcode a source
 
-2. [Install Homebrew](https://brew.sh/)
-
-3. [Install Intermodal](https://github.com/casey/intermodal#installation)
+Run the `transcode` command with the source as an argument.
 
 ```bash
-cargo install imdl
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+transcode "Khotin - Hello World [2014].torrent"
 ```
 
-4. Install FLAC, LAME, SOX and ImageMagick dependencies.
+Inspect the transcodes in the output directory.
+
+> [!TIP]
+> Things to check:
+> - Folder structure
+> - File names
+> - Tags
+> - Audio quality
+> - Image size and compression quality
+
+### 6. Upload transcodes
+
+Run the `upload` command with the source as an argument.
+
+> [!TIP]
+> Ideally you've already checked everything and nothing will go wrong but just in case there is a grace period after uploading in which you can remove the upload from your indexer.
+
+> [!TIP]
+> If you're unsure about this then you can append `--dry-run` to the command and instead of uploading it will print the data that would be submitted.
 
 ```bash
-brew install flac lame sox imagemagick
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+upload https://redacted.ch/torrents.php?id=80518&torrentid=142659#torrent142659
 ```
 
-5. Install caesura
+Go to your indexer and check your uploads to make sure everything has gone to plan.
+
+### 7. Batch processing
+
+Now that you have the hang of the application we can speed things up with the `batch` command.
+
+This handles `verify`, `spectrogram`, `transcode` and `upload` in a single command. It can also be pointed at a directory containing torrent files to automatically sort through and pick out suitable sources.
+
+We'll start off with some safeguards before setting it fully loose.
+- `--limit 2` will stop the command after it has transcoded or uploaded from 2 sources.
+- `--no-upload` will skip the upload step.
+
+> [!NOTE]
+> The batch command uses a cache file to store progress helping speed up subsequent runs.
+> 
+> Make sure the cache file is in a mounted volumes so it's not deleted between runs.
+
 ```bash
-cargo install caesura
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+batch /path/to/your/torrents --limit 2 --no-upload
 ```
 
-#### Ubuntu
+If everything goes to plan two sources should have transcoded to your output directory.
 
-1. [Install Rust](https://www.rust-lang.org/tools/install)
-
-2. [Install Intermodal](https://github.com/casey/intermodal#installation)
+You can filter the cache file with `jq` to see what has been transcoded:
 
 ```bash
-cargo install imdl
+cat ./output/cache.json | jq 'map(select(.transcoded == true))'
 ```
 
-3. Install FLAC, LAME, SOX and ImageMagick dependencies.
+Or to see what has been skipped and why:
 
 ```bash
-sudo apt install flac lame sox imagemagick --yes
+cat ./output/cache.json | jq 'map(select(.skipped != null))'
 ```
 
-4. Install caesura
+If you're working with a lot of files then `less` can be helpful:
+
 ```bash
-cargo install caesura
+cat ./output/cache.json | jq --color-output 'map(select(.transcoded == true))' | less -R
 ```
 
-#### Windows
+For the first run we skipped the upload step with `--no-upload`.
 
-*To be confirmed*
+Once you've checked the transcoded files you can run it again without `--no-upload`.
 
-For now it's recommended to run with docker.
+Or stick with `--no-upload` and remove the `--limit 2` to transcode every `.torrent` in the source directory.
 
-### CLI Commands
+> [!IMPORTANT]
+> I'd strongly recommend you always include an explicit `--limit` or `--no-upload` when running the batch command as you're likely to lose your upload privileges if you aren't paying attention to what you're uploading.
+
+
+### Commands and Configuration
+
+
 
 #### Verify source
 
@@ -592,8 +696,134 @@ Full configuration:
     
     "source": "123456"
 }
+```
 
 
+## Build
+
+The getting started guide uses the pre-built Docker image but for increase privacy and assurance of what you're running you can easily build the application yourself with cargo.
+
+### Dependencies
+
+First you'll need to install the dependencies for your OS.
+
+#### Windows
+
+Just use Docker or ask ChatGPT. I imagine it's tedious.
+
+#### MacOS and Linux with Homebrew
+
+1. [Install Rust](https://www.rust-lang.org/tools/install)
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+2. [Install Intermodal](https://github.com/casey/intermodal#installation)
+
+From Cargo:
+
+```bash
+cargo install imdl
+```
+
+Or, from GitHub Releases:
+
+```bash
+curl "https://github.com/casey/intermodal/releases/download/v0.1.14/imdl-v0.1.14-x86_64-unknown-linux-musl.tar.gz" \
+  --location \
+  --show-error \
+  --silent \
+| tar \
+  --extract \
+  --gzip \
+  --directory "/usr/local/bin" \
+  --file - \
+  "imdl"
+```
+
+4. Install FLAC, LAME, SOX and ImageMagick dependencies.
+
+With Homebrew:
+
+```bash
+brew install flac lame sox imagemagick
+```
+
+Or, from your package manager:
+
+```bash
+sudo apt install flac lame sox imagemagick --yes
+```
+
+5. MacOS Only
+
+As an Apple user you'll be familiar that everything comes at a premium. So you should probably send me some bitcoin, ethereum, or monero before proceeding.
+
+
+### Install with Cargo
+
+```bash
+cargo install caesura
+```
+
+### Build with Cargo
+
+```bash
+git clone https://github.com/RogueOneEcho/caesura.git
+cd caesura
+cargo run -- verify "123456"
+```
+
+### Build with Docker
+
+Build and tag:
+
+```bash
+git clone https://github.com/RogueOneEcho/caesura.git
+cd caesura
+docker build -t caesura .
+```
+
+Run:
+
+```bash
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+verify 142659
+```
+
+#### Docker Compose
+
+Clone the repo and edit the volumes in `docker-compose.yml`.
+
+```bash
+git clone https://github.com/RogueOneEcho/caesura.git
+cd caesura
+nano docker-compose.yml
+```
+
+Single run:
+
+```bash
+docker compose run --rm caesura verify "123456"
+```
+
+Or, start up the services and follow the logs:
+
+```bash
+docker compose up -d caesura 
+docker logs -f caesura
+```
+
+Or, run the full suite including a [Caddy](https://caddyserver.com/) server to serve the output directory:
+
+```bash
+docker compose up -d
+docker logs -f caesura
 ```
 
 ## Releases and Changes
