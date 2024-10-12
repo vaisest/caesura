@@ -5,7 +5,7 @@ use colored::Colorize;
 use di::injectable;
 use log::*;
 
-use crate::logging::{Logger, Trace};
+use crate::logging::{Info, Logger, Trace};
 use crate::options::*;
 
 const DEFAULT_CONFIG_PATH: &str = "config.json";
@@ -75,7 +75,7 @@ impl OptionsProvider {
 /// [`SharedOptions`] are read before [`Logger`] is initialized so if an error occurs
 /// it will be lost to the void unless we force inititialization.
 fn force_init_logger() {
-    Logger::init_new(Trace);
+    Logger::init_new(Info);
 }
 
 /// Read the config file
