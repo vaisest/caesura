@@ -33,6 +33,9 @@ fn inject_from_env_var(options: SharedOptions) -> SharedOptions {
     if options.source.is_none() {
         options.source = get_env_var("SOURCE");
     }
+    if options.announce_url.is_none() {
+        options.announce_url = get_env_var("ANNOUNCE_URL");
+    }
     if options.content_directory.is_none() {
         options.content_directory = Some(PathBuf::from(CONTENT_SAMPLES_DIR));
     }

@@ -88,6 +88,7 @@ jobs:
     - run: cargo test --release --no-fail-fast
       env:
         API_KEY: ${{ secrets.API_KEY }}
+        ANNOUNCE_URL: ${{ secrets.ANNOUNCE_URL }}
         SOURCE: ${{ secrets.SOURCE }}
 
     - run: cargo check --quiet --all-targets --message-format short
