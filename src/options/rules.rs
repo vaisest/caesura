@@ -34,7 +34,7 @@ impl Display for OptionRule {
 impl OptionRule {
     pub fn show(errors: &Vec<OptionRule>) {
         if !errors.is_empty() {
-            error!("{} configuration", "Invalid".bold().red());
+            error!("{} configuration", "Invalid".bold());
             for error in errors {
                 error!("{}", error);
             }

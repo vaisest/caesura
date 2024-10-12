@@ -117,16 +117,16 @@ impl AppError {
     pub fn lines(&self) -> Vec<String> {
         match &self.reason {
             Explained(explanation) => vec![
-                format!("{} to {}", "Failed".bold().red(), self.action),
+                format!("{} to {}", "Failed".bold(), self.action),
                 format!("{explanation}"),
             ],
             External(domain, error) => vec![
-                format!("{} to {}", "Failed".bold().red(), self.action),
+                format!("{} to {}", "Failed".bold(), self.action),
                 format!("A {domain} error occured"),
                 format!("{error}"),
             ],
             Unexpected(explanation, expected, actual) => vec![
-                format!("{} to {}", "Failed".bold().red(), self.action),
+                format!("{} to {}", "Failed".bold(), self.action),
                 format!("{explanation}"),
                 format!("Expected: {expected}"),
                 format!("Actual: {actual}"),

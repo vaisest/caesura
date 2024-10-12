@@ -47,7 +47,7 @@ fn get_env_var(key: &str) -> Option<String> {
         debug!("{} {key} from environment variable", "Assigning".bold());
         Some(value)
     } else {
-        warn!("Environment variable {} is not set", key.bold().yellow());
+        warn!("Environment variable {} is not set", key.bold());
         None
     }
 }

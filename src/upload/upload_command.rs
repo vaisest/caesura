@@ -57,7 +57,7 @@ impl UploadCommand {
             }
             let target_dir = self.paths.get_transcode_target_dir(source, &target);
             if let Some(error) = ImdlCommand::verify(&torrent_path, &target_dir).await? {
-                error!("{} to verify the torrent content:", "Failed".bold().red(),);
+                error!("{} to verify the torrent content:", "Failed".bold());
                 error!("{error}");
             }
             if self

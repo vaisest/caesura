@@ -42,7 +42,7 @@ impl VerifyCommand {
         if is_verified {
             info!("{} {}", "Verified".bold(), source);
         } else {
-            warn!("{} to verify {}", "Failed".bold().yellow(), source);
+            warn!("{} to verify {}", "Failed".bold(), source);
             for error in errors {
                 warn!("{error}");
             }

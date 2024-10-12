@@ -103,7 +103,7 @@ impl HostBuilder {
             Ok(services) => Host::new(services),
             Err(error) => {
                 Logger::init_new(Trace);
-                error!("{} to build the application:", "Failed".red().bold());
+                error!("{} to build the application:", "Failed".bold());
                 error!("{error}");
                 exit(1)
             }

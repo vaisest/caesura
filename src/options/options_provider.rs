@@ -58,11 +58,7 @@ impl OptionsProvider {
                 Err(error) => {
                     force_init_logger();
                     Logger::init_new(Trace);
-                    error!(
-                        "{} to deserialize config file: {}",
-                        "Failed".bold().red(),
-                        error
-                    );
+                    error!("{} to deserialize config file: {}", "Failed".bold(), error);
                 }
             }
         }
@@ -89,11 +85,7 @@ fn read_config_file(options: &SharedOptions) -> String {
     trace!("{} options from file: {:?}", "Reading".bold(), path);
     read_to_string(path).unwrap_or_else(|error| {
         force_init_logger();
-        warn!(
-            "{} to read config file: {}",
-            "Failed".bold().yellow(),
-            error
-        );
+        warn!("{} to read config file: {}", "Failed".bold(), error);
         "{}".to_owned()
     })
 }
