@@ -4,6 +4,7 @@
 /output
 /samples
 /target
+/markdown_help
 .editorconfig
 config.json
 Dockerfile
