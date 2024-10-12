@@ -21,43 +21,43 @@ pub struct SharedOptions {
     pub api_key: Option<String>,
 
     /// ID of the tracker as it appears in the source field of a torrent.
-    /// 
+    ///
     /// Examples: `red`, `pth`, `ops`
-    /// 
+    ///
     /// Default: `red`
     #[arg(long)]
     pub indexer: Option<String>,
 
     /// URL of the indexer.
-    /// 
+    ///
     /// Examples: `https://redacted.ch`, `https://orpheus.network`
-    /// 
+    ///
     /// Default: Dependent on indexer
     #[arg(long)]
     pub indexer_url: Option<String>,
 
     /// Announce URL including passkey
-    /// 
+    ///
     /// Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
     #[arg(long)]
     pub announce_url: Option<String>,
 
     /// Directory containing torrent content.
-    /// 
+    ///
     /// Typically this is set as the download directory in your torrent client.
-    /// 
+    ///
     /// Default: ./content
     #[arg(long)]
     pub content: Option<PathBuf>,
 
     /// Level of logs to display.
-    /// 
+    ///
     /// Default: `info`
     #[arg(long, value_enum)]
     pub verbosity: Option<Verbosity>,
 
     /// Path to the configuration file.
-    /// 
+    ///
     /// Default: `./config.json`
     #[arg(long)]
     pub config: Option<PathBuf>,
@@ -112,8 +112,7 @@ impl Options for SharedOptions {
             self.announce_url.clone_from(&alternative.announce_url);
         }
         if self.content.is_none() {
-            self.content
-                .clone_from(&alternative.content);
+            self.content.clone_from(&alternative.content);
         }
         if self.verbosity.is_none() {
             self.verbosity = alternative.verbosity;

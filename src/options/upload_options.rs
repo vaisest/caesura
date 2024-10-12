@@ -25,15 +25,15 @@ pub struct UploadOptions {
     pub copy_torrent_to: Option<PathBuf>,
 
     /// Should files be hard linked instead of copied?
-    /// 
+    ///
     /// Enabling this option requires the source and destination to be on the same filesystem or mounted volume.
-    /// 
+    ///
     /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub hard_link: Option<bool>,
 
     /// Is this a dry run?
-    /// 
+    ///
     /// If enabled data won't be uploaded and will instead be printed to the console.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub dry_run: Option<bool>,

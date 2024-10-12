@@ -31,7 +31,7 @@ pub struct BatchOptions {
     pub wait_before_upload: Option<String>,
 
     /// Path to cache file.
-    /// 
+    ///
     /// Default: `output/cache.json`
     #[arg(long)]
     pub cache: Option<PathBuf>,
