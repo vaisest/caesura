@@ -1,7 +1,7 @@
 /.github
 /.idea
-/output
 /target
 config.json
+config.*.json
 **/*.rs.bk
 *.pdb

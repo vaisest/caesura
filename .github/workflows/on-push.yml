@@ -85,9 +85,9 @@ jobs:
 
     - run: cargo build --release
 
-    - run: mkdir content
+    - run: rm -rf content
 
-    - run: mkdir output
+    - run: ln -s samples/content content
 
     - run: touch config.json
 

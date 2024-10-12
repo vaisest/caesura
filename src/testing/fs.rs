@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use std::time::SystemTime;
 
 pub const TORRENTS_SAMPLES_DIR: &str = "samples/torrents";
-pub const CONTENT_SAMPLES_DIR: &str = "samples/content";
 
 pub struct TempDirectory;
 

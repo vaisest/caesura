@@ -1,11 +1,9 @@
 use std::env::var;
-use std::path::PathBuf;
 
 use colored::Colorize;
 use log::{debug, warn};
 
 use crate::options::{Options, OptionsProvider, SharedOptions};
-use crate::testing::CONTENT_SAMPLES_DIR;
 
 pub struct TestOptionsFactory;
 
@@ -35,9 +33,6 @@ fn inject_from_env_var(options: SharedOptions) -> SharedOptions {
     }
     if options.announce_url.is_none() {
         options.announce_url = get_env_var("ANNOUNCE_URL");
-    }
-    if options.content.is_none() {
-        options.content = Some(PathBuf::from(CONTENT_SAMPLES_DIR));
     }
     options
 }
