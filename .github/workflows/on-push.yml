@@ -91,14 +91,26 @@ jobs:
         ANNOUNCE_URL: ${{ secrets.ANNOUNCE_URL }}
         SOURCE: ${{ secrets.SOURCE }}
 
-    - run: cargo check --quiet --all-targets --message-format short
-      continue-on-error: true
+    - name: Run cargo check
+      run: |
+        if ! cargo check --quiet --all-targets --message-format short
+        then
+          echo "::warning title=Cargo Check Failed::Please review the output for details."
+        fi
 
-    - run: cargo clippy --quiet --all-targets --message-format short
-      continue-on-error: true
+    - name: Run cargo clippy
+      run: |
+        if ! cargo clippy --quiet --all-targets --message-format short
+        then
+          echo "::warning title=Clippy Check Failed::Please review the output for details."
+        fi
 
-    - run: cargo fmt --check
-      continue-on-error: true
+    - name: Run cargo fmt
+      run: |
+        if ! cargo fmt --check
+        then
+          echo "::warning title=Format Check Failed::Please review the output for details."
+        fi
 
     - run: git --no-pager diff --color
 
