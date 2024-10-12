@@ -94,7 +94,7 @@ docker run ghcr.io/rogueoneecho/caesura:latest config > config.json
 Edit `config.json` in your preferred text editor. Set the following fields for your indexer:
 - `announce_url` Your personal announce URL. Find it on upload page.
 - `api_key` Create an API key with `Torrents` permission `Settings > Access Settings > Create an API Key`
-- `content_directory` the directory containing torrent content. Typically this is set as the download directory in your torrent client. Defaults to `./content`.
+- `content` the directory containing torrent content. Typically this is set as the download directory in your torrent client. Defaults to `./content`.
 - `indexer` the id of the indexer: `red`, `pth`, `ops`.
 - `indexer_url` the URL of the indexer: `https://redacted.ch`, `https://orpheus.network`.
 - `output` the directory where transcodes, spectrograms and .torrent files will be written. Defaults to `./output`.
@@ -236,7 +236,7 @@ Or stick with `--no-upload` and remove the `--limit 2` to transcode every `.torr
 
 Configuration options are sourced first from the command line arguments, then from a configuration file.
 
-By default the application loads `config.json` from the current working directory, but this can be overridden with the `--config-path <CONFIG_PATH>` cli argument.
+By default the application loads `config.json` from the current working directory, but this can be overridden with the `--config <CONFIG_PATH>` cli argument.
 
 Most options have sensible defaults so the minimum required configuration is:
 

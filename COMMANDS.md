@@ -65,7 +65,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 * `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
 
    Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -76,7 +76,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+* `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
@@ -159,7 +159,7 @@ Generate spectrograms for each track of a FLAC source
 * `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
 
    Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -170,7 +170,7 @@ Generate spectrograms for each track of a FLAC source
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+* `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
@@ -214,7 +214,7 @@ Transcode each track of a FLAC source to the target formats
 * `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
 
    Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -225,7 +225,7 @@ Transcode each track of a FLAC source to the target formats
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+* `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
@@ -292,7 +292,7 @@ Upload transcodes of a FLAC source
 * `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
 
    Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -303,7 +303,7 @@ Upload transcodes of a FLAC source
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+* `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
@@ -363,7 +363,7 @@ Verify a FLAC source is suitable for transcoding
 * `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
 
    Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
-* `--content-directory <CONTENT_DIRECTORY>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -374,7 +374,7 @@ Verify a FLAC source is suitable for transcoding
 
   Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
 
-* `--config-path <CONFIG_PATH>` — Path to the configuration file.
+* `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
