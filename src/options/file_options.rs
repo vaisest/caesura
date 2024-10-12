@@ -20,13 +20,13 @@ pub struct FileOptions {
     pub compress_images: Option<bool>,
 
     /// Maximum file size in bytes beyond which images are compressed
-    /// 
+    ///
     /// Defaults to 750 KB
     #[arg(long)]
     pub max_file_size: Option<u64>,
-    
+
     /// Maximum size in pixels for images
-    /// 
+    ///
     /// Defaults to 1280 px
     ///
     /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
@@ -34,7 +34,7 @@ pub struct FileOptions {
     pub max_pixel_size: Option<u32>,
 
     /// Quality percentage to apply for jpg compression.
-    /// 
+    ///
     /// Defaults to 80%
     ///
     /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
@@ -86,7 +86,6 @@ impl Options for FileOptions {
         if self.jpg_quality.is_none() {
             self.jpg_quality = alternative.jpg_quality;
         }
-        
     }
 
     fn apply_defaults(&mut self) {

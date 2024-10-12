@@ -52,7 +52,14 @@ impl AdditionalJob {
             .or_else(|e| AppError::io(e, "create directories for additional file"))?;
 
         let verb = if is_large && is_image && self.compress_images {
-            compress_image(&self.source_path, &self.output_path, self.max_pixel_size, self.quality, self.png_to_jpg).await?;
+            compress_image(
+                &self.source_path,
+                &self.output_path,
+                self.max_pixel_size,
+                self.quality,
+                self.png_to_jpg,
+            )
+            .await?;
             "Compressed"
         } else if self.hard_link {
             hard_link(&self.source_path, &self.output_path)
