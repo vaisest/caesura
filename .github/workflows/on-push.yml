@@ -97,7 +97,7 @@ jobs:
     - run: cargo clippy --quiet --all-targets --message-format short
       continue-on-error: true
 
-    - run: cargo fmt --quiet --check
+    - run: cargo fmt --check
       continue-on-error: true
 
     - run: git --no-pager diff --color
