@@ -85,6 +85,14 @@ jobs:
 
     - run: cargo build --release
 
+    - run: mkdir content
+
+    - run: mkdir output
+
+    - run: touch config.json
+
+    - run: touch output/cache.json
+
     - run: cargo test --release --no-fail-fast
       env:
         API_KEY: ${{ secrets.API_KEY }}
