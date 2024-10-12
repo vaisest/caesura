@@ -41,6 +41,7 @@ pub struct SharedOptions {
 
     /// Directory containing torrent content.
     /// Typically this is set as the download directory in your torrent client.
+    /// Default: ./content
     #[arg(long)]
     pub content_directory: Option<PathBuf>,
 
@@ -66,6 +67,8 @@ pub struct SharedOptions {
     pub source: Option<String>,
 
     /// Directory where transcodes and spectrograms will be written.
+    ///
+    /// Default: ./output
     #[arg(long)]
     pub output: Option<PathBuf>,
 }
@@ -133,6 +136,12 @@ impl Options for SharedOptions {
         }
         if self.verbosity.is_none() {
             self.verbosity = Some(Info);
+        }
+        if self.content_directory.is_none() {
+            self.content_directory = Some(PathBuf::from("./content"));
+        }
+        if self.output.is_none() {
+            self.output = Some(PathBuf::from("./output"));
         }
     }
 
