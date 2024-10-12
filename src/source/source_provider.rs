@@ -33,7 +33,7 @@ impl SourceProvider {
         let existing = ExistingFormatProvider::get(&torrent, &group_torrents)?;
         let directory = self
             .options
-            .get_value(|x| x.content_directory.clone())
+            .get_value(|x| x.content.clone())
             .join(decode_html_entities(&torrent.file_path).to_string());
         let metadata = Metadata::new(&group, &torrent);
         Ok(Source {

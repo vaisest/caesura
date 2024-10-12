@@ -81,7 +81,7 @@ fn force_init_logger() {
 /// Use the default config path if no path is set on the command line.
 fn read_config_file(options: &SharedOptions) -> String {
     let path = options
-        .config_path
+        .config
         .clone()
         .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
     trace!("{} options from file: {:?}", "Reading".bold(), path);

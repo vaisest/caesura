@@ -109,7 +109,7 @@ impl UploadCommand {
             .expect("source dir should have a name");
         let target_dir = self
             .shared_options
-            .get_value(|x| x.content_directory.clone())
+            .get_value(|x| x.content.clone())
             .join(source_dir_name);
         let verb = if self.upload_options.get_value(|x| x.hard_link) {
             hard_link(&source_dir, &target_dir)

@@ -48,7 +48,7 @@ pub struct SharedOptions {
     /// 
     /// Default: ./content
     #[arg(long)]
-    pub content_directory: Option<PathBuf>,
+    pub content: Option<PathBuf>,
 
     /// Level of logs to display.
     /// 
@@ -60,7 +60,7 @@ pub struct SharedOptions {
     /// 
     /// Default: `./config.json`
     #[arg(long)]
-    pub config_path: Option<PathBuf>,
+    pub config: Option<PathBuf>,
 
     /// Source as: torrent id, path to torrent file, or indexer url.
     ///
@@ -111,15 +111,15 @@ impl Options for SharedOptions {
         if self.announce_url.is_none() {
             self.announce_url.clone_from(&alternative.announce_url);
         }
-        if self.content_directory.is_none() {
-            self.content_directory
-                .clone_from(&alternative.content_directory);
+        if self.content.is_none() {
+            self.content
+                .clone_from(&alternative.content);
         }
         if self.verbosity.is_none() {
             self.verbosity = alternative.verbosity;
         }
-        if self.config_path.is_none() {
-            self.config_path.clone_from(&alternative.config_path);
+        if self.config.is_none() {
+            self.config.clone_from(&alternative.config);
         }
         if self.source.is_none() {
             self.source.clone_from(&alternative.source);
@@ -143,8 +143,8 @@ impl Options for SharedOptions {
         if self.verbosity.is_none() {
             self.verbosity = Some(Info);
         }
-        if self.content_directory.is_none() {
-            self.content_directory = Some(PathBuf::from("./content"));
+        if self.content.is_none() {
+            self.content = Some(PathBuf::from("./content"));
         }
         if self.output.is_none() {
             self.output = Some(PathBuf::from("./output"));
@@ -188,7 +188,7 @@ impl Options for SharedOptions {
                 ));
             }
         }
-        if let Some(content_directory) = &self.content_directory {
+        if let Some(content_directory) = &self.content {
             if !content_directory.exists() && !content_directory.is_dir() {
                 errors.push(DoesNotExist(
                     "Content Directory".to_owned(),
@@ -198,7 +198,7 @@ impl Options for SharedOptions {
         } else {
             errors.push(NotSet("Content Directory".to_owned()));
         }
-        if let Some(config_path) = &self.config_path {
+        if let Some(config_path) = &self.config {
             if !config_path.exists() && !config_path.is_file() {
                 errors.push(DoesNotExist(
                     "Config File".to_owned(),

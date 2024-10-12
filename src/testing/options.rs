@@ -36,8 +36,8 @@ fn inject_from_env_var(options: SharedOptions) -> SharedOptions {
     if options.announce_url.is_none() {
         options.announce_url = get_env_var("ANNOUNCE_URL");
     }
-    if options.content_directory.is_none() {
-        options.content_directory = Some(PathBuf::from(CONTENT_SAMPLES_DIR));
+    if options.content.is_none() {
+        options.content = Some(PathBuf::from(CONTENT_SAMPLES_DIR));
     }
     options
 }
