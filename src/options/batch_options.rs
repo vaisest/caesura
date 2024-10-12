@@ -86,6 +86,9 @@ impl Options for BatchOptions {
         if self.no_upload.is_none() {
             self.no_upload = Some(false);
         }
+        if self.cache.is_none() {
+            self.cache = Some(PathBuf::from("output/cache.json"));
+        }
     }
 
     #[must_use]
