@@ -14,6 +14,7 @@ pub use value_provider::*;
 pub use verify_options::*;
 
 pub mod batch_options;
+pub mod config_command;
 pub mod errors;
 pub mod file_options;
 pub mod options_provider;

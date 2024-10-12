@@ -15,6 +15,7 @@ use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::{Logger, Trace};
+use crate::options::config_command::ConfigCommand;
 use crate::options::{
     BatchOptions, FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions,
     SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions,
@@ -64,6 +65,8 @@ impl HostBuilder {
             .add(DebugSubscriber::transient())
             .add(ProgressBarSubscriber::transient())
             .add(TargetFormatProvider::transient())
+            // Add config services
+            .add(ConfigCommand::transient())
             // Add batch services
             .add(BatchCommand::transient().as_mut())
             .add(BatchCacheFactory::transient().as_mut())

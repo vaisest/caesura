@@ -5,6 +5,7 @@ use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
 use crate::errors::AppError;
 use crate::logging::*;
+use crate::options::config_command::ConfigCommand;
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
@@ -34,6 +35,7 @@ impl Host {
         let logger = self.services.get_required::<Logger>();
         Logger::init(logger);
         match ArgumentsParser::get_or_show_help() {
+            Config => self.services.get_required::<ConfigCommand>().execute(),
             Batch { .. } => {
                 self.services
                     .get_required_mut::<BatchCommand>()

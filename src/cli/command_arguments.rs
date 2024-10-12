@@ -9,6 +9,8 @@ use crate::options::{
 /// Cli sub-commands and arguments
 #[derive(Subcommand, Debug, Clone)]
 pub enum CommandArguments {
+    /// Generate a config.json file in the current working directory.
+    Config,
     /// Verify, transcode, and upload from multiple FLAC sources in one command.
     Batch {
         #[command(flatten)]
