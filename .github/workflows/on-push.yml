@@ -23,7 +23,7 @@ jobs:
 
     - run: echo "::notice title=Version::${{ steps.release.outputs.version}}"
 
-    - run: cat release-notes.md
+    - run: cat release-notes.md > $GITHUB_STEP_SUMMARY
 
     - uses: actions/upload-artifact@v4
       with:
