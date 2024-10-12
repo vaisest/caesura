@@ -15,13 +15,35 @@ pub struct FileOptions {
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub hard_link: Option<bool>,
 
-    /// Should images greater than 750 KB be compressed?
+    /// Should images greater than the maximum file size be compressed?
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub compress_images: Option<bool>,
 
+    /// Maximum file size in bytes beyond which images are compressed
+    /// 
+    /// Defaults to 750 KB
+    #[arg(long)]
+    pub max_file_size: Option<u64>,
+    
+    /// Maximum size in pixels for images
+    /// 
+    /// Defaults to 1280 px
+    ///
+    /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+    #[arg(long)]
+    pub max_pixel_size: Option<u32>,
+
+    /// Quality percentage to apply for jpg compression.
+    /// 
+    /// Defaults to 80%
+    ///
+    /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+    #[arg(long)]
+    pub jpg_quality: Option<u8>,
+
     /// Should png images be converted to jpg?
     ///
-    /// Only applied if the image is greated than 750 KB and `compress_images` is true.
+    /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub png_to_jpg: Option<bool>,
 }
@@ -55,6 +77,16 @@ impl Options for FileOptions {
         if self.png_to_jpg.is_none() {
             self.png_to_jpg = alternative.png_to_jpg;
         }
+        if self.max_file_size.is_none() {
+            self.max_file_size = alternative.max_file_size;
+        }
+        if self.max_pixel_size.is_none() {
+            self.max_pixel_size = alternative.max_pixel_size;
+        }
+        if self.jpg_quality.is_none() {
+            self.jpg_quality = alternative.jpg_quality;
+        }
+        
     }
 
     fn apply_defaults(&mut self) {
@@ -66,6 +98,15 @@ impl Options for FileOptions {
         }
         if self.png_to_jpg.is_none() {
             self.png_to_jpg = Some(false);
+        }
+        if self.max_file_size.is_none() {
+            self.max_file_size = Some(750_000);
+        }
+        if self.max_pixel_size.is_none() {
+            self.max_pixel_size = Some(1280);
+        }
+        if self.jpg_quality.is_none() {
+            self.jpg_quality = Some(80);
         }
     }
 

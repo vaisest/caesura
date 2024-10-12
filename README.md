@@ -303,9 +303,6 @@ Options:
       --content-directory <CONTENT_DIRECTORY>
           Directory containing torrent content. Typically this is set as the download directory in your torrent client
 
-      --cpus <CPUS>
-          Number of cpus to use for processing. Default: Total number of CPUs
-
       --verbosity <VERBOSITY>
           Level of logs to display. Default: info
           
@@ -325,14 +322,38 @@ Options:
       --allow-existing
           Allow transcoding to existing formats
 
-      --skip-hash-check
-          Should the torrent hash check of existing files be skipped?
-
       --hard-link
           Use hard links when copying files
 
       --compress-images
-          Should images greater than 750 KB be compressed?
+          Should images greater than the maximum file size be compressed?
+
+      --max-file-size <MAX_FILE_SIZE>
+          Maximum file size in bytes beyond which images are compressed
+          
+          Defaults to 750 KB
+
+      --max-pixel-size <MAX_PIXEL_SIZE>
+          Maximum size in pixels for images
+          
+          Defaults to 1280 px
+          
+          Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+
+      --jpg-quality <JPG_QUALITY>
+          Quality percentage to apply for jpg compression.
+          
+          Defaults to 80%
+          
+          Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+
+      --png-to-jpg
+          Should png images be converted to jpg?
+          
+          Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+
+      --cpus <CPUS>
+          Number of cpus to use for processing. Default: Total number of CPUs
 
   -h, --help
           Print help (see a summary with '-h')
@@ -417,11 +438,11 @@ Options:
 Verify, transcode, and upload from multiple FLAC sources in one command.
 
 ```
-caesura upload [OPTIONS] [SOURCE]
+caesura batch [OPTIONS] [SOURCE]
 ```
 
 <details>
-<summary><code>caesura upload --help</code></summary>
+<summary><code>caesura batch --help</code></summary>
 
 ```
 Usage: caesura batch [OPTIONS] [SOURCE]
@@ -480,12 +501,31 @@ Options:
           Use hard links when copying files
 
       --compress-images
-          Should images greater than 750 KB be compressed?
+          Should images greater than the maximum file size be compressed?
+
+      --max-file-size <MAX_FILE_SIZE>
+          Maximum file size in bytes beyond which images are compressed
+          
+          Defaults to 750 KB
+
+      --max-pixel-size <MAX_PIXEL_SIZE>
+          Maximum size in pixels for images
+          
+          Defaults to 1280 px
+          
+          Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+
+      --jpg-quality <JPG_QUALITY>
+          Quality percentage to apply for jpg compression.
+          
+          Defaults to 80%
+          
+          Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 
       --png-to-jpg
           Should png images be converted to jpg?
           
-          Only applied if the image is greated than 750 KB and `compress_images` is true.
+          Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 
       --no-spectrogram
           Should the spectrogram command be executed?
@@ -493,8 +533,19 @@ Options:
       --no-upload
           Should the upload command be executed?
 
--h, --help
-Print help (see a summary with '-h')
+      --limit <LIMIT>
+          Limit the number of torrents to batch process
+
+      --wait-before-upload <WAIT_BEFORE_UPLOAD>
+          Wait for a duration before uploading the torrent.
+          
+          The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
+
+      --cache <CACHE>
+          Path to cache file
+
+  -h, --help
+          Print help (see a summary with '-h')
 ```
 </details>
 

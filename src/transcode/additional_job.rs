@@ -11,9 +11,6 @@ use crate::dependencies::CONVERT;
 use crate::errors::{AppError, OutputHandler};
 
 const IMAGE_EXTENSIONS: [&str; 4] = ["gif", "jpg", "jpeg", "png"];
-const MAX_FILE_SIZE: u64 = 750_000;
-const MAX_PIXEL_SIZE: u32 = 1280_u32;
-const QUALITY: u32 = 80_u32;
 
 pub struct AdditionalJob {
     pub id: String,
@@ -22,6 +19,9 @@ pub struct AdditionalJob {
     pub output_path: String,
     pub hard_link: bool,
     pub compress_images: bool,
+    pub max_file_size: u64,
+    pub max_pixel_size: u32,
+    pub quality: u8,
     pub png_to_jpg: bool,
     pub extension: String,
 }
@@ -37,7 +37,7 @@ impl AdditionalJob {
             .await
             .or_else(|e| AppError::io(e, "read metadata of additional file"))?;
         let size = metadata.size();
-        let is_large = size > MAX_FILE_SIZE;
+        let is_large = size > self.max_file_size;
         let is_image = IMAGE_EXTENSIONS.contains(&self.extension.as_str());
         if is_large && (!is_image || !self.compress_images) {
             warn!(
@@ -52,7 +52,7 @@ impl AdditionalJob {
             .or_else(|e| AppError::io(e, "create directories for additional file"))?;
 
         let verb = if is_large && is_image && self.compress_images {
-            compress_image(&self.source_path, &self.output_path, self.png_to_jpg).await?;
+            compress_image(&self.source_path, &self.output_path, self.max_pixel_size, self.quality, self.png_to_jpg).await?;
             "Compressed"
         } else if self.hard_link {
             hard_link(&self.source_path, &self.output_path)
@@ -79,6 +79,8 @@ impl AdditionalJob {
 async fn compress_image(
     source_path: &Path,
     output_path: &str,
+    max_pixel_size: u32,
+    quality: u8,
     png_to_jpg: bool,
 ) -> Result<Output, AppError> {
     let mut output_path = output_path.to_owned();
@@ -98,16 +100,16 @@ async fn compress_image(
     trace!(
         "{} image to maximum {} px and {}% quality: {}",
         "Compressing".bold(),
-        MAX_PIXEL_SIZE,
-        QUALITY,
+        max_pixel_size,
+        quality,
         source_path
     );
     let output = Command::new(CONVERT)
         .arg(source_path)
         .arg("-resize")
-        .arg(format!("{MAX_PIXEL_SIZE}x{MAX_PIXEL_SIZE}>"))
+        .arg(format!("{max_pixel_size}x{max_pixel_size}>"))
         .arg("-quality")
-        .arg(format!("{QUALITY}%"))
+        .arg(format!("{quality}%"))
         .arg(output_path)
         .output()
         .await
