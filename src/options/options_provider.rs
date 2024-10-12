@@ -45,20 +45,22 @@ impl OptionsProvider {
             T::default()
         };
         if let Some(json) = &self.json {
-            match T::from_json(json) {
-                Ok(file_options) => {
-                    trace!(
-                        "{} {} from file:\n{}",
-                        "Parsed".bold(),
-                        T::get_name(),
-                        file_options
-                    );
-                    options.merge(&file_options);
-                }
-                Err(error) => {
-                    force_init_logger();
-                    Logger::init_new(Trace);
-                    error!("{} to deserialize config file: {}", "Failed".bold(), error);
+            if !json.is_empty() {
+                match T::from_json(json) {
+                    Ok(file_options) => {
+                        trace!(
+                            "{} {} from file:\n{}",
+                            "Parsed".bold(),
+                            T::get_name(),
+                            file_options
+                        );
+                        options.merge(&file_options);
+                    }
+                    Err(error) => {
+                        force_init_logger();
+                        Logger::init_new(Trace);
+                        error!("{} to deserialize config file: {}", "Failed".bold(), error);
+                    }
                 }
             }
         }
