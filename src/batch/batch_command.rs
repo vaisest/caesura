@@ -52,6 +52,7 @@ impl BatchCommand {
         let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
         let skip_upload = self.batch_options.get_value(|x| x.no_upload);
         let queue = cache.get_queue(skip_upload);
+        let limit = self.batch_options.get_limit();
         debug!("{} {} sources", "Queued".bold(), queue.len());
         let mut count = 0;
         for item in queue {
@@ -112,7 +113,7 @@ impl BatchCommand {
             }
             cache.save(false)?;
             count += 1;
-            if let Some(limit) = self.batch_options.limit {
+            if let Some(limit) = limit {
                 if count >= limit {
                     info!("{} batch limit: {limit}", "Reached".bold());
                     break;

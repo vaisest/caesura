@@ -21,8 +21,16 @@ pub struct BatchOptions {
     pub no_upload: Option<bool>,
 
     /// Limit the number of torrents to batch process.
+    ///
+    /// If `no_limit` is set, this option is ignored.
+    ///
+    /// Default: 3
     #[arg(long)]
     pub limit: Option<usize>,
+
+    /// Should the `limit` option be ignored?
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub no_limit: Option<bool>,
 
     /// Wait for a duration before uploading the torrent.
     ///
@@ -48,6 +56,15 @@ impl BatchOptions {
         let wait_before_upload = self.wait_before_upload.clone()?;
         humantime::parse_duration(wait_before_upload.as_str()).ok()
     }
+
+    #[must_use]
+    pub fn get_limit(&self) -> Option<usize> {
+        if self.no_limit == Some(true) {
+            None
+        } else {
+            self.limit
+        }
+    }
 }
 
 impl Options for BatchOptions {
@@ -72,6 +89,9 @@ impl Options for BatchOptions {
         if self.limit.is_none() {
             self.limit = alternative.limit;
         }
+        if self.no_limit.is_none() {
+            self.no_limit = alternative.no_limit;
+        }
         if self.wait_before_upload.is_none() {
             self.wait_before_upload
                 .clone_from(&alternative.wait_before_upload);
@@ -87,6 +107,12 @@ impl Options for BatchOptions {
         }
         if self.no_upload.is_none() {
             self.no_upload = Some(false);
+        }
+        if self.limit.is_none() {
+            self.limit = Some(3);
+        }
+        if self.no_limit.is_none() {
+            self.no_limit = Some(false);
         }
         if self.cache.is_none() {
             self.cache = Some(PathBuf::from("output/cache.json"));

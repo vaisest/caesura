@@ -37,7 +37,7 @@ Each source is verified to ensure it's:
 - **[[fixed](https://github.com/DevYukine/red_oxide/issues/24)]** Shorter file names.
 - Automatic torrent file creation
 - **[new]** Images in the root directory are included and all other files ignored.
-- **[new]** Images larger than 750 KB are (optionally) compressed, converted to JPG and reduced to less than 1920 px. 
+- **[new]** Images larger than 750 KB are (optionally) compressed, converted to JPG and reduced to less than 1280 px.
 
 *The logic being that folder and cover images are included but to minimize file size, but for artwork and anything additional the original source can be downloaded*
 
@@ -48,7 +48,7 @@ Each source is verified to ensure it's:
 
 ### Batch
 
-- **[new]** Verify, transcode and upload from each torrent file in a directory. 
+- **[new]** Verify, transcode and upload from each torrent file in a directory.
 
 *The application will crunch through your torrent directory and automatically determine which are FLAC sources suitable for transcoding.*
 
@@ -75,7 +75,7 @@ docker run ghcr.io/rogueoneecho/caesura --help
 
 > [!TIP]
 > You can append `--help` to any command to see the available options.
-> 
+>
 > ```bash
 > docker run ghcr.io/rogueoneecho/caesura verify --help
 > ```
@@ -160,6 +160,11 @@ Inspect the transcodes in the output directory.
 
 ### 6. Upload transcodes
 
+> [!CAUTION]
+> You are responsible for everything you upload.
+>
+> Misuse of this application can easily result in the loss of your upload privileges.
+
 Run the `upload` command with the source as an argument.
 
 > [!TIP]
@@ -181,18 +186,23 @@ Go to your indexer and check your uploads to make sure everything has gone to pl
 
 ### 7. Batch processing
 
+> [!CAUTION]
+> You are responsible for everything you upload.
+>
+> Misuse of this application, and especially the `batch` command can easily result in the loss of your upload privileges and even bans.
+
 Now that you have the hang of the application we can speed things up with the `batch` command.
 
 This handles `verify`, `spectrogram`, `transcode` and `upload` in a single command. It can also be pointed at a directory containing torrent files to automatically sort through and pick out suitable sources.
 
-We'll start off with some safeguards before setting it fully loose.
-- `--limit 2` will stop the command after it has transcoded or uploaded from 2 sources.
-- `--no-upload` will skip the upload step.
+By default the `batch` command will limit to processing just `3` transcodes and it won't create spectrograms or upload unless explicitly instructed. These safeguards are in place to prevent mistakenly uploading a bunch of sources that you haven't checked.
 
 > [!NOTE]
 > The batch command uses a cache file to store progress helping speed up subsequent runs.
-> 
-> Make sure the cache file is in a mounted volumes so it's not deleted between runs.
+>
+> Make sure the cache file is in a mounted volume so it's not deleted between runs.
+
+Run the command to compile a cache and transcode the first three sources in the directory:
 
 ```bash
 docker run \
@@ -200,10 +210,13 @@ docker run \
 -v /path/to/your/content:/content \
 -v ./output:/output \
 ghcr.io/rogueoneecho/caesura \
-batch /path/to/your/torrents --limit 2 --no-upload
+batch /path/to/your/torrents
 ```
 
-If everything goes to plan two sources should have transcoded to your output directory.
+> [!TIP]
+> Add the `--spectrogram` flag to generate spectrograms.
+
+If everything goes to plan three sources should have transcoded to your output directory.
 
 You can filter the cache file with `jq` to see what has been transcoded:
 
@@ -223,14 +236,46 @@ If you're working with a lot of files then `less` can be helpful:
 cat ./output/cache.json | jq --color-output 'map(select(.transcoded == true))' | less -R
 ```
 
-For the first run we skipped the upload step with `--no-upload`.
+Nothing was uploaded in the first run giving you a chance to check the transcodes and spectrograms. Once you're satisfied run the command again but with the `--upload` flag (or set `"upload": true` in the config file).
 
-Once you've checked the transcoded files you can run it again without `--no-upload`.
+```bash
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+batch /path/to/your/torrents --upload
+```
 
-Or stick with `--no-upload` and remove the `--limit 2` to transcode every `.torrent` in the source directory.
+Check the uploads on your indexer to make sure everything has gone to plan.
 
-> [!IMPORTANT]
-> I'd strongly recommend you always include an explicit `--limit` or `--no-upload` when running the batch command as you're likely to lose your upload privileges if you aren't paying attention to what you're uploading.
+Now, we can set the batch command loose with the `--no-limit` option to transcode (but not upload) every source in the directory:
+
+```bash
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+batch /path/to/your/torrents --no-limit
+```
+
+Once you've checked the transcodes you can start to upload them in batches. The `--wait-before-upload 30s` option will add a 30 second wait interval between uploads to give you time to check everything looks good, and spread out the load on your indexer:
+
+```bash
+docker run \
+-v ./config.json:/config.json \
+-v /path/to/your/content:/content \
+-v ./output:/output \
+ghcr.io/rogueoneecho/caesura \
+batch /path/to/your/torrents --upload --limit 10 --wait-before-upload 30s
+```
+
+> [!CAUTION]
+> In theory you can execute with both `--upload --no-limit` but that is probably a bad idea and a very fast way to lose your upload privileges.
+>
+> If you are going to do so then you should definitely use a long wait interval:
+> `--upload --no-limit --wait-before-upload 2m`
 
 ## Commands and Configuration
 
@@ -287,7 +332,7 @@ The logging verbosity can be adjusted with the `--verbosity <LOG-LEVEL>` option.
 3. [Ask for help in GitHub Discussions](https://github.com/RogueOneEcho/caesura/discussions)
 4. [Create an issue](https://github.com/RogueOneEcho/caesura/issues)
 
-> [!TIP] 
+> [!TIP]
 > If you manage to resolve your issue it's always worth creating a new discussion anyway because it might help someone else in the future, or identify an area where the documentation could be improved.
 
 ## Build

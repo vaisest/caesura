@@ -121,7 +121,12 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    Only applied if the image is greated than `max_file_size` and `compress_images` is true.
 * `--no-spectrogram` — Should the spectrogram command be executed?
 * `--no-upload` — Should the upload command be executed?
-* `--limit <LIMIT>` — Limit the number of torrents to batch process
+* `--limit <LIMIT>` — Limit the number of torrents to batch process.
+
+   If `no_limit` is set, this option is ignored.
+
+   Default: 3
+* `--no-limit` — Should the `limit` option be ignored?
 * `--wait-before-upload <WAIT_BEFORE_UPLOAD>` — Wait for a duration before uploading the torrent.
 
    The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
