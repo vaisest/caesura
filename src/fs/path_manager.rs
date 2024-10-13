@@ -5,7 +5,7 @@ use di::{injectable, Ref};
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::FlacFile;
 use crate::naming::{SpectrogramName, TranscodeName};
-use crate::options::{Options, SharedOptions};
+use crate::options::SharedOptions;
 use crate::source::Source;
 
 #[injectable]
@@ -17,7 +17,10 @@ pub struct PathManager {
 impl PathManager {
     #[must_use]
     pub fn get_output_dir(&self) -> PathBuf {
-        self.shared_options.get_value(|x| x.output.clone())
+        self.shared_options
+            .output
+            .clone()
+            .expect("output should be set")
     }
 
     #[must_use]

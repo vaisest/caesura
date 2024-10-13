@@ -4,7 +4,7 @@ use html_escape::decode_html_entities;
 use crate::api::Api;
 use crate::errors::AppError;
 use crate::formats::ExistingFormatProvider;
-use crate::options::{Options, SharedOptions};
+use crate::options::SharedOptions;
 use crate::source::*;
 
 /// Retrieve [Source] from the [Api] via a [provider design pattern](https://en.wikipedia.org/wiki/Provider_model)
@@ -33,7 +33,9 @@ impl SourceProvider {
         let existing = ExistingFormatProvider::get(&torrent, &group_torrents)?;
         let directory = self
             .options
-            .get_value(|x| x.content.clone())
+            .content
+            .clone()
+            .expect("content should be set")
             .join(decode_html_entities(&torrent.file_path).to_string());
         let metadata = Metadata::new(&group, &torrent);
         Ok(Source {

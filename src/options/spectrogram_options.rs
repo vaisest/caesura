@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::{Batch, Spectrogram};
-use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider, ValueProvider};
+use crate::options::{IsEmpty, OptionRule, Options, OptionsProvider};
 use crate::spectrogram::Size;
 use clap::Args;
 use di::{injectable, Ref};
@@ -28,13 +28,6 @@ impl SpectrogramOptions {
 impl Options for SpectrogramOptions {
     fn get_name() -> String {
         "Spectrogram Options".to_owned()
-    }
-
-    fn get_value<TValue, F>(&self, select: F) -> TValue
-    where
-        F: FnOnce(&Self) -> Option<TValue>,
-    {
-        ValueProvider::get(self, select)
     }
 
     fn merge(&mut self, alternative: &Self) {

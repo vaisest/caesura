@@ -10,7 +10,6 @@ use crate::cli::CommandArguments::{Batch, Spectrogram, Transcode, Upload, Verify
 use crate::logging::{Info, Verbosity};
 use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
-    ValueProvider,
 };
 
 /// Options shared by all commands
@@ -91,13 +90,6 @@ impl Options for SharedOptions {
         "Shared Options".to_owned()
     }
 
-    fn get_value<TValue, F>(&self, select: F) -> TValue
-    where
-        F: FnOnce(&Self) -> Option<TValue>,
-    {
-        ValueProvider::get(self, select)
-    }
-
     fn merge(&mut self, alternative: &Self) {
         if self.announce_url.is_none() {
             self.announce_url.clone_from(&alternative.announce_url);
@@ -173,7 +165,7 @@ impl Options for SharedOptions {
         if self.indexer_url.is_none() {
             errors.push(NotSet("Indexer URL".to_owned()));
         } else {
-            let indexer_url = self.get_value(|x| x.indexer_url.clone());
+            let indexer_url = self.indexer_url.clone().expect("indexer_url should be set");
             if !indexer_url.starts_with("https://") && !indexer_url.starts_with("http://") {
                 errors.push(UrlNotHttp("Indexer URL".to_owned(), indexer_url.clone()));
             }
@@ -187,7 +179,10 @@ impl Options for SharedOptions {
         if self.announce_url.is_none() {
             errors.push(NotSet("Announce URL".to_owned()));
         } else {
-            let announce_url = self.get_value(|x| x.announce_url.clone());
+            let announce_url = self
+                .announce_url
+                .clone()
+                .expect("announce_url should be set");
             if !announce_url.starts_with("https://") && !announce_url.starts_with("http://") {
                 errors.push(UrlNotHttp("Announce URL".to_owned(), announce_url.clone()));
             }

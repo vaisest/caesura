@@ -3,7 +3,7 @@ use caesura::formats::TargetFormatProvider;
 use caesura::fs::DirectoryReader;
 use caesura::hosting::HostBuilder;
 use caesura::logging::{Debug, Logger};
-use caesura::options::{Options, SharedOptions, TargetOptions};
+use caesura::options::{SharedOptions, TargetOptions};
 use caesura::source::SourceProvider;
 use caesura::testing::*;
 use caesura::transcode::TranscodeCommand;
@@ -21,7 +21,7 @@ async fn transcode_command() -> Result<(), AppError> {
         allow_existing: Some(true),
         ..TargetOptions::default()
     });
-    let output_dir = shared_options.get_value(|x| x.output.clone());
+    let output_dir = shared_options.output.clone().expect("output should be set");
     let host = HostBuilder::new()
         .with_options(shared_options.clone())
         .with_options(target_options)

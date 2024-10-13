@@ -54,7 +54,11 @@ impl VerifyCommand {
         debug!("{} {}", "Verifying".bold(), source);
         let mut api_errors = self.api_checks(source);
         let mut flac_errors = self.flac_checks(source)?;
-        let mut hash_check = if self.verify_options.get_value(|x| x.no_hash_check) {
+        let mut hash_check = if self
+            .verify_options
+            .no_hash_check
+            .expect("no_hash_check should be set")
+        {
             debug!("{} hash check due to settings", "Skipped".bold());
             Vec::new()
         } else {

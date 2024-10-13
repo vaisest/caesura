@@ -62,7 +62,8 @@ impl UploadCommand {
             }
             if self
                 .upload_options
-                .get_value(|x| x.copy_transcode_to_content_dir)
+                .copy_transcode_to_content_dir
+                .expect("copy_transcode_to_content_dir should be set")
             {
                 self.copy_transcode(source, &target).await?;
             }
@@ -84,7 +85,7 @@ impl UploadCommand {
                 release_desc: self.create_description(source, target)?,
                 group_id: source.group.id,
             };
-            if self.upload_options.get_value(|x| x.dry_run) {
+            if self.upload_options.dry_run.expect("dry_run should be set") {
                 warn!("{} upload as this is a dry run", "Skipping".bold());
                 info!("{} data of {target} for {source}:", "Upload".bold());
                 info!("{}", form);
@@ -92,7 +93,11 @@ impl UploadCommand {
             }
             let response = api.upload_torrent(form).await?;
             debug!("{} {target} for {source}", "Uploaded".bold());
-            let base = &self.shared_options.get_value(|x| x.indexer_url.clone());
+            let base = &self
+                .shared_options
+                .indexer_url
+                .clone()
+                .expect("indexer_url should be set");
             debug!(
                 "{}",
                 get_permalink(base, response.group_id, response.torrent_id)
@@ -109,9 +114,15 @@ impl UploadCommand {
             .expect("source dir should have a name");
         let target_dir = self
             .shared_options
-            .get_value(|x| x.content.clone())
+            .content
+            .clone()
+            .expect("content should be set")
             .join(source_dir_name);
-        let verb = if self.upload_options.get_value(|x| x.hard_link) {
+        let verb = if self
+            .upload_options
+            .hard_link
+            .expect("hard_link should be set")
+        {
             hard_link(&source_dir, &target_dir)
                 .await
                 .or_else(|e| AppError::io(e, "hard link transcode content"))?;
@@ -137,7 +148,11 @@ impl UploadCommand {
             .file_name()
             .expect("torrent path should have a name");
         let target_path = target_dir.join(source_file_name);
-        let verb = if self.upload_options.get_value(|x| x.hard_link) {
+        let verb = if self
+            .upload_options
+            .hard_link
+            .expect("hard_link should be set")
+        {
             hard_link(&source_path, &target_path)
                 .await
                 .or_else(|e| AppError::io(e, "hard link torrent file"))?;
@@ -158,7 +173,11 @@ impl UploadCommand {
         source: &Source,
         target: TargetFormat,
     ) -> Result<String, AppError> {
-        let base = &self.shared_options.get_value(|x| x.indexer_url.clone());
+        let base = &self
+            .shared_options
+            .indexer_url
+            .clone()
+            .expect("indexer_url should be set");
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         let source_title = source.format.get_title();
         let transcode_command = self.get_command(source, target)?;

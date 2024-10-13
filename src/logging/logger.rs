@@ -32,6 +32,7 @@ impl Logger {
         }
     }
 
+    //noinspection RsExperimentalTraitObligations
     pub fn init(logger: Ref<Logger>) {
         SHOULD_COLORIZE.set_override(true);
         let filter = logger.enabled_threshold.to_level_filter();

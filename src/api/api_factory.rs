@@ -6,7 +6,7 @@ use reqwest::{header, Client, ClientBuilder};
 
 use crate::api::Api;
 use crate::built_info;
-use crate::options::{Options, SharedOptions};
+use crate::options::SharedOptions;
 
 /// The number of requests allowed per duration
 const ALLOWED_REQUESTS_PER_DURATION: u64 = 10;
@@ -24,8 +24,11 @@ impl ApiFactory {
     #[must_use]
     pub fn new(options: Ref<SharedOptions>) -> Self {
         Self {
-            api_key: options.get_value(|x| x.api_key.clone()),
-            api_url: options.get_value(|x| x.indexer_url.clone()),
+            api_key: options.api_key.clone().expect("api_key should be set"),
+            api_url: options
+                .indexer_url
+                .clone()
+                .expect("indexer_url should be set"),
         }
     }
 

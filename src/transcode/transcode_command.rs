@@ -125,8 +125,16 @@ impl TranscodeCommand {
         for target in targets {
             let content_dir = self.paths.get_transcode_target_dir(source, target);
             let output_path = self.paths.get_torrent_path(source, target);
-            let announce_url = self.shared_options.get_value(|x| x.announce_url.clone());
-            let indexer = self.shared_options.get_value(|x| x.indexer.clone());
+            let announce_url = self
+                .shared_options
+                .announce_url
+                .clone()
+                .expect("announce_url should be set");
+            let indexer = self
+                .shared_options
+                .indexer
+                .clone()
+                .expect("indexer should be set");
             ImdlCommand::create(&content_dir, &output_path, announce_url, indexer).await?;
             trace!("{} torrent {:?}", "Created".bold(), output_path);
         }

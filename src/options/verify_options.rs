@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{Options, OptionsProvider, ValueProvider};
+use crate::options::{Options, OptionsProvider};
 
 /// Options for [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -30,13 +30,6 @@ impl VerifyOptions {
 impl Options for VerifyOptions {
     fn get_name() -> String {
         "Verify Options".to_owned()
-    }
-
-    fn get_value<TValue, F>(&self, select: F) -> TValue
-    where
-        F: FnOnce(&Self) -> Option<TValue>,
-    {
-        ValueProvider::get(self, select)
     }
 
     fn merge(&mut self, alternative: &Self) {

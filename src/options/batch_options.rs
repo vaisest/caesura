@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{DoesNotExist, OptionRule, Options, OptionsProvider, ValueProvider};
+use crate::options::{DoesNotExist, OptionRule, Options, OptionsProvider};
 
 /// Options for [`BatchCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -78,13 +78,6 @@ impl BatchOptions {
 impl Options for BatchOptions {
     fn get_name() -> String {
         "Batch Options".to_owned()
-    }
-
-    fn get_value<TValue, F>(&self, select: F) -> TValue
-    where
-        F: FnOnce(&Self) -> Option<TValue>,
-    {
-        ValueProvider::get(self, select)
     }
 
     fn merge(&mut self, alternative: &Self) {

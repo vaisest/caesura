@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
 use crate::formats::TargetFormat;
-use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider, ValueProvider};
+use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider};
 
 /// Options for [`TranscodeCommand`] and [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -37,13 +37,6 @@ impl TargetOptions {
 impl Options for TargetOptions {
     fn get_name() -> String {
         "Target Options".to_owned()
-    }
-
-    fn get_value<TValue, F>(&self, select: F) -> TValue
-    where
-        F: FnOnce(&Self) -> Option<TValue>,
-    {
-        ValueProvider::get(self, select)
     }
 
     fn merge(&mut self, alternative: &Self) {

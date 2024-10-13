@@ -1,6 +1,6 @@
 use crate::jobs::*;
 use crate::logging::Verbosity;
-use crate::options::{Options, SharedOptions};
+use crate::options::SharedOptions;
 use di::{injectable, Ref};
 
 /// A publisher notifies subscribers when the status of a [Job] changes.
@@ -20,7 +20,9 @@ impl Publisher {
         progress_bar_subscriber: Ref<ProgressBarSubscriber>,
     ) -> Self {
         let subscriber: Ref<dyn Subscriber + Send + Sync> =
-            if options.get_value(|x| x.verbosity).as_num() >= Verbosity::Trace.as_num() {
+            if options.verbosity.expect("verbosity should be set").as_num()
+                >= Verbosity::Trace.as_num()
+            {
                 debug_subscriber
             } else {
                 progress_bar_subscriber

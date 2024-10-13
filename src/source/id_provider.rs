@@ -4,7 +4,7 @@ use di::{injectable, Ref};
 
 use crate::errors::AppError;
 use crate::imdl::ImdlCommand;
-use crate::options::{Options, SharedOptions};
+use crate::options::SharedOptions;
 use crate::source::*;
 
 /// Retrieve the id of a source.
@@ -41,13 +41,22 @@ impl IdProvider {
     }
 
     fn get_by_url(&self, url: &str) -> Result<i64, AppError> {
-        let base = &self.options.get_value(|x| x.indexer_url.clone());
+        let base = &self
+            .options
+            .indexer_url
+            .clone()
+            .expect("indexer_url should be set");
         get_torrent_id_from_url(url, base)
     }
 
     pub async fn get_by_file(&self, path: &Path) -> Result<i64, AppError> {
         let summary = ImdlCommand::show(path).await?;
-        let tracker_id = self.options.get_value(|x| x.indexer.clone()).to_uppercase();
+        let tracker_id = self
+            .options
+            .indexer
+            .clone()
+            .expect("indexer should be set")
+            .to_uppercase();
         if summary.source == Some(tracker_id.clone()) {
             let url = summary.comment.unwrap_or_default();
             self.get_by_url(&url)

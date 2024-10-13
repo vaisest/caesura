@@ -10,7 +10,7 @@ use log::trace;
 use crate::batch::{BatchCache, BatchItem};
 use crate::errors::AppError;
 use crate::fs::DirectoryReader;
-use crate::options::{BatchOptions, Options, SharedOptions};
+use crate::options::{BatchOptions, SharedOptions};
 
 #[injectable]
 pub struct BatchCacheFactory {
@@ -26,7 +26,11 @@ impl BatchCacheFactory {
             trace!("{} cache file: {path:?}", "Reading".bold());
             insert_items_from_file(&mut cache, &path.clone())?;
         }
-        let directory = self.shared_options.get_value(|x| x.source.clone());
+        let directory = self
+            .shared_options
+            .source
+            .clone()
+            .expect("source should be set");
         insert_items_from_directory(&mut cache, &PathBuf::from(directory))?;
         Ok(BatchCache {
             path: cache_path,

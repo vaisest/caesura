@@ -3,7 +3,7 @@ use di::{injectable, Ref};
 use crate::formats::target_format::TargetFormat;
 use crate::fs::{AdditionalFile, PathManager};
 use crate::jobs::Job;
-use crate::options::{FileOptions, Options};
+use crate::options::FileOptions;
 use crate::source::Source;
 use crate::transcode::AdditionalJob;
 
@@ -53,12 +53,24 @@ impl AdditionalJobFactory {
             .expect("Source has extension")
             .to_string_lossy()
             .into_owned();
-        let no_image_compression = self.options.get_value(|x| x.no_image_compression);
-        let max_file_size = self.options.get_value(|x| x.max_file_size);
-        let max_pixel_size = self.options.get_value(|x| x.max_pixel_size);
-        let quality = self.options.get_value(|x| x.jpg_quality);
-        let no_png_to_jpg = self.options.get_value(|x| x.no_png_to_jpg);
-        let hard_link = self.options.get_value(|x| x.hard_link);
+        let no_image_compression = self
+            .options
+            .no_image_compression
+            .expect("no_image_compression should be set");
+        let max_file_size = self
+            .options
+            .max_file_size
+            .expect("max_file_size should be set");
+        let max_pixel_size = self
+            .options
+            .max_pixel_size
+            .expect("max_pixel_size should be set");
+        let quality = self.options.jpg_quality.expect("jpg_quality should be set");
+        let no_png_to_jpg = self
+            .options
+            .no_png_to_jpg
+            .expect("no_png_to_jpg should be set");
+        let hard_link = self.options.hard_link.expect("hard_link should be set");
         Job::Additional(AdditionalJob {
             id,
             source_path,
