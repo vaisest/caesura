@@ -16,6 +16,12 @@ use crate::options::{
 /// Options shared by all commands
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SharedOptions {
+    /// Announce URL including passkey
+    ///
+    /// Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+    #[arg(long)]
+    pub announce_url: Option<String>,
+
     /// API key with torrent permissions for the indexer.
     #[arg(long)]
     pub api_key: Option<String>,
@@ -24,7 +30,7 @@ pub struct SharedOptions {
     ///
     /// Examples: `red`, `pth`, `ops`
     ///
-    /// Default: `red`
+    /// Default: Determined by `announce_url`
     #[arg(long)]
     pub indexer: Option<String>,
 
@@ -32,15 +38,9 @@ pub struct SharedOptions {
     ///
     /// Examples: `https://redacted.ch`, `https://orpheus.network`
     ///
-    /// Default: Dependent on indexer
+    /// Default: Determined by `announce_url`
     #[arg(long)]
     pub indexer_url: Option<String>,
-
-    /// Announce URL including passkey
-    ///
-    /// Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
-    #[arg(long)]
-    pub announce_url: Option<String>,
 
     /// Directory containing torrent content.
     ///
@@ -99,6 +99,9 @@ impl Options for SharedOptions {
     }
 
     fn merge(&mut self, alternative: &Self) {
+        if self.announce_url.is_none() {
+            self.announce_url.clone_from(&alternative.announce_url);
+        }
         if self.api_key.is_none() {
             self.api_key.clone_from(&alternative.api_key);
         }
@@ -107,9 +110,6 @@ impl Options for SharedOptions {
         }
         if self.indexer_url.is_none() {
             self.indexer_url.clone_from(&alternative.indexer_url);
-        }
-        if self.announce_url.is_none() {
-            self.announce_url.clone_from(&alternative.announce_url);
         }
         if self.content.is_none() {
             self.content.clone_from(&alternative.content);
@@ -130,7 +130,18 @@ impl Options for SharedOptions {
 
     fn apply_defaults(&mut self) {
         if self.indexer.is_none() {
-            self.indexer = Some("red".to_owned());
+            self.indexer = match self.announce_url.as_deref() {
+                Some(url) => {
+                    if url.starts_with("https://flacsfor.me") {
+                        Some("red".to_owned())
+                    } else if url.starts_with("https://home.opsfet.ch") {
+                        Some("ops".to_owned())
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            };
         }
         if self.indexer_url.is_none() {
             self.indexer_url = match self.indexer.as_deref() {
