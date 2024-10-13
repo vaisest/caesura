@@ -226,16 +226,8 @@ jobs:
 
     - run: docker push ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }}
 
-    - run: docker tag caesura ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
-      if: github.ref_type == 'branch'
-
-    - run: docker push ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
-      if: github.ref_type == 'branch'
-
-
   docker-release:
     runs-on: ubuntu-latest
-    if: ${{ ! contains(needs.release.outputs.version, '-') }}
     needs:
     - release
     - cargo-build
@@ -248,6 +240,14 @@ jobs:
 
     - run: docker pull ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }}
 
+    - run: docker tag ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }} ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
+      if: ${{ github.ref_name == 'alpha' }}
+
+    - run: docker push ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
+      if: ${{ github.ref_name == 'alpha' }}
+
     - run: docker tag ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }} ghcr.io/rogueoneecho/caesura:latest
+      if: ${{ ! contains(needs.release.outputs.version, '-') }}
 
     - run: docker push ghcr.io/rogueoneecho/caesura:latest
+      if: ${{ ! contains(needs.release.outputs.version, '-') }}
