@@ -24,7 +24,7 @@ impl ConfigCommand {
             .or_else(|e| AppError::deserialization(e, "collate config"))?;
         let json = serde_json::to_string_pretty(&options)
             .or_else(|e| AppError::deserialization(e, "serialize config"))?;
-        print!("{json}");
+        println!("{json}");
         Ok(true)
     }
 
