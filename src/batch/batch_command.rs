@@ -49,8 +49,8 @@ impl BatchCommand {
             .write()
             .expect("BatchCacheFactory should be writeable")
             .create()?;
-        let skip_spectrogram = self.batch_options.get_value(|x| x.no_spectrogram);
-        let skip_upload = self.batch_options.get_value(|x| x.no_upload);
+        let skip_spectrogram = !self.batch_options.get_value(|x| x.spectrogram);
+        let skip_upload = !self.batch_options.get_value(|x| x.upload);
         let queue = cache.get_queue(skip_upload);
         let limit = self.batch_options.get_limit();
         debug!("{} {} sources", "Queued".bold(), queue.len());

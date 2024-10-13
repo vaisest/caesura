@@ -12,6 +12,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SpectrogramOptions {
     /// Sizes of spectrograms to generate.
+    ///
+    /// Default: `full` and `zoom`
     #[arg(long)]
     pub spectrogram_size: Option<Vec<Size>>,
 }

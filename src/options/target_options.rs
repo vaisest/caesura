@@ -14,13 +14,15 @@ use crate::options::{IsEmpty, NotSet, OptionRule, Options, OptionsProvider, Valu
 pub struct TargetOptions {
     /// Formats to attempt to transcode to.
     ///
-    /// Default: `flac`, `320`, and `v0`
+    /// Default: `flac`, `320` and `v0`
     #[arg(long)]
     pub target: Option<Vec<TargetFormat>>,
 
     /// Allow transcoding to existing formats
     ///
     /// Note: This is only useful for development and should probably not be used.
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub allow_existing: Option<bool>,
 }

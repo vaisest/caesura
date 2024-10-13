@@ -46,7 +46,7 @@ pub struct SharedOptions {
     ///
     /// Typically this is set as the download directory in your torrent client.
     ///
-    /// Default: ./content
+    /// Default: `./content`
     #[arg(long)]
     pub content: Option<PathBuf>,
 

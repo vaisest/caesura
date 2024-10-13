@@ -15,12 +15,16 @@ pub struct UploadOptions {
     /// Should the transcoded files be copied to the content directory?
     ///
     /// This should be enabled if you wish to auto-add to your torrent client.
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub copy_transcode_to_content_dir: Option<bool>,
 
     /// Directory the torrent file is copied to.
     ///
     /// This should be set if you wish to auto-add to your torrent client.
+    ///
+    /// Default: Not set
     #[arg(long)]
     pub copy_torrent_to: Option<PathBuf>,
 
@@ -35,6 +39,8 @@ pub struct UploadOptions {
     /// Is this a dry run?
     ///
     /// If enabled data won't be uploaded and will instead be printed to the console.
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub dry_run: Option<bool>,
 }

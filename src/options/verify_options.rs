@@ -11,11 +11,13 @@ use crate::options::{Options, OptionsProvider, ValueProvider};
 /// Options for [`VerifyCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct VerifyOptions {
-    /// Should the torrent hash check of existing files be skipped?
+    /// Should the hash check of source files be skipped?
     ///
     /// Note: This is only useful for development and should probably not be used.
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub skip_hash_check: Option<bool>,
+    pub no_hash_check: Option<bool>,
 }
 
 #[injectable]
@@ -38,14 +40,14 @@ impl Options for VerifyOptions {
     }
 
     fn merge(&mut self, alternative: &Self) {
-        if self.skip_hash_check.is_none() {
-            self.skip_hash_check = alternative.skip_hash_check;
+        if self.no_hash_check.is_none() {
+            self.no_hash_check = alternative.no_hash_check;
         }
     }
 
     fn apply_defaults(&mut self) {
-        if self.skip_hash_check.is_none() {
-            self.skip_hash_check = Some(false);
+        if self.no_hash_check.is_none() {
+            self.no_hash_check = Some(false);
         }
     }
 
@@ -62,8 +64,8 @@ impl Options for VerifyOptions {
             _ => return None,
         };
         let mut options = options;
-        if options.skip_hash_check == Some(false) {
-            options.skip_hash_check = None;
+        if options.no_hash_check == Some(false) {
+            options.no_hash_check = None;
         }
         Some(options)
     }

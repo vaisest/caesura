@@ -53,11 +53,11 @@ impl AdditionalJobFactory {
             .expect("Source has extension")
             .to_string_lossy()
             .into_owned();
-        let compress_images = self.options.get_value(|x| x.compress_images);
+        let no_image_compression = self.options.get_value(|x| x.no_image_compression);
         let max_file_size = self.options.get_value(|x| x.max_file_size);
         let max_pixel_size = self.options.get_value(|x| x.max_pixel_size);
         let quality = self.options.get_value(|x| x.jpg_quality);
-        let png_to_jpg = self.options.get_value(|x| x.png_to_jpg);
+        let no_png_to_jpg = self.options.get_value(|x| x.no_png_to_jpg);
         let hard_link = self.options.get_value(|x| x.hard_link);
         Job::Additional(AdditionalJob {
             id,
@@ -65,11 +65,11 @@ impl AdditionalJobFactory {
             output_dir,
             output_path,
             hard_link,
-            compress_images,
+            no_image_compression,
             max_file_size,
             max_pixel_size,
             quality,
-            png_to_jpg,
+            no_png_to_jpg,
             extension,
         })
     }

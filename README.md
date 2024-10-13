@@ -282,8 +282,8 @@ Most options have sensible defaults so the minimum required configuration is:
 
 ```json
 {
-    "api_key": "YOUR_API_KEY",
     "announce_url": "https://flacsfor.me/a1b2c3d4e5f6/announce",
+    "api_key": "YOUR_API_KEY",
 }
 ```
 
@@ -291,19 +291,14 @@ This is the optimal configuration I use. By keeping all the paths under `/srv/sh
 
 ```json
 {
-    "api_key": "YOUR_API_KEY",
     "announce_url": "https://flacsfor.me/a1b2c3d4e5f6/announce",
+    "api_key": "YOUR_API_KEY",
     "cache": "/srv/shared/caesura/cache.json",
-    "compress_images": true,
-    "content_directory": "/srv/shared/deluge",
+    "content": "/srv/shared/deluge",
     "indexer": "red",
     "hard_link": true,
     "limit": 5,
-    "no_spectrogram": true,
-    "no_upload": false,
     "output": "/srv/shared/caesura",
-    "png_to_jpg": true,
-    "target": ["v0", "320", "flac"],
     "verbosity": "debug"
 }
 ```

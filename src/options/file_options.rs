@@ -12,40 +12,48 @@ use crate::options::{Options, OptionsProvider, ValueProvider};
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct FileOptions {
     /// Should hard links be used when copying files?
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub hard_link: Option<bool>,
 
-    /// Should images greater than the maximum file size be compressed?
-    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub compress_images: Option<bool>,
-
-    /// Maximum file size in bytes beyond which images are compressed
+    /// Should compression of images be disabled?
     ///
-    /// Default: 750KB
+    /// Default: `false`
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub no_image_compression: Option<bool>,
+
+    /// Maximum file size in bytes beyond which images are compressed.
+    ///
+    /// Default: `750000`
+    ///
+    /// Only applies to image files.
     #[arg(long)]
     pub max_file_size: Option<u64>,
 
     /// Maximum size in pixels for images
     ///
-    /// Default:  1280
+    /// Default: `1280`
     ///
-    /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+    /// Only applied if the image is greater than `max_file_size`.
     #[arg(long)]
     pub max_pixel_size: Option<u32>,
 
     /// Quality percentage to apply for jpg compression.
     ///
-    /// Default: 80
+    /// Default: `80`
     ///
-    /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+    /// Only applied if the image is greated than `max_file_size`.
     #[arg(long)]
     pub jpg_quality: Option<u8>,
 
-    /// Should png images be converted to jpg?
+    /// Should conversion of png images to jpg be disabled?
     ///
-    /// Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+    /// Default: `false`
+    ///
+    /// Only applied if the image is greater than `max_file_size`.
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub png_to_jpg: Option<bool>,
+    pub no_png_to_jpg: Option<bool>,
 }
 
 #[injectable]
@@ -71,11 +79,11 @@ impl Options for FileOptions {
         if self.hard_link.is_none() {
             self.hard_link = alternative.hard_link;
         }
-        if self.compress_images.is_none() {
-            self.compress_images = alternative.compress_images;
+        if self.no_image_compression.is_none() {
+            self.no_image_compression = alternative.no_image_compression;
         }
-        if self.png_to_jpg.is_none() {
-            self.png_to_jpg = alternative.png_to_jpg;
+        if self.no_png_to_jpg.is_none() {
+            self.no_png_to_jpg = alternative.no_png_to_jpg;
         }
         if self.max_file_size.is_none() {
             self.max_file_size = alternative.max_file_size;
@@ -92,11 +100,11 @@ impl Options for FileOptions {
         if self.hard_link.is_none() {
             self.hard_link = Some(false);
         }
-        if self.compress_images.is_none() {
-            self.compress_images = Some(false);
+        if self.no_image_compression.is_none() {
+            self.no_image_compression = Some(false);
         }
-        if self.png_to_jpg.is_none() {
-            self.png_to_jpg = Some(false);
+        if self.no_png_to_jpg.is_none() {
+            self.no_png_to_jpg = Some(false);
         }
         if self.max_file_size.is_none() {
             self.max_file_size = Some(750_000);
@@ -125,11 +133,11 @@ impl Options for FileOptions {
         if options.hard_link == Some(false) {
             options.hard_link = None;
         }
-        if options.compress_images == Some(false) {
-            options.compress_images = None;
+        if options.no_image_compression == Some(false) {
+            options.no_image_compression = None;
         }
-        if options.png_to_jpg == Some(false) {
-            options.png_to_jpg = None;
+        if options.no_png_to_jpg == Some(false) {
+            options.no_png_to_jpg = None;
         }
         Some(options)
     }

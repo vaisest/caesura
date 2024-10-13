@@ -69,7 +69,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
    Typically this is set as the download directory in your torrent client.
 
-   Default: ./content
+   Default: `./content`
 * `--verbosity <VERBOSITY>` — Level of logs to display.
 
    Default: `info`
@@ -84,52 +84,74 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    Default: `./output`
 * `--target <TARGET>` — Formats to attempt to transcode to.
 
-   Default: `flac`, `320`, and `v0`
+   Default: `flac`, `320` and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
 
    Note: This is only useful for development and should probably not be used.
-* `--skip-hash-check` — Should the torrent hash check of existing files be skipped?
+
+   Default: `false`
+* `--no-hash-check` — Should the hash check of source files be skipped?
 
    Note: This is only useful for development and should probably not be used.
+
+   Default: `false`
 * `--cpus <CPUS>` — Number of cpus to use for processing.
 
    Default: Total number of CPUs
-* `--spectrogram-size <SPECTROGRAM_SIZE>` — Sizes of spectrograms to generate
+* `--spectrogram-size <SPECTROGRAM_SIZE>` — Sizes of spectrograms to generate.
+
+   Default: `full` and `zoom`
 
   Possible values: `full`, `zoom`
 
 * `--hard-link` — Should hard links be used when copying files?
-* `--compress-images` — Should images greater than the maximum file size be compressed?
-* `--max-file-size <MAX_FILE_SIZE>` — Maximum file size in bytes beyond which images are compressed
 
-   Default: 750KB
+   Default: `false`
+* `--no-image-compression` — Should compression of images be disabled?
+
+   Default: `false`
+* `--max-file-size <MAX_FILE_SIZE>` — Maximum file size in bytes beyond which images are compressed.
+
+   Default: `750000`
+
+   Only applies to image files.
 * `--max-pixel-size <MAX_PIXEL_SIZE>` — Maximum size in pixels for images
 
-   Default:  1280
+   Default: `1280`
 
-   Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+   Only applied if the image is greater than `max_file_size`.
 * `--jpg-quality <JPG_QUALITY>` — Quality percentage to apply for jpg compression.
 
-   Default: 80
+   Default: `80`
 
-   Only applied if the image is greated than `max_file_size` and `compress_images` is true.
-* `--png-to-jpg` — Should png images be converted to jpg?
+   Only applied if the image is greated than `max_file_size`.
+* `--no-png-to-jpg` — Should conversion of png images to jpg be disabled?
 
-   Only applied if the image is greated than `max_file_size` and `compress_images` is true.
-* `--no-spectrogram` — Should the spectrogram command be executed?
-* `--no-upload` — Should the upload command be executed?
+   Default: `false`
+
+   Only applied if the image is greater than `max_file_size`.
+* `--spectrogram` — Should the spectrogram command be executed?
+
+   Default: `false`
+* `--upload` — Should the upload command be executed?
+
+   Default: `false`
 * `--limit <LIMIT>` — Limit the number of torrents to batch process.
 
    If `no_limit` is set, this option is ignored.
 
-   Default: 3
+   Default: `3`
 * `--no-limit` — Should the `limit` option be ignored?
+
+   Default: `false`
 * `--wait-before-upload <WAIT_BEFORE_UPLOAD>` — Wait for a duration before uploading the torrent.
 
    The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
+
+   Default: `null`
 * `--cache <CACHE>` — Path to cache file.
 
    Default: `output/cache.json`
@@ -168,7 +190,7 @@ Generate spectrograms for each track of a FLAC source
 
    Typically this is set as the download directory in your torrent client.
 
-   Default: ./content
+   Default: `./content`
 * `--verbosity <VERBOSITY>` — Level of logs to display.
 
    Default: `info`
@@ -181,7 +203,9 @@ Generate spectrograms for each track of a FLAC source
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
-* `--spectrogram-size <SPECTROGRAM_SIZE>` — Sizes of spectrograms to generate
+* `--spectrogram-size <SPECTROGRAM_SIZE>` — Sizes of spectrograms to generate.
+
+   Default: `full` and `zoom`
 
   Possible values: `full`, `zoom`
 
@@ -223,7 +247,7 @@ Transcode each track of a FLAC source to the target formats
 
    Typically this is set as the download directory in your torrent client.
 
-   Default: ./content
+   Default: `./content`
 * `--verbosity <VERBOSITY>` — Level of logs to display.
 
    Default: `info`
@@ -238,31 +262,41 @@ Transcode each track of a FLAC source to the target formats
    Default: `./output`
 * `--target <TARGET>` — Formats to attempt to transcode to.
 
-   Default: `flac`, `320`, and `v0`
+   Default: `flac`, `320` and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
 
    Note: This is only useful for development and should probably not be used.
-* `--hard-link` — Should hard links be used when copying files?
-* `--compress-images` — Should images greater than the maximum file size be compressed?
-* `--max-file-size <MAX_FILE_SIZE>` — Maximum file size in bytes beyond which images are compressed
 
-   Default: 750KB
+   Default: `false`
+* `--hard-link` — Should hard links be used when copying files?
+
+   Default: `false`
+* `--no-image-compression` — Should compression of images be disabled?
+
+   Default: `false`
+* `--max-file-size <MAX_FILE_SIZE>` — Maximum file size in bytes beyond which images are compressed.
+
+   Default: `750000`
+
+   Only applies to image files.
 * `--max-pixel-size <MAX_PIXEL_SIZE>` — Maximum size in pixels for images
 
-   Default:  1280
+   Default: `1280`
 
-   Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+   Only applied if the image is greater than `max_file_size`.
 * `--jpg-quality <JPG_QUALITY>` — Quality percentage to apply for jpg compression.
 
-   Default: 80
+   Default: `80`
 
-   Only applied if the image is greated than `max_file_size` and `compress_images` is true.
-* `--png-to-jpg` — Should png images be converted to jpg?
+   Only applied if the image is greated than `max_file_size`.
+* `--no-png-to-jpg` — Should conversion of png images to jpg be disabled?
 
-   Only applied if the image is greated than `max_file_size` and `compress_images` is true.
+   Default: `false`
+
+   Only applied if the image is greater than `max_file_size`.
 * `--cpus <CPUS>` — Number of cpus to use for processing.
 
    Default: Total number of CPUs
@@ -301,7 +335,7 @@ Upload transcodes of a FLAC source
 
    Typically this is set as the download directory in your torrent client.
 
-   Default: ./content
+   Default: `./content`
 * `--verbosity <VERBOSITY>` — Level of logs to display.
 
    Default: `info`
@@ -316,19 +350,25 @@ Upload transcodes of a FLAC source
    Default: `./output`
 * `--target <TARGET>` — Formats to attempt to transcode to.
 
-   Default: `flac`, `320`, and `v0`
+   Default: `flac`, `320` and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
 
    Note: This is only useful for development and should probably not be used.
+
+   Default: `false`
 * `--copy-transcode-to-content-dir` — Should the transcoded files be copied to the content directory?
 
    This should be enabled if you wish to auto-add to your torrent client.
+
+   Default: `false`
 * `--copy-torrent-to <COPY_TORRENT_TO>` — Directory the torrent file is copied to.
 
    This should be set if you wish to auto-add to your torrent client.
+
+   Default: Not set
 * `--hard-link` — Should files be hard linked instead of copied?
 
    Enabling this option requires the source and destination to be on the same filesystem or mounted volume.
@@ -337,6 +377,8 @@ Upload transcodes of a FLAC source
 * `--dry-run` — Is this a dry run?
 
    If enabled data won't be uploaded and will instead be printed to the console.
+
+   Default: `false`
 
 
 
@@ -372,7 +414,7 @@ Verify a FLAC source is suitable for transcoding
 
    Typically this is set as the download directory in your torrent client.
 
-   Default: ./content
+   Default: `./content`
 * `--verbosity <VERBOSITY>` — Level of logs to display.
 
    Default: `info`
@@ -387,16 +429,20 @@ Verify a FLAC source is suitable for transcoding
    Default: `./output`
 * `--target <TARGET>` — Formats to attempt to transcode to.
 
-   Default: `flac`, `320`, and `v0`
+   Default: `flac`, `320` and `v0`
 
   Possible values: `flac`, `320`, `v0`
 
 * `--allow-existing` — Allow transcoding to existing formats
 
    Note: This is only useful for development and should probably not be used.
-* `--skip-hash-check` — Should the torrent hash check of existing files be skipped?
+
+   Default: `false`
+* `--no-hash-check` — Should the hash check of source files be skipped?
 
    Note: This is only useful for development and should probably not be used.
+
+   Default: `false`
 
 
 

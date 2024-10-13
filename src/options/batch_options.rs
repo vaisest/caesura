@@ -13,28 +13,36 @@ use crate::options::{DoesNotExist, OptionRule, Options, OptionsProvider, ValuePr
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct BatchOptions {
     /// Should the spectrogram command be executed?
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub no_spectrogram: Option<bool>,
+    pub spectrogram: Option<bool>,
 
     /// Should the upload command be executed?
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
-    pub no_upload: Option<bool>,
+    pub upload: Option<bool>,
 
     /// Limit the number of torrents to batch process.
     ///
     /// If `no_limit` is set, this option is ignored.
     ///
-    /// Default: 3
+    /// Default: `3`
     #[arg(long)]
     pub limit: Option<usize>,
 
     /// Should the `limit` option be ignored?
+    ///
+    /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub no_limit: Option<bool>,
 
     /// Wait for a duration before uploading the torrent.
     ///
     /// The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
+    ///
+    /// Default: `null`
     #[arg(long)]
     pub wait_before_upload: Option<String>,
 
@@ -80,11 +88,11 @@ impl Options for BatchOptions {
     }
 
     fn merge(&mut self, alternative: &Self) {
-        if self.no_spectrogram.is_none() {
-            self.no_spectrogram = alternative.no_spectrogram;
+        if self.spectrogram.is_none() {
+            self.spectrogram = alternative.spectrogram;
         }
-        if self.no_upload.is_none() {
-            self.no_upload = alternative.no_upload;
+        if self.upload.is_none() {
+            self.upload = alternative.upload;
         }
         if self.limit.is_none() {
             self.limit = alternative.limit;
@@ -102,11 +110,11 @@ impl Options for BatchOptions {
     }
 
     fn apply_defaults(&mut self) {
-        if self.no_spectrogram.is_none() {
-            self.no_spectrogram = Some(false);
+        if self.spectrogram.is_none() {
+            self.spectrogram = Some(false);
         }
-        if self.no_upload.is_none() {
-            self.no_upload = Some(false);
+        if self.upload.is_none() {
+            self.upload = Some(false);
         }
         if self.limit.is_none() {
             self.limit = Some(3);
@@ -152,11 +160,11 @@ impl Options for BatchOptions {
             _ => return None,
         };
         let mut options = options;
-        if options.no_spectrogram == Some(false) {
-            options.no_spectrogram = None;
+        if options.spectrogram == Some(false) {
+            options.spectrogram = None;
         }
-        if options.no_upload == Some(false) {
-            options.no_upload = None;
+        if options.upload == Some(false) {
+            options.upload = None;
         }
         Some(options)
     }

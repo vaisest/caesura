@@ -18,11 +18,11 @@ pub struct AdditionalJob {
     pub output_dir: String,
     pub output_path: String,
     pub hard_link: bool,
-    pub compress_images: bool,
+    pub no_image_compression: bool,
     pub max_file_size: u64,
     pub max_pixel_size: u32,
     pub quality: u8,
-    pub png_to_jpg: bool,
+    pub no_png_to_jpg: bool,
     pub extension: String,
 }
 
@@ -39,7 +39,7 @@ impl AdditionalJob {
         let size = metadata.size();
         let is_large = size > self.max_file_size;
         let is_image = IMAGE_EXTENSIONS.contains(&self.extension.as_str());
-        if is_large && (!is_image || !self.compress_images) {
+        if is_large && (!is_image || self.no_image_compression) {
             warn!(
                 "Including large {} ({} KB): {:?}",
                 self.extension,
@@ -51,13 +51,13 @@ impl AdditionalJob {
             .await
             .or_else(|e| AppError::io(e, "create directories for additional file"))?;
 
-        let verb = if is_large && is_image && self.compress_images {
+        let verb = if is_large && is_image && !self.no_image_compression {
             compress_image(
                 &self.source_path,
                 &self.output_path,
                 self.max_pixel_size,
                 self.quality,
-                self.png_to_jpg,
+                self.no_png_to_jpg,
             )
             .await?;
             "Compressed"
@@ -88,7 +88,7 @@ async fn compress_image(
     output_path: &str,
     max_pixel_size: u32,
     quality: u8,
-    png_to_jpg: bool,
+    no_png_to_jpg: bool,
 ) -> Result<Output, AppError> {
     let mut output_path = output_path.to_owned();
     let extension = source_path
@@ -96,7 +96,7 @@ async fn compress_image(
         .unwrap_or_default()
         .to_string_lossy();
     let extension = extension.as_ref();
-    if png_to_jpg && extension == "png" {
+    if !no_png_to_jpg && extension == "png" {
         output_path = output_path
             .strip_suffix(extension)
             .expect("path should have extension")
