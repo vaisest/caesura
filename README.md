@@ -120,32 +120,52 @@ verify https://redacted.ch/torrents.php?id=80518&torrentid=142659#torrent142659
 
 If it looks good you can proceed to the next step, otherwise try another source.
 
-### 4. Generate spectrograms of a source
+### 4. Use Docker Compose
+
+Docker is great but specifying the volumes everytime is tedious and prone to error.
+
+Using Docker Compose simplifies this by storing the configuration in a `docker-compose.yml` file.
+
+Create a `docker-compose.yml` file with the following content:
+
+```yaml
+services:
+  caesura:
+    container_name: caesura
+    image: ghcr.io/rogueoneecho/caesura
+    volumes:
+    - ./config.json:/config.json:ro
+    - /path/to/your/content:/content:ro
+    - ./output:/output
+```
+
+> [!NOTE]
+> The `:ro` suffix makes the volume read-only which is a good security practice.
+>
+> If you intend to use the `--copy-transcode-to-content-dir` option then you must remove the `:ro` suffix from the content volume.
+
+Now run the verify command again but this time using Docker Compose:
+
+```bash
+docker compose run --rm caesura verify 142659
+```
+
+### 5. Generate spectrograms of a source
 
 Run the `spectrogram` command with the source as an argument.
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-spectrogram 142659
+docker compose run --rm caesura spectrogram 142659
 ```
 
 Inspect the spectrograms in the output directory.
 
-### 5. Transcode a source
+### 6. Transcode a source
 
 Run the `transcode` command with the source as an argument.
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-transcode "Khotin - Hello World [2014].torrent"
+docker compose run --rm caesura transcode "Khotin - Hello World [2014].torrent"
 ```
 
 Inspect the transcodes in the output directory.
@@ -158,7 +178,7 @@ Inspect the transcodes in the output directory.
 > - Audio quality
 > - Image size and compression quality
 
-### 6. Upload transcodes
+### 7. Upload transcodes
 
 > [!CAUTION]
 > You are responsible for everything you upload.
@@ -174,17 +194,12 @@ Run the `upload` command with the source as an argument.
 > If you're unsure about this then you can append `--dry-run` to the command and instead of uploading it will print the data that would be submitted.
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-upload https://redacted.ch/torrents.php?id=80518&torrentid=142659#torrent142659
+docker compose run --rm caesura upload https://redacted.ch/torrents.php?id=80518&torrentid=142659#torrent142659
 ```
 
 Go to your indexer and check your uploads to make sure everything has gone to plan.
 
-### 7. Batch processing
+### 8. Batch processing
 
 > [!CAUTION]
 > You are responsible for everything you upload.
@@ -205,12 +220,7 @@ By default the `batch` command will limit to processing just `3` transcodes and 
 Run the command to compile a cache and transcode the first three sources in the directory:
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-batch /path/to/your/torrents
+docker compose run --rm caesura batch /path/to/your/torrents
 ```
 
 > [!TIP]
@@ -239,12 +249,7 @@ cat ./output/cache.json | jq --color-output 'map(select(.transcoded == true))' |
 Nothing was uploaded in the first run giving you a chance to check the transcodes and spectrograms. Once you're satisfied run the command again but with the `--upload` flag (or set `"upload": true` in the config file).
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-batch /path/to/your/torrents --upload
+docker compose run --rm caesura batch /path/to/your/torrents --upload
 ```
 
 Check the uploads on your indexer to make sure everything has gone to plan.
@@ -252,23 +257,13 @@ Check the uploads on your indexer to make sure everything has gone to plan.
 Now, we can set the batch command loose with the `--no-limit` option to transcode (but not upload) every source in the directory:
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-batch /path/to/your/torrents --no-limit
+docker compose run --rm caesura batch /path/to/your/torrents --no-limit
 ```
 
 Once you've checked the transcodes you can start to upload them in batches. The `--wait-before-upload 30s` option will add a 30 second wait interval between uploads to give you time to check everything looks good, and spread out the load on your indexer:
 
 ```bash
-docker run \
--v ./config.json:/config.json \
--v /path/to/your/content:/content \
--v ./output:/output \
-ghcr.io/rogueoneecho/caesura \
-batch /path/to/your/torrents --upload --limit 10 --wait-before-upload 30s
+docker compose run --rm caesura batch /path/to/your/torrents --upload --limit 10 --wait-before-upload 30s
 ```
 
 > [!CAUTION]
