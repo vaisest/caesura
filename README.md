@@ -48,7 +48,7 @@ Each source is verified to ensure it's:
 
 ### Batch
 
-- **[new]** Verify, transcode and upload from each torrent file in a directory.
+- **[new]** Verify, transcode and upload with one command for every torrent file in a directory.
 
 *The application will crunch through your torrent directory and automatically determine which are FLAC sources suitable for transcoding.*
 
@@ -85,7 +85,7 @@ docker run ghcr.io/rogueoneecho/caesura --help
 Run the `config` command to print the default configuration and redirect it to `config.json`.
 
 ```bash
-docker run ghcr.io/rogueoneecho/caesura:latest config > config.json
+docker run ghcr.io/rogueoneecho/caesura config > config.json
 ```
 
 > [!NOTE]
@@ -108,6 +108,8 @@ Run the `verify` command with the source as an argument.
 
 > [!TIP]
 > For the source you can use a permalink, the numeric torrent id or a path to a torrent file:
+>
+> Each step of this guide will use a different source to demonstrate, but feel free to use whichever suits you best.
 
 ```bash
 docker run \
