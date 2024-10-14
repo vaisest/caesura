@@ -287,27 +287,57 @@ Most options have sensible defaults so the minimum required configuration is:
 
 ```json
 {
-    "announce_url": "https://flacsfor.me/a1b2c3d4e5f6/announce",
+    "announce_url": "https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce",
     "api_key": "YOUR_API_KEY",
 }
 ```
 
-This is the optimal configuration I use. By keeping all the paths under `/srv/shared` it's easy to mount a single volume which allows hard linking.
+### Recommended configuration
+
+This is based around the setup in this guide: [how to set up Deluge via Proton VPN with port forwarding](https://github.com/RogueOneEcho/how-to-setup-deluge-with-protonvpn-portforward).
+
+#### Directory structure
+
+- `/srv/shared` is a shared between multiple containers, by mounting as a single volume hard linking is possible.
+- `/srv/deluge/state` is the Deluge state directory, containing all `.torrent` files loaded in Deluge.
+- `/srv/shared/deluge` is the Deluge download directory, containing all the content.
+
+#### `config.json`
+
+- `"source": "/srv/deluge/state",` in `config.json` means the source can be ommitted from the command.
 
 ```json
 {
-    "announce_url": "https://flacsfor.me/a1b2c3d4e5f6/announce",
+    "announce_url": "https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce",
     "api_key": "YOUR_API_KEY",
     "cache": "/srv/shared/caesura/cache.json",
     "content": "/srv/shared/deluge",
-    "indexer": "red",
-    "hard_link": true,
     "limit": 5,
     "output": "/srv/shared/caesura",
+    "source": "/srv/deluge/state",
     "verbosity": "debug"
 }
 ```
 
+#### `docker-compose.yml`
+
+- `user: "1000:1001"` ensures files have the same ownership as the host user (use the `id` command to find your user and group id).
+- Only `/srv/shared` has write permissions, the other directories are read-only.
+- `command: batch` runs the batch command by default.
+- `/` is the working directory of the container so mounting the config to `/config.json` means it's read by default.
+
+```yaml
+services:
+
+  caesura:
+    container_name: caesura
+    image: ghcr.io/rogueoneecho/caesura
+    user: "1000:1001"
+    volumes:
+    - /srv/caesura/config.json:/config.json:ro
+    - /srv/deluge/state:/srv/deluge/state:ro
+    - /srv/shared:/srv/shared
+```
 
 ## Troubleshooting
 
