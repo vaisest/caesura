@@ -19,7 +19,7 @@ Each source is verified to ensure it's:
 - Not a scene or lossy release
 - Files match the torrent hash
 - Audio tags for artist, album, title and track number are set
-- **[[fixed](https://github.com/DevYukine/red_oxide/issues/18)]** Vinyl track numbering
+- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/18)]** Vinyl track numbering
 - Sample rate and channels are supported
 
 ### Spectrogram Generation
@@ -32,9 +32,9 @@ Each source is verified to ensure it's:
 - FLAC and FLAC 24 bit sources are supported
 - FLAC, MP3 320 (CBR) and MP3 V0 (VBR) target formats
 - Existing formats are skipped
-- **[[fixed](https://github.com/DevYukine/red_oxide/issues/21)]** Nested sub directories are fully supported (i.e. CD1, and CD2 etc)
-- **[[fixed](https://github.com/DevYukine/red_oxide/issues/22)]** Automatic naming following established conventions, with decoding of HTML entities.
-- **[[fixed](https://github.com/DevYukine/red_oxide/issues/24)]** Shorter file names.
+- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/21)]** Nested sub directories are fully supported (i.e. CD1, and CD2 etc)
+- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/22)]** Automatic naming following established conventions, with decoding of HTML entities.
+- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/24)]** Shorter file names.
 - Automatic torrent file creation
 - **[new]** Images in the root directory are included and all other files ignored.
 - **[new]** Images larger than 750 KB are reduced to less than 1280 px, converted to JPG and compressed.
