@@ -20,8 +20,7 @@ impl TagVerifier {
             errors.push(NoTitleTag(flac.file_name.clone()));
         }
         if tags.track_number().is_none() {
-            // TODO MUST confirm vinyl media comparison works
-            if media.to_uppercase() == "vinyl" {
+            if media.eq_ignore_ascii_case("vinyl") {
                 warn!("Unable to verify if the track number is valid. Vinyl releases can have non-standard track numbers (e.g. A1, A2, etc).");
             } else {
                 errors.push(NoTrackNumberTag(flac.file_name.clone()));
