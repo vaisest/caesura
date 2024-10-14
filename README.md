@@ -37,9 +37,9 @@ Each source is verified to ensure it's:
 - **[[fixed](https://github.com/DevYukine/red_oxide/issues/24)]** Shorter file names.
 - Automatic torrent file creation
 - **[new]** Images in the root directory are included and all other files ignored.
-- **[new]** Images larger than 750 KB are (optionally) compressed, converted to JPG and reduced to less than 1280 px.
+- **[new]** Images larger than 750 KB are reduced to less than 1280 px, converted to JPG and compressed.
 
-*The logic being that folder and cover images are included but to minimize file size, but for artwork and anything additional the original source can be downloaded*
+*The logic being that for transcodes only folder and cover images are important. Anyone interested in additional files and high quality artwork can find them in the source torrent.*
 
 ### Upload
 
@@ -58,6 +58,9 @@ Docker is the recommended way to run the application across all platforms.
 - All dependencies are built into the image
 - Runs in an isolated environment reducing risks to your system
 
+> [!TIP]
+> **[Configuration options and the commands they apply to are documented in COMMANDS.md](COMMANDS.md)**
+
 ### 0. Install Docker
 
 [Install Docker Engine](https://docs.docker.com/engine/install/) for your OS.
@@ -69,9 +72,6 @@ Run the `help` command to see the available commands and options.
 ```bash
 docker run ghcr.io/rogueoneecho/caesura --help
 ```
-
-> [!TIP]
-> Docker will automatically pull the latest version of the image in order to run it.
 
 > [!TIP]
 > You can append `--help` to any command to see the available options.
@@ -182,10 +182,10 @@ Inspect the transcodes in the output directory.
 
 ### 7. Upload transcodes
 
-> [!CAUTION]
+> [!WARNING]
 > You are responsible for everything you upload.
 >
-> Misuse of this application can easily result in the loss of your upload privileges.
+> Misuse of this application can result in the loss of your upload privileges.
 
 Run the `upload` command with the source as an argument.
 
@@ -203,10 +203,10 @@ Go to your indexer and check your uploads to make sure everything has gone to pl
 
 ### 8. Batch processing
 
-> [!CAUTION]
+> [!WARNING]
 > You are responsible for everything you upload.
 >
-> Misuse of this application, and especially the `batch` command can easily result in the loss of your upload privileges and even bans.
+> Misuse of this application, especially the `batch` command, can result in the loss of your upload privileges or a ban.
 
 Now that you have the hang of the application we can speed things up with the `batch` command.
 
@@ -268,13 +268,16 @@ Once you've checked the transcodes you can start to upload them in batches. The 
 docker compose run --rm caesura batch /path/to/your/torrents --upload --limit 10 --wait-before-upload 30s
 ```
 
-> [!CAUTION]
+> [!WARNING]
 > In theory you can execute with both `--upload --no-limit` but that is probably a bad idea and a very fast way to lose your upload privileges.
 >
 > If you are going to do so then you should definitely use a long wait interval:
 > `--upload --no-limit --wait-before-upload 2m`
 
 ## Commands and Configuration
+
+> [!TIP]
+> **[Configuration options and the commands they apply to are documented in COMMANDS.md](COMMANDS.md)**
 
 Configuration options are sourced first from the command line arguments, then from a configuration file.
 
@@ -305,7 +308,6 @@ This is the optimal configuration I use. By keeping all the paths under `/srv/sh
 }
 ```
 
-**Configuration options and the commands they apply to are documented in [COMMANDS.md](COMMANDS.md).**
 
 ## Troubleshooting
 
@@ -329,15 +331,15 @@ The logging verbosity can be adjusted with the `--verbosity <LOG-LEVEL>` option.
 
 ## Build
 
-**The build process is documented in [BUILD.md](BUILD.md).**
+**[The build process is documented in BUILD.md](BUILD.md)**
 
 ## Releases and Changes
+
+Releases and a full changelog are available via [GitHub Releases](https://github.com/RogueOneEcho/caesura/releases).
 
 Release versions follow the [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
 Commit messages follow the [Conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) specification.
-
-Releases and a full changelog are available via [GitHub Releases](https://github.com/RogueOneEcho/caesura/releases).
 
 ## History
 
@@ -352,5 +354,5 @@ Releases and a full changelog are available via [GitHub Releases](https://github
 The code base has now adopted [object oriented patterns](https://refactoring.guru/design-patterns/catalog) with SOLID principles and [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection).
 
 See also the list of
-[contributors](https://github.com/DevYukine/red_oxide/contributors)
+[contributors](https://github.com/RogueOneEcho/caesura/contributors)
 who participated in this project.
