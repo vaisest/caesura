@@ -85,6 +85,9 @@ impl VerifyCommand {
         if source.torrent.lossy_web_approved == Some(true) {
             errors.push(LossyWebNeedsApproval);
         }
+        if source.torrent.trumpable == Some(true) {
+            errors.push(TrumpableNotSuitable);
+        }
         let target_formats = self.targets.get(source.format, &source.existing);
         if target_formats.is_empty() {
             errors.push(NoTranscodeFormats);
