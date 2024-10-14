@@ -16,6 +16,7 @@ pub enum SourceRule {
     NoArtistTag(String),
     NoAlbumTag(String),
     NoTitleTag(String),
+    NoComposerTag(String),
     NoTrackNumberTag(String),
     UnknownSampleRate(u32),
     TooManyChannels(u32),
@@ -39,6 +40,7 @@ impl Display for SourceRule {
             NoArtistTag(path) => format!("No artist tag: {path}"),
             NoAlbumTag(path) => format!("No album tag: {path}"),
             NoTitleTag(path) => format!("No title tag: {path}"),
+            NoComposerTag(path) => format!("No composer tag: {path}"),
             NoTrackNumberTag(path) => format!("No track number tag: {path}"),
             UnknownSampleRate(rate) => format!("Unknown sample rate: {rate}"),
             TooManyChannels(channels) => {

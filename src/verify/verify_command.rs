@@ -111,7 +111,7 @@ impl VerifyCommand {
                 errors.push(PathTooLong(max_path));
                 Shortener::suggest_track_name(&flac);
             }
-            for error in TagVerifier::execute(&flac, &source.metadata.media)? {
+            for error in TagVerifier::execute(&flac, source)? {
                 errors.push(error);
             }
             for error in StreamVerifier::execute(&flac)? {

@@ -14,13 +14,14 @@ Fully configurable, if there's something hard coded that you think should be con
 
 ### Source Verification
 
-Each source is verified to ensure it's:
+Each source is verified to ensure:
 - A lossless FLAC
 - Not a scene or lossy release
 - Files match the torrent hash
 - Audio tags for artist, album, title and track number are set
+- **[[fixed]](https://github.com/RogueOneEcho/caesura/issues/47)]** Classical sources have a composer tag.
 - **[[fixed](https://github.com/RogueOneEcho/caesura/issues/18)]** Vinyl track numbering
-- Sample rate and channels are supported
+- Sample rate and channels are suitable
 
 ### Spectrogram Generation
 
