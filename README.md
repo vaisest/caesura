@@ -36,7 +36,7 @@ Each source is verified to ensure it's:
 - **[[fixed](https://github.com/RogueOneEcho/caesura/issues/22)]** Automatic naming following established conventions, with decoding of HTML entities.
 - **[[fixed](https://github.com/RogueOneEcho/caesura/issues/24)]** Shorter file names.
 - Automatic torrent file creation
-- **[new]** Images in the root directory are included and all other files ignored.
+- **[new]** Images in the root and first nested directory are included and all other files ignored.
 - **[new]** Images larger than 750 KB are reduced to less than 1280 px, converted to JPG and compressed.
 
 *The logic being that for transcodes only folder and cover images are important. Anyone interested in additional files and high quality artwork can find them in the source torrent.*

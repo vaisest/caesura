@@ -31,9 +31,8 @@ impl Collector {
     /// Create [`AdditionalFile`] for each additonal file in a directory.
     #[must_use]
     pub fn get_additional(source_dir: &PathBuf) -> Vec<AdditionalFile> {
-        // TODO COULD allow max depth and extensions to be configured by options
         let paths = DirectoryReader::new()
-            .with_max_depth(0)
+            .with_max_depth(1)
             .with_extensions(vec!["jpg", "jpeg", "png"])
             .read(source_dir)
             .expect("Source directory should be readable");
