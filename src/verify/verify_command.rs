@@ -7,7 +7,7 @@ use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
-use crate::naming::Shortener;
+use crate::naming::{Shortener, SourceName};
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{Options, SharedOptions};
 use crate::source::*;
@@ -52,6 +52,7 @@ impl VerifyCommand {
 
     pub async fn execute_internal(&mut self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
         debug!("{} {}", "Verifying".bold(), source);
+        Self::name_checks(source);
         let mut api_errors = self.api_checks(source);
         let mut flac_errors = self.flac_checks(source)?;
         let mut hash_check = if self
@@ -69,6 +70,14 @@ impl VerifyCommand {
         errors.append(&mut flac_errors);
         errors.append(&mut hash_check);
         Ok(errors)
+    }
+
+    fn name_checks(source: &Source) {
+        let sanitized = SourceName::get(&source.metadata);
+        let unsanitized = SourceName::get_unsanitized(&source.metadata);
+        if sanitized != unsanitized {
+            warn!("Restricted characters have been removed from the source name: {sanitized}");
+        }
     }
 
     fn api_checks(&self, source: &Source) -> Vec<SourceRule> {
