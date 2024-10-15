@@ -37,7 +37,9 @@ impl TranscodeJobFactory {
         source: &Source,
         format: TargetFormat,
     ) -> Result<Job, AppError> {
-        let info = flac.get_stream_info()?;
+        let info = flac
+            .get_stream_info()
+            .or_else(|e| AppError::claxon(e, "read FLAC"))?;
         let id = format!("Transcode {:<4}{index:>3}", format.to_string());
         let output_path = self.paths.get_transcode_path(source, &format, flac);
         let commands = if matches!(format, TargetFormat::Flac) && is_resample_required(&info) {

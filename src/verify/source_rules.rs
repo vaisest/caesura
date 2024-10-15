@@ -19,8 +19,11 @@ pub enum SourceRule {
     NoTitleTag(String),
     NoComposerTag(String),
     NoTrackNumberTag(String),
-    UnknownSampleRate(u32),
-    TooManyChannels(u32),
+    FlacIOError(String, String),
+    FlacFormatError(String,String),
+    FlacUnsupported(String, String),
+    UnknownSampleRate(u32, String),
+    TooManyChannels(u32, String),
 }
 
 impl Display for SourceRule {
@@ -44,10 +47,13 @@ impl Display for SourceRule {
             NoTitleTag(path) => format!("No title tag: {path}"),
             NoComposerTag(path) => format!("No composer tag: {path}"),
             NoTrackNumberTag(path) => format!("No track number tag: {path}"),
-            UnknownSampleRate(rate) => format!("Unknown sample rate: {rate}"),
-            TooManyChannels(channels) => {
-                format!("Unable to transcode more than two channels: {channels}")
+            UnknownSampleRate(rate, path) => format!("Unknown sample rate: {rate}: {path}"),
+            TooManyChannels(channels, path) => {
+                format!("Unable to transcode more than two channels: {channels}: {path}")
             }
+            FlacIOError(message, path) => format!("IO error: {message}: {path}"),
+            FlacFormatError(message, path) => format!("Format error: {message}: {path}"),
+            FlacUnsupported(message, path) => format!("Unsupported error: {message}: {path}"),
         };
         message.fmt(formatter)
     }

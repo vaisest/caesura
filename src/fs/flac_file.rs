@@ -52,8 +52,8 @@ impl FlacFile {
             .or_else(|e| AppError::tag(e, "get tags"))
     }
 
-    pub fn get_stream_info(&self) -> Result<StreamInfo, AppError> {
-        let reader = FlacReader::open(&self.path).or_else(|e| AppError::claxon(e, "read FLAC"))?;
+    pub fn get_stream_info(&self) -> Result<StreamInfo, claxon::Error> {
+        let reader = FlacReader::open(&self.path)?;
         Ok(reader.streaminfo())
     }
 }
