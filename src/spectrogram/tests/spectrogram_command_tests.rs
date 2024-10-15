@@ -38,6 +38,7 @@ async fn spectrogram_command() -> Result<(), AppError> {
 
     // Assert
     let generated_files: Vec<PathBuf> = DirectoryReader::new()
+        .with_extension("png")
         .read(&output_dir)
         .expect("Should be able to read dir");
     let expected_file_count = DirectoryReader::new()

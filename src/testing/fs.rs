@@ -12,7 +12,7 @@ impl TempDirectory {
         let timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .expect("Duration should be valid")
-            .as_secs()
+            .as_millis()
             .to_string();
         temp_dir().join(sub_dir_name).join(timestamp)
     }
