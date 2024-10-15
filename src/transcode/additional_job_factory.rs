@@ -41,7 +41,7 @@ impl AdditionalJobFactory {
         let source_path = file.path.clone();
         let output_dir = self
             .paths
-            .get_transcode_target_dir(source, &target)
+            .get_transcode_target_dir(source, target)
             .join(&file.sub_dir);
         let output_path = output_dir
             .join(&file.file_name)

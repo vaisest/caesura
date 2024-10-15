@@ -24,6 +24,7 @@ pub struct UploadForm {
 }
 
 impl UploadForm {
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_form(self) -> Result<Form, AppError> {
         let mut file = File::open(&self.path).or_else(|e| AppError::io(e, "open torrent file"))?;
         let mut buffer = Vec::new();

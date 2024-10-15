@@ -36,6 +36,7 @@ pub fn get_torrent_id_from_torrent_url(url: &str, base: &String) -> Option<i64> 
 }
 
 #[must_use]
+#[allow(dead_code)]
 pub fn get_group_id_from_url(url: &str, base: &String) -> Option<i64> {
     let id = Regex::new(
         format!(r"^{base}/torrents\.php\?id=(\d+)&torrentid=(\d+)(#torrent\d+)?$").as_str(),

@@ -9,7 +9,7 @@ pub enum SourceFormat {
 
 impl SourceFormat {
     #[must_use]
-    pub fn to_existing(&self) -> ExistingFormat {
+    pub fn to_existing(self) -> ExistingFormat {
         match self {
             SourceFormat::Flac24 => ExistingFormat::Flac24,
             SourceFormat::Flac => ExistingFormat::Flac,

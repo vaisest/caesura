@@ -48,14 +48,14 @@ impl UploadCommand {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
         for target in targets {
-            let torrent_path = self.paths.get_torrent_path(source, &target);
+            let torrent_path = self.paths.get_torrent_path(source, target);
             if !torrent_path.exists() {
                 return AppError::explained(
                     "upload",
                     format!("The torrent file does not exist: {torrent_path:?}"),
                 );
             }
-            let target_dir = self.paths.get_transcode_target_dir(source, &target);
+            let target_dir = self.paths.get_transcode_target_dir(source, target);
             if let Some(error) = ImdlCommand::verify(&torrent_path, &target_dir).await? {
                 error!("{} to verify the torrent content:", "Failed".bold());
                 error!("{error}");
@@ -108,7 +108,7 @@ impl UploadCommand {
     }
 
     async fn copy_transcode(&self, source: &Source, target: &TargetFormat) -> Result<(), AppError> {
-        let source_dir = self.paths.get_transcode_target_dir(source, target);
+        let source_dir = self.paths.get_transcode_target_dir(source, *target);
         let source_dir_name = source_dir
             .file_name()
             .expect("source dir should have a name");
@@ -143,7 +143,7 @@ impl UploadCommand {
         target: &TargetFormat,
         target_dir: &Path,
     ) -> Result<(), AppError> {
-        let source_path = self.paths.get_torrent_path(source, target);
+        let source_path = self.paths.get_torrent_path(source, *target);
         let source_file_name = source_path
             .file_name()
             .expect("torrent path should have a name");

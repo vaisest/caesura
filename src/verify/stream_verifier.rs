@@ -8,6 +8,7 @@ use claxon::Error;
 pub struct StreamVerifier;
 
 impl StreamVerifier {
+    #[allow(clippy::unnecessary_wraps)]
     pub fn execute(flac: &FlacFile) -> Result<Vec<SourceRule>, AppError> {
         let mut errors = Vec::new();
         let path = flac.get_path_string();

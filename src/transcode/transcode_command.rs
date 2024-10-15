@@ -60,7 +60,7 @@ impl TranscodeCommand {
     ) -> Vec<TargetFormat> {
         let mut out: Vec<TargetFormat> = Vec::new();
         for target in targets {
-            let path = self.paths.get_torrent_path(source, target);
+            let path = self.paths.get_torrent_path(source, *target);
             if path.exists() {
                 debug!(
                     "{} {target} as it has already been transcoded.",
@@ -123,8 +123,8 @@ impl TranscodeCommand {
     ) -> Result<(), AppError> {
         debug!("{} torrents {}", "Creating".bold(), source);
         for target in targets {
-            let content_dir = self.paths.get_transcode_target_dir(source, target);
-            let output_path = self.paths.get_torrent_path(source, target);
+            let content_dir = self.paths.get_transcode_target_dir(source, *target);
+            let output_path = self.paths.get_torrent_path(source, *target);
             let announce_url = self
                 .shared_options
                 .announce_url

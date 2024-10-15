@@ -30,7 +30,7 @@ impl PathManager {
     }
 
     #[must_use]
-    pub fn get_transcode_target_dir(&self, source: &Source, target: &TargetFormat) -> PathBuf {
+    pub fn get_transcode_target_dir(&self, source: &Source, target: TargetFormat) -> PathBuf {
         self.get_output_dir()
             .join(TranscodeName::get(&source.metadata, target))
     }
@@ -39,7 +39,7 @@ impl PathManager {
     pub fn get_transcode_path(
         &self,
         source: &Source,
-        target: &TargetFormat,
+        target: TargetFormat,
         flac: &FlacFile,
     ) -> PathBuf {
         let extension = target.get_file_extension();
@@ -59,7 +59,7 @@ impl PathManager {
         let target = targets.last().expect("Should contain at least 1");
         let filename = flac.file_name.clone();
         let extension = target.get_file_extension();
-        PathBuf::from(TranscodeName::get(&source.metadata, target))
+        PathBuf::from(TranscodeName::get(&source.metadata, *target))
             .join(&flac.sub_dir)
             .join(format!("{filename}.{extension}"))
             .to_string_lossy()
@@ -67,7 +67,7 @@ impl PathManager {
     }
 
     #[must_use]
-    pub fn get_torrent_path(&self, source: &Source, target: &TargetFormat) -> PathBuf {
+    pub fn get_torrent_path(&self, source: &Source, target: TargetFormat) -> PathBuf {
         let filename = TranscodeName::get(&source.metadata, target) + ".torrent";
         self.get_output_dir().join(filename)
     }

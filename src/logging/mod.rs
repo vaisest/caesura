@@ -4,7 +4,6 @@ pub use verbosity::Verbosity::*;
 pub use verbosity::*;
 
 pub(crate) mod colors;
-pub(crate) mod icons;
 pub(crate) mod logger;
 #[cfg(test)]
 mod tests;

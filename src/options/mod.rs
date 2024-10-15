@@ -13,7 +13,6 @@ pub use verify_options::*;
 
 pub(crate) mod batch_options;
 pub(crate) mod config_command;
-pub(crate) mod errors;
 pub(crate) mod file_options;
 pub(crate) mod options_provider;
 pub(crate) mod options_trait;
