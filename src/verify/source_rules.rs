@@ -20,7 +20,7 @@ pub enum SourceRule {
     NoComposerTag(String),
     NoTrackNumberTag(String),
     FlacIOError(String, String),
-    FlacFormatError(String,String),
+    FlacFormatError(String, String),
     FlacUnsupported(String, String),
     UnknownSampleRate(u32, String),
     TooManyChannels(u32, String),
