@@ -6,10 +6,12 @@ pub use transcode_command::*;
 pub use transcode_job::*;
 pub use transcode_job_factory::*;
 
-pub mod additional_job;
-pub mod additional_job_factory;
-pub mod command_factory;
+pub(crate) mod additional_job;
+pub(crate) mod additional_job_factory;
+pub(crate) mod command_factory;
 mod streaminfo_helpers;
-pub mod transcode_command;
-pub mod transcode_job;
-pub mod transcode_job_factory;
+#[cfg(test)]
+mod tests;
+pub(crate) mod transcode_command;
+pub(crate) mod transcode_job;
+pub(crate) mod transcode_job_factory;

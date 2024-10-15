@@ -1,10 +1,10 @@
-use caesura::errors::AppError;
-use caesura::fs::DirectoryReader;
-use caesura::hosting::HostBuilder;
-use caesura::logging::{Debug, Logger};
-use caesura::options::{SharedOptions, TargetOptions};
-use caesura::source::*;
-use caesura::testing::*;
+use crate::errors::AppError;
+use crate::fs::DirectoryReader;
+use crate::hosting::HostBuilder;
+use crate::logging::{Debug, Logger};
+use crate::options::{SharedOptions, TargetOptions};
+use crate::source::*;
+use crate::testing::options::TestOptionsFactory;
 
 #[tokio::test]
 async fn source_provider() -> Result<(), AppError> {

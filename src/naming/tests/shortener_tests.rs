@@ -1,5 +1,5 @@
-use caesura::naming::{Shortener, SourceName};
-use caesura::source::Metadata;
+use crate::naming::{Shortener, SourceName};
+use crate::source::Metadata;
 
 #[test]
 fn get_shortened() {

@@ -2,6 +2,6 @@ pub use api::*;
 pub use api_factory::*;
 pub use schema::*;
 
-pub mod api;
-pub mod api_factory;
-pub mod schema;
+pub(crate) mod api;
+pub(crate) mod api_factory;
+pub(crate) mod schema;

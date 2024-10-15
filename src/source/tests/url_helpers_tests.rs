@@ -1,4 +1,4 @@
-use caesura::source::*;
+use crate::source::*;
 
 const BASE_URL: &str = "https://example.com";
 

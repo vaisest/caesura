@@ -1,3 +1,3 @@
 pub use binaries::*;
 
-pub mod binaries;
+pub(crate) mod binaries;

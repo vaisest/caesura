@@ -1,12 +1,13 @@
-use caesura::errors::AppError;
-use caesura::formats::TargetFormatProvider;
-use caesura::fs::DirectoryReader;
-use caesura::hosting::HostBuilder;
-use caesura::logging::{Debug, Logger};
-use caesura::options::{SharedOptions, TargetOptions};
-use caesura::source::SourceProvider;
-use caesura::testing::*;
-use caesura::transcode::TranscodeCommand;
+use crate::errors::AppError;
+use crate::formats::TargetFormatProvider;
+use crate::fs::DirectoryReader;
+use crate::hosting::HostBuilder;
+use crate::logging::{Debug, Logger};
+use crate::options::{SharedOptions, TargetOptions};
+use crate::source::SourceProvider;
+use crate::testing::options::TestOptionsFactory;
+use crate::testing::*;
+use crate::transcode::TranscodeCommand;
 
 #[tokio::test]
 async fn transcode_command() -> Result<(), AppError> {

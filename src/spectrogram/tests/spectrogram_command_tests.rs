@@ -1,14 +1,15 @@
-use caesura::errors::AppError;
+use crate::errors::AppError;
 use std::path::PathBuf;
 
-use caesura::fs::DirectoryReader;
-use caesura::hosting::HostBuilder;
+use crate::fs::DirectoryReader;
+use crate::hosting::HostBuilder;
 
-use caesura::logging::{Debug, Logger};
-use caesura::options::SharedOptions;
-use caesura::source::SourceProvider;
-use caesura::spectrogram::*;
-use caesura::testing::*;
+use crate::logging::{Debug, Logger};
+use crate::options::SharedOptions;
+use crate::source::SourceProvider;
+use crate::spectrogram::*;
+use crate::testing::options::TestOptionsFactory;
+use crate::testing::*;
 
 #[tokio::test]
 async fn spectrogram_command() -> Result<(), AppError> {

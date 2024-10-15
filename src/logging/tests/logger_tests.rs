@@ -1,4 +1,4 @@
-use caesura::logging::{Logger, Verbosity};
+use crate::logging::{Logger, Verbosity};
 use log::*;
 
 #[test]

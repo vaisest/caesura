@@ -1,22 +1,23 @@
-pub mod api;
-pub mod batch;
+mod api;
+mod batch;
 pub mod cli;
-pub mod dependencies;
-pub mod errors;
-pub mod formats;
-pub mod fs;
+mod dependencies;
+mod errors;
+mod formats;
+mod fs;
 pub mod hosting;
-pub mod imdl;
-pub mod jobs;
-pub mod logging;
-pub mod naming;
-pub mod options;
-pub mod source;
-pub mod spectrogram;
-pub mod testing;
-pub mod transcode;
-pub mod upload;
-pub mod verify;
+mod imdl;
+mod jobs;
+mod logging;
+mod naming;
+mod options;
+mod source;
+mod spectrogram;
+#[cfg(test)]
+mod testing;
+mod transcode;
+mod upload;
+mod verify;
 
 #[allow(clippy::needless_raw_strings)]
 mod built_info {

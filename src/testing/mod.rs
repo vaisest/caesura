@@ -1,5 +1,4 @@
 pub use fs::*;
-pub use options::*;
 
-pub mod fs;
-pub mod options;
+pub(crate) mod fs;
+pub(crate) mod options;

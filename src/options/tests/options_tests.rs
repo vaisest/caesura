@@ -1,5 +1,5 @@
-use caesura::logging::{Logger, Trace, Verbosity};
-use caesura::options::*;
+use crate::logging::{Logger, Trace, Verbosity};
+use crate::options::*;
 
 const LOG_LEVEL: Verbosity = Trace;
 

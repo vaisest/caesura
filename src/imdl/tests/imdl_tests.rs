@@ -1,9 +1,9 @@
-use caesura::errors::AppError;
+use crate::errors::AppError;
 use std::path::PathBuf;
 
-use caesura::fs::DirectoryReader;
-use caesura::imdl::imdl_command::ImdlCommand;
-use caesura::testing::TORRENTS_SAMPLES_DIR;
+use crate::fs::DirectoryReader;
+use crate::imdl::imdl_command::ImdlCommand;
+use crate::testing::TORRENTS_SAMPLES_DIR;
 
 #[tokio::test]
 #[ignore]

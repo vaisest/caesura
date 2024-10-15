@@ -5,8 +5,10 @@ pub use spectrogram_job_factory::*;
 
 mod spectrogram_job;
 
-pub mod size;
+pub(crate) mod size;
 
 mod spectrogram_job_factory;
 
-pub mod spectrogram_command;
+pub(crate) mod spectrogram_command;
+#[cfg(test)]
+mod tests;

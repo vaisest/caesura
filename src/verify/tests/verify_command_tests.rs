@@ -1,9 +1,9 @@
-use caesura::errors::AppError;
-use caesura::hosting::HostBuilder;
-use caesura::logging::{Debug, Logger};
-use caesura::options::{SharedOptions, TargetOptions};
-use caesura::testing::*;
-use caesura::verify::VerifyCommand;
+use crate::errors::AppError;
+use crate::hosting::HostBuilder;
+use crate::logging::{Debug, Logger};
+use crate::options::{SharedOptions, TargetOptions};
+use crate::testing::options::TestOptionsFactory;
+use crate::verify::VerifyCommand;
 
 #[tokio::test]
 async fn verify_command() -> Result<(), AppError> {
