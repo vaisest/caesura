@@ -15,7 +15,7 @@ pub(crate) const ZERO_WIDTH_NO_BREAK_SPACE: char = '\u{FEFF}';
 
 pub(crate) const EN_DASH: char = '\u{2013}';
 const EM_DASH: char = '\u{2014}';
-const RESTRICTED: [char; 19] = [
+const RESTRICTED: [char; 16] = [
     NON_BREAKING_SPACE,
     ZERO_WIDTH_SPACE,
     LEFT_TO_RIGHT_MARK,
@@ -26,17 +26,14 @@ const RESTRICTED: [char; 19] = [
     LEFT_TO_RIGHT_OVERRIDE,
     RIGHT_TO_LEFT_OVERRIDE,
     ZERO_WIDTH_NO_BREAK_SPACE,
-    '/',
     ':',
     '<',
     '>',
     '"',
-    '\\',
-    '|',
     '?',
     '*',
 ];
-const RESTRICTED_DIVIDERS: [char; 5] = ['/', ':', '|', EN_DASH, EM_DASH];
+const RESTRICTED_DIVIDERS: [char; 5] = ['/', '\\', '|', EN_DASH, EM_DASH];
 const DIVIDER_REPLACEMENT: char = '-';
 
 pub struct Sanitizer;
