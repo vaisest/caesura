@@ -76,7 +76,7 @@ impl VerifyCommand {
         let sanitized = SourceName::get(&source.metadata);
         let unsanitized = SourceName::get_unsanitized(&source.metadata);
         if sanitized != unsanitized {
-            warn!("Restricted characters have been removed from the source name: {sanitized}");
+            debug!("Source name has been sanitized: {sanitized}");
         }
     }
 
