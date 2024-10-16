@@ -19,7 +19,7 @@ Each source is verified to ensure:
 - Not a scene or lossy release
 - Files match the torrent hash
 - Audio tags for artist, album, title and track number are set
-- **[[fixed]](https://github.com/RogueOneEcho/caesura/issues/47)]** Classical sources have a composer tag.
+- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/47)]** Classical sources have a composer tag.
 - **[[fixed](https://github.com/RogueOneEcho/caesura/issues/18)]** Vinyl track numbering
 - Sample rate and channels are suitable
 
