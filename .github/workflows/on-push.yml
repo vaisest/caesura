@@ -60,6 +60,8 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
         path: |
           ~/.cargo/bin/
           ~/.cargo/registry/index/
@@ -106,6 +108,8 @@ jobs:
       uses: actions/cache/save@v4
       with:
         key: ${{ steps.cache-cargo.outputs.cache-primary-key }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
         path: |
           ~/.cargo/bin/
           ~/.cargo/registry/index/
