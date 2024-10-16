@@ -5,7 +5,7 @@ use colored::Colorize;
 use di::injectable;
 use log::*;
 
-use crate::logging::{Info, Logger, Trace};
+use crate::logging::Logger;
 use crate::options::*;
 
 const DEFAULT_CONFIG_PATH: &str = "config.json";
@@ -57,8 +57,7 @@ impl OptionsProvider {
                         options.merge(&file_options);
                     }
                     Err(error) => {
-                        force_init_logger();
-                        Logger::init_new(Trace);
+                        Logger::force_init();
                         error!("{} to deserialize config file: {}", "Failed".bold(), error);
                     }
                 }
@@ -68,12 +67,6 @@ impl OptionsProvider {
         trace!("{} {}: {}", "Using".bold(), T::get_name(), options);
         options
     }
-}
-
-/// [`SharedOptions`] are read before [`Logger`] is initialized so if an error occurs
-/// it will be lost to the void unless we force inititialization.
-fn force_init_logger() {
-    Logger::init_new(Info);
 }
 
 /// Read the config file
@@ -86,7 +79,7 @@ fn read_config_file(options: &SharedOptions) -> String {
         .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
     trace!("{} options from file: {:?}", "Reading".bold(), path);
     read_to_string(path).unwrap_or_else(|error| {
-        force_init_logger();
+        Logger::force_init();
         warn!("{} to read config file: {}", "Failed".bold(), error);
         "{}".to_owned()
     })

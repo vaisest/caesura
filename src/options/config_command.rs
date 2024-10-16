@@ -1,5 +1,8 @@
 use crate::errors::AppError;
-use crate::options::{BatchOptions, FileOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions};
+use crate::options::{
+    BatchOptions, FileOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions,
+    VerifyOptions,
+};
 use di::{injectable, Ref};
 use serde_json::Value;
 use std::collections::BTreeMap;

@@ -2,7 +2,7 @@ use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::DirectoryReader;
 use crate::hosting::HostBuilder;
-use crate::logging::{Debug, Logger};
+use crate::logging::Logger;
 use crate::options::{SharedOptions, TargetOptions};
 use crate::source::SourceProvider;
 use crate::testing::options::TestOptionsFactory;
@@ -12,9 +12,8 @@ use crate::transcode::TranscodeCommand;
 #[tokio::test]
 async fn transcode_command() -> Result<(), AppError> {
     // Arrange
-    Logger::init_new(Debug);
+    Logger::force_init();
     let shared_options = TestOptionsFactory::from(SharedOptions {
-        verbosity: Some(Debug),
         output: Some(TempDirectory::create("caesura")),
         ..SharedOptions::default()
     });

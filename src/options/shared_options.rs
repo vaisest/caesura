@@ -7,7 +7,7 @@ use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
 use crate::cli::CommandArguments::{Batch, Spectrogram, Transcode, Upload, Verify};
-use crate::logging::{Info, Verbosity};
+use crate::logging::{TimeFormat, Verbosity};
 use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
 };
@@ -71,6 +71,12 @@ pub struct SharedOptions {
     #[arg(value_name = "SOURCE")]
     pub source: Option<String>,
 
+    /// Time format to use in logs.
+    ///
+    /// Default: `datetime`
+    #[arg(long)]
+    pub log_time: Option<TimeFormat>,
+
     /// Directory where transcodes and spectrograms will be written.
     ///
     /// Default: `./output`
@@ -112,6 +118,9 @@ impl Options for SharedOptions {
         if self.config.is_none() {
             self.config.clone_from(&alternative.config);
         }
+        if self.log_time.is_none() {
+            self.log_time.clone_from(&alternative.log_time);
+        }
         if self.source.is_none() {
             self.source.clone_from(&alternative.source);
         }
@@ -143,7 +152,10 @@ impl Options for SharedOptions {
             }
         }
         if self.verbosity.is_none() {
-            self.verbosity = Some(Info);
+            self.verbosity = Some(Verbosity::default());
+        }
+        if self.log_time.is_none() {
+            self.log_time = Some(TimeFormat::default());
         }
         if self.content.is_none() {
             self.content = Some(PathBuf::from("./content"));

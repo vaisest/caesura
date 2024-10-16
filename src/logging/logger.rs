@@ -1,9 +1,9 @@
-use std::time::SystemTime;
-
+use chrono::{Local, Utc};
 use colored::control::SHOULD_COLORIZE;
 use colored::{ColoredString, Colorize};
 use di::{injectable, Ref};
 use log::*;
+use std::time::SystemTime;
 
 use crate::built_info;
 use crate::logging::*;
@@ -11,7 +11,7 @@ use crate::options::SharedOptions;
 
 pub struct Logger {
     pub enabled_threshold: Verbosity,
-    pub show_timestamp: bool,
+    pub time_format: TimeFormat,
     pub start: SystemTime,
 }
 
@@ -19,21 +19,24 @@ pub struct Logger {
 impl Logger {
     #[must_use]
     pub fn new(options: Ref<SharedOptions>) -> Self {
-        Self::from_verbosity(options.verbosity.unwrap_or_default())
+        Self {
+            enabled_threshold: options.verbosity.unwrap_or_default(),
+            time_format: options.log_time.unwrap_or_default(),
+            start: SystemTime::now(),
+        }
     }
 
-    fn from_verbosity(verbosity: Verbosity) -> Self {
-        let show_timestamp = verbosity.as_num() >= Debug.as_num();
-        let start = SystemTime::now();
+    #[must_use]
+    pub fn with(verbosity: Verbosity, log_time: TimeFormat) -> Self {
         Self {
             enabled_threshold: verbosity,
-            show_timestamp,
-            start,
+            time_format: log_time,
+            start: SystemTime::now(),
         }
     }
 
     //noinspection RsExperimentalTraitObligations
-    pub fn init(logger: Ref<Logger>) {
+    pub fn init(logger: Ref<Self>) {
         SHOULD_COLORIZE.set_override(true);
         let filter = logger.enabled_threshold.to_level_filter();
         let logger = Box::new(logger);
@@ -42,8 +45,11 @@ impl Logger {
         }
     }
 
-    pub fn init_new(verbosity: Verbosity) {
-        Self::init(Ref::new(Logger::from_verbosity(verbosity)));
+    /// [`SharedOptions`] are read before [`Logger`] is initialized so if an error occurs
+    /// it will be lost to the void unless we force inititialization.
+    pub fn force_init() {
+        let logger = Logger::with(Trace, TimeFormat::Local);
+        Logger::init(Ref::new(logger));
     }
 
     fn format_log(&self, verbosity: Verbosity, message: String) -> String {
@@ -62,19 +68,23 @@ impl Logger {
 
     #[must_use]
     pub fn format_prefix(&self, verbosity: Verbosity) -> String {
+        let time = self.format_time();
         let verbosity_id = verbosity.get_id();
         let icon = verbosity.get_icon();
-        if self.show_timestamp {
-            let time = self.format_time();
-            format!("{time:>8} {verbosity_id} {icon}")
-        } else {
-            format!("{verbosity_id} {icon}")
-        }
+        format!("{time}{verbosity_id} {icon}")
     }
 
     fn format_time(&self) -> ColoredString {
-        let duration = self.start.elapsed().unwrap_or_default().as_secs_f64();
-        format!("{duration:.3}").dark_gray()
+        let value = match self.time_format {
+            TimeFormat::Local => Local::now().format("%Y-%m-%d %H:%M:%S%.3f ").to_string(),
+            TimeFormat::Utc => Utc::now().format("%Y-%m-%d %H:%M:%S%.3fZ ").to_string(),
+            TimeFormat::Elapsed => format!(
+                "{:>8.3} ",
+                self.start.elapsed().unwrap_or_default().as_secs_f64()
+            ),
+            TimeFormat::None => String::new(),
+        };
+        value.dark_gray()
     }
 
     fn is_enabled(&self, verbosity: Verbosity) -> bool {

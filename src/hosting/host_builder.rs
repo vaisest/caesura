@@ -14,7 +14,7 @@ use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
-use crate::logging::{Logger, Trace};
+use crate::logging::Logger;
 use crate::options::config_command::ConfigCommand;
 use crate::options::{
     BatchOptions, FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions,
@@ -105,7 +105,7 @@ impl HostBuilder {
         match self.services.build_provider() {
             Ok(services) => Host::new(services),
             Err(error) => {
-                Logger::init_new(Trace);
+                Logger::force_init();
                 error!("{} to build the application:", "Failed".bold());
                 error!("{error}");
                 exit(1)

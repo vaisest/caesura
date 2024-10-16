@@ -1,12 +1,10 @@
-use crate::logging::{Logger, Trace, Verbosity};
+use crate::logging::Logger;
 use crate::options::*;
-
-const LOG_LEVEL: Verbosity = Trace;
 
 #[tokio::test]
 async fn batch_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -19,7 +17,7 @@ async fn batch_options_validate() {
 #[tokio::test]
 async fn file_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -32,7 +30,7 @@ async fn file_options_validate() {
 #[tokio::test]
 async fn runner_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -45,7 +43,7 @@ async fn runner_options_validate() {
 #[tokio::test]
 async fn spectrogram_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -58,7 +56,7 @@ async fn spectrogram_options_validate() {
 #[tokio::test]
 async fn target_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -71,7 +69,7 @@ async fn target_options_validate() {
 #[tokio::test]
 async fn upload_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -84,7 +82,7 @@ async fn upload_options_validate() {
 #[tokio::test]
 async fn verify_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act
@@ -97,7 +95,7 @@ async fn verify_options_validate() {
 #[tokio::test]
 async fn shared_options_validate() {
     // Arrange
-    Logger::init_new(LOG_LEVEL);
+    Logger::force_init();
     let provider = OptionsProvider::new();
 
     // Act

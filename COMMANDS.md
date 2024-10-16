@@ -51,20 +51,20 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
 ###### **Options:**
 
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
 * `--api-key <API_KEY>` — API key with torrent permissions for the indexer
 * `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
 
    Examples: `red`, `pth`, `ops`
 
-   Default: `red`
+   Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
-   Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
-
-   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+   Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
@@ -79,6 +79,20 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 * `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
@@ -172,20 +186,20 @@ Generate spectrograms for each track of a FLAC source
 
 ###### **Options:**
 
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
 * `--api-key <API_KEY>` — API key with torrent permissions for the indexer
 * `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
 
    Examples: `red`, `pth`, `ops`
 
-   Default: `red`
+   Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
-   Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
-
-   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+   Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
@@ -200,6 +214,20 @@ Generate spectrograms for each track of a FLAC source
 * `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
@@ -229,20 +257,20 @@ Transcode each track of a FLAC source to the target formats
 
 ###### **Options:**
 
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
 * `--api-key <API_KEY>` — API key with torrent permissions for the indexer
 * `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
 
    Examples: `red`, `pth`, `ops`
 
-   Default: `red`
+   Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
-   Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
-
-   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+   Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
@@ -257,6 +285,20 @@ Transcode each track of a FLAC source to the target formats
 * `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
@@ -317,20 +359,20 @@ Upload transcodes of a FLAC source
 
 ###### **Options:**
 
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
 * `--api-key <API_KEY>` — API key with torrent permissions for the indexer
 * `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
 
    Examples: `red`, `pth`, `ops`
 
-   Default: `red`
+   Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
-   Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
-
-   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+   Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
@@ -345,6 +387,20 @@ Upload transcodes of a FLAC source
 * `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
@@ -396,20 +452,20 @@ Verify a FLAC source is suitable for transcoding
 
 ###### **Options:**
 
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
 * `--api-key <API_KEY>` — API key with torrent permissions for the indexer
 * `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
 
    Examples: `red`, `pth`, `ops`
 
-   Default: `red`
+   Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
-   Default: Dependent on indexer
-* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
-
-   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+   Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directory containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
@@ -424,6 +480,20 @@ Verify a FLAC source is suitable for transcoding
 * `--config <CONFIG>` — Path to the configuration file.
 
    Default: `./config.json`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`

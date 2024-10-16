@@ -62,10 +62,7 @@ impl TranscodeCommand {
         for target in targets {
             let path = self.paths.get_torrent_path(source, *target);
             if path.exists() {
-                debug!(
-                    "{} existing {target} transcode",
-                    "Found".bold()
-                );
+                debug!("{} existing {target} transcode", "Found".bold());
                 trace!("{path:?}");
             } else {
                 out.push(*target);

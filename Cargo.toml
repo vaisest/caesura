@@ -37,6 +37,7 @@ tokio = { version = "^1", features = ["full"] }
 tower = { version = "^0.5", features = ["util", "limit"] }
 serde = { version = "^1.0", features = ["derive"] }
 humantime = "^2.1"
+chrono = "^0.4.38"
 
 [build-dependencies]
 built = "^0.7"
