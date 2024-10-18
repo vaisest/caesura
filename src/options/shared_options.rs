@@ -158,7 +158,7 @@ impl Options for SharedOptions {
             self.log_time = Some(TimeFormat::default());
         }
         if self.content.is_none() {
-            self.content = Some(vec!(PathBuf::from("./content")));
+            self.content = Some(vec![PathBuf::from("./content")]);
         }
         if self.output.is_none() {
             self.output = Some(PathBuf::from("./output"));
@@ -212,7 +212,7 @@ impl Options for SharedOptions {
                         "Content Directory".to_owned(),
                         dir.to_string_lossy().to_string(),
                     ));
-                }                
+                }
             }
         } else {
             errors.push(NotSet("Content Directory".to_owned()));

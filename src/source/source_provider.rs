@@ -1,13 +1,13 @@
-use std::path::PathBuf;
-use colored::Colorize;
-use di::{injectable, Ref, RefMut};
-use html_escape::decode_html_entities;
-use log::{trace, warn};
 use crate::api::{Api, Torrent};
 use crate::errors::AppError;
 use crate::formats::ExistingFormatProvider;
 use crate::options::SharedOptions;
 use crate::source::*;
+use colored::Colorize;
+use di::{injectable, Ref, RefMut};
+use html_escape::decode_html_entities;
+use log::{trace, warn};
+use std::path::PathBuf;
 
 /// Retrieve [Source] from the [Api] via a [provider design pattern](https://en.wikipedia.org/wiki/Provider_model)
 #[injectable]
@@ -57,9 +57,15 @@ impl SourceProvider {
             .filter(|x| x.exists() && x.is_dir())
             .collect();
         if directories.is_empty() {
-            return AppError::explained("find source directory", "directory does not exist".to_owned())
+            return AppError::explained(
+                "find source directory",
+                "directory does not exist".to_owned(),
+            );
         } else if directories.len() > 1 {
-            warn!("{} multiple content directories matching the torrent. The first will be used.", "Found".bold());
+            warn!(
+                "{} multiple content directories matching the torrent. The first will be used.",
+                "Found".bold()
+            );
             trace!("{directories:?}");
         }
         Ok(directories.first().expect("should be at least one").clone())

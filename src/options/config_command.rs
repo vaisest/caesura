@@ -25,8 +25,8 @@ impl ConfigCommand {
         let options = self
             .get_options_hashmap()
             .or_else(|e| AppError::json(e, "collate config"))?;
-        let yaml = serde_yaml::to_string(&options)
-            .or_else(|e| AppError::yaml(e, "serialize config"))?;
+        let yaml =
+            serde_yaml::to_string(&options).or_else(|e| AppError::yaml(e, "serialize config"))?;
         println!("{yaml}");
         Ok(true)
     }
