@@ -41,13 +41,13 @@ pub struct SharedOptions {
     #[arg(long)]
     pub indexer_url: Option<String>,
 
-    /// Directory containing torrent content.
+    /// Directories containing torrent content.
     ///
     /// Typically this is set as the download directory in your torrent client.
     ///
     /// Default: `./content`
     #[arg(long)]
-    pub content: Option<PathBuf>,
+    pub content: Option<Vec<PathBuf>>,
 
     /// Level of logs to display.
     ///
@@ -158,7 +158,7 @@ impl Options for SharedOptions {
             self.log_time = Some(TimeFormat::default());
         }
         if self.content.is_none() {
-            self.content = Some(PathBuf::from("./content"));
+            self.content = Some(vec!(PathBuf::from("./content")));
         }
         if self.output.is_none() {
             self.output = Some(PathBuf::from("./output"));
@@ -205,12 +205,14 @@ impl Options for SharedOptions {
                 ));
             }
         }
-        if let Some(content_directory) = &self.content {
-            if !content_directory.exists() && !content_directory.is_dir() {
-                errors.push(DoesNotExist(
-                    "Content Directory".to_owned(),
-                    content_directory.to_string_lossy().to_string(),
-                ));
+        if let Some(directories) = &self.content {
+            for dir in directories {
+                if !dir.exists() && !dir.is_dir() {
+                    errors.push(DoesNotExist(
+                        "Content Directory".to_owned(),
+                        dir.to_string_lossy().to_string(),
+                    ));
+                }                
             }
         } else {
             errors.push(NotSet("Content Directory".to_owned()));

@@ -115,6 +115,8 @@ impl UploadCommand {
             .content
             .clone()
             .expect("content should be set")
+            .first()
+            .expect("content should contain at least one directory")
             .join(source_dir_name);
         let verb = if self
             .upload_options

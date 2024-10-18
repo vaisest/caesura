@@ -1,7 +1,9 @@
+use std::path::PathBuf;
+use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use html_escape::decode_html_entities;
-
-use crate::api::Api;
+use log::{trace, warn};
+use crate::api::{Api, Torrent};
 use crate::errors::AppError;
 use crate::formats::ExistingFormatProvider;
 use crate::options::SharedOptions;
@@ -31,12 +33,7 @@ impl SourceProvider {
         let group_torrents = response.torrents;
         let format = torrent.get_format()?.to_source()?;
         let existing = ExistingFormatProvider::get(&torrent, &group_torrents)?;
-        let directory = self
-            .options
-            .content
-            .clone()
-            .expect("content should be set")
-            .join(decode_html_entities(&torrent.file_path).to_string());
+        let directory = self.get_source_directory(&torrent)?;
         let metadata = Metadata::new(&group, &torrent);
         Ok(Source {
             torrent,
@@ -46,6 +43,26 @@ impl SourceProvider {
             directory,
             metadata,
         })
+    }
+
+    fn get_source_directory(&self, torrent: &Torrent) -> Result<PathBuf, AppError> {
+        let path = decode_html_entities(&torrent.file_path).to_string();
+        let directories: Vec<PathBuf> = self
+            .options
+            .content
+            .clone()
+            .expect("content should be set")
+            .iter()
+            .map(|x| x.join(path.clone()))
+            .filter(|x| x.exists() && x.is_dir())
+            .collect();
+        if directories.is_empty() {
+            return AppError::explained("find source directory", "directory does not exist".to_owned())
+        } else if directories.len() > 1 {
+            warn!("{} multiple content directories matching the torrent. The first will be used.", "Found".bold());
+            trace!("{directories:?}");
+        }
+        Ok(directories.first().expect("should be at least one").clone())
     }
 
     pub async fn get_from_options(&mut self) -> Result<Source, AppError> {
