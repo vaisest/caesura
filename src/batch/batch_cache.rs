@@ -45,9 +45,9 @@ impl BatchCache {
             }
             serde_json::to_writer_pretty(&mut writer, &items)
                 .or_else(|e| AppError::json(e, "serialize batch cache"))?;
-            writer
-                .flush()
-                .or_else(|e| AppError::external("flush batch cache", "BufWriter", Box::new(e)))?;
+            writer.flush().or_else(|e| {
+                AppError::external("flush batch cache", "BufWriter", format!("{e}"))
+            })?;
         }
         Ok(())
     }

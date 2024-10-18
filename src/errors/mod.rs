@@ -5,3 +5,6 @@ pub use output_handler::*;
 pub(crate) mod app_error;
 pub(crate) mod command_error;
 pub(crate) mod output_handler;
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests;
