@@ -11,6 +11,7 @@ mod jobs;
 mod logging;
 mod naming;
 mod options;
+mod queue;
 mod source;
 mod spectrogram;
 #[cfg(test)]
