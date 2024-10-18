@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Deserialize, Serialize)]
-pub struct BatchItem {
+pub struct BatchCacheItem {
     pub path: PathBuf,
     pub skipped: Option<String>,
     pub failed: Option<String>,
@@ -13,7 +13,7 @@ pub struct BatchItem {
     pub uploaded: bool,
 }
 
-impl BatchItem {
+impl BatchCacheItem {
     #[must_use]
     pub fn new(path: PathBuf) -> Self {
         Self {
@@ -42,7 +42,7 @@ impl BatchItem {
     }
 }
 
-impl Display for BatchItem {
+impl Display for BatchCacheItem {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let file_name = self
             .path

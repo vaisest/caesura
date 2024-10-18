@@ -7,7 +7,7 @@ use colored::Colorize;
 use di::{injectable, Ref};
 use log::trace;
 
-use crate::batch::{BatchCache, BatchItem};
+use crate::batch::{BatchCache, BatchCacheItem};
 use crate::errors::AppError;
 use crate::fs::DirectoryReader;
 use crate::options::{BatchOptions, SharedOptions};
@@ -21,7 +21,7 @@ pub struct BatchCacheFactory {
 impl BatchCacheFactory {
     pub fn create(&mut self) -> Result<BatchCache, AppError> {
         let cache_path = self.batch_options.cache.clone();
-        let mut cache: HashMap<PathBuf, BatchItem> = HashMap::new();
+        let mut cache: HashMap<PathBuf, BatchCacheItem> = HashMap::new();
         if let Some(path) = &cache_path {
             trace!("{} cache file: {path:?}", "Reading".bold());
             insert_items_from_file(&mut cache, &path.clone())?;
@@ -40,7 +40,7 @@ impl BatchCacheFactory {
 }
 
 fn insert_items_from_file(
-    cache: &mut HashMap<PathBuf, BatchItem>,
+    cache: &mut HashMap<PathBuf, BatchCacheItem>,
     path: &Path,
 ) -> Result<(), AppError> {
     if !path.exists() || !path.is_file() {
@@ -60,7 +60,7 @@ fn insert_items_from_file(
 }
 
 fn insert_items_from_directory(
-    cache: &mut HashMap<PathBuf, BatchItem>,
+    cache: &mut HashMap<PathBuf, BatchCacheItem>,
     directory: &Path,
 ) -> Result<(), AppError> {
     if !directory.is_dir() {
@@ -80,13 +80,13 @@ fn insert_items_from_directory(
     Ok(())
 }
 
-fn insert_new(cache: &mut HashMap<PathBuf, BatchItem>, path: PathBuf) {
+fn insert_new(cache: &mut HashMap<PathBuf, BatchCacheItem>, path: PathBuf) {
     if !cache.contains_key(&path) {
-        cache.insert(path.clone(), BatchItem::new(path));
+        cache.insert(path.clone(), BatchCacheItem::new(path));
     }
 }
 
-fn insert_vec(cache: &mut HashMap<PathBuf, BatchItem>, items: Vec<BatchItem>) {
+fn insert_vec(cache: &mut HashMap<PathBuf, BatchCacheItem>, items: Vec<BatchCacheItem>) {
     for item in items {
         if !cache.contains_key(&item.path) {
             cache.insert(item.path.clone(), item);

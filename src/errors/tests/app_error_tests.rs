@@ -4,7 +4,7 @@ use crate::errors::AppError;
 fn test_explained_serialization() {
     // Arrange
     let error =
-        AppError::explained::<()>("PerformAction", "Something went wrong".to_string()).unwrap_err();
+        AppError::explained::<()>("PerformAction", "Something went wrong".to_owned()).unwrap_err();
 
     // Act
     let yaml_output = serde_yaml::to_string(&error).unwrap();
@@ -40,8 +40,8 @@ fn test_unexpected_serialization() {
     let error = AppError::unexpected::<()>(
         "PerformAction",
         "An unexpected error occurred",
-        "ExpectedValue".to_string(),
-        "ActualValue".to_string(),
+        "ExpectedValue".to_owned(),
+        "ActualValue".to_owned(),
     )
     .unwrap_err();
 

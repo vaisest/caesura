@@ -3,7 +3,7 @@ use di::{injectable, Ref, RefMut};
 use log::{debug, info, trace};
 
 use crate::batch::BatchCacheFactory;
-use crate::batch::BatchItem;
+use crate::batch::BatchCacheItem;
 use crate::errors::AppError;
 use crate::options::{
     BatchOptions, FileOptions, Options, SharedOptions, SpectrogramOptions, TargetOptions,
@@ -87,7 +87,7 @@ impl BatchCommand {
                 self.spectrogram.execute_internal(&source).await?;
             }
             if self.transcode.execute_internal(&source).await? {
-                cache.update(&item.path, BatchItem::set_transcoded);
+                cache.update(&item.path, BatchCacheItem::set_transcoded);
             } else {
                 cache.update(&item.path, |item| {
                     item.set_failed("transcode failed".to_owned());
@@ -106,7 +106,7 @@ impl BatchCommand {
                     .execute_internal(&source)
                     .await?
                 {
-                    cache.update(&item.path, BatchItem::set_uploaded);
+                    cache.update(&item.path, BatchCacheItem::set_uploaded);
                 } else {
                     cache.update(&item.path, |item| {
                         item.set_failed("upload failed".to_owned());

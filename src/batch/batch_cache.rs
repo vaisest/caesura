@@ -6,17 +6,17 @@ use std::path::{Path, PathBuf};
 use colored::Colorize;
 use log::trace;
 
-use crate::batch::BatchItem;
+use crate::batch::BatchCacheItem;
 use crate::errors::AppError;
 
 pub struct BatchCache {
     pub path: Option<PathBuf>,
-    pub items: HashMap<PathBuf, BatchItem>,
+    pub items: HashMap<PathBuf, BatchCacheItem>,
 }
 
 impl BatchCache {
-    pub fn get_queue(&mut self, skip_upload: bool) -> Vec<BatchItem> {
-        let mut queue: Vec<BatchItem> = self
+    pub fn get_queue(&mut self, skip_upload: bool) -> Vec<BatchCacheItem> {
+        let mut queue: Vec<BatchCacheItem> = self
             .items
             .values()
             .filter(|x| x.skipped.is_none() && !x.uploaded && (!skip_upload || !x.transcoded))
@@ -28,7 +28,7 @@ impl BatchCache {
 
     pub fn update<F>(&mut self, path: &Path, function: F)
     where
-        F: FnOnce(&mut BatchItem),
+        F: FnOnce(&mut BatchCacheItem),
     {
         let key = PathBuf::from(path);
         self.items.entry(key).and_modify(function);
@@ -39,7 +39,7 @@ impl BatchCache {
             trace!("{} cache file: {path:?}", "Writing".bold());
             let file = File::create(path).or_else(|e| AppError::io(e, "open batch cache"))?;
             let mut writer = BufWriter::new(file);
-            let mut items: Vec<&BatchItem> = self.items.values().collect();
+            let mut items: Vec<&BatchCacheItem> = self.items.values().collect();
             if sort {
                 items.sort_by_key(|x| x.path.to_string_lossy().to_string());
             }
