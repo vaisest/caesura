@@ -1,19 +1,23 @@
 use crate::api::Torrent;
 use crate::errors::AppError;
 use crate::formats::SourceFormat;
+use clap::ValueEnum;
+use serde::{Deserialize, Serialize};
 
 /// Format of an existing release.
-#[derive(Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize, ValueEnum)]
+#[serde(rename_all = "lowercase")]
 pub enum ExistingFormat {
     Flac24,
     Flac,
+    #[serde(rename = "320")]
     _320,
     V0,
 }
 
 impl ExistingFormat {
     #[allow(clippy::wildcard_enum_match_arm)]
-    pub fn to_source(&self) -> Result<SourceFormat, AppError> {
+    pub fn to_source(self) -> Result<SourceFormat, AppError> {
         match self {
             ExistingFormat::Flac24 => Ok(SourceFormat::Flac24),
             ExistingFormat::Flac => Ok(SourceFormat::Flac),

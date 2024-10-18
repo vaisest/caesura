@@ -1,59 +1,54 @@
+use crate::formats::ExistingFormat;
 use crate::verify::SourceRule::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
+use std::path::PathBuf;
 
 pub const MAX_PATH_LENGTH: usize = 180;
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum SourceRule {
-    IncorrectCategory(String),
-    SceneNotSupported,
-    LossyMasterNeedsApproval,
-    LossyWebNeedsApproval,
-    TrumpableNotSuitable,
-    NoTranscodeFormats,
-    SourceDirectoryNotFound(String),
-    NoFlacFiles(String),
-    IncorrectHash(String),
-    PathTooLong(String),
-    NoArtistTag(String),
-    NoAlbumTag(String),
-    NoTitleTag(String),
-    NoComposerTag(String),
-    NoTrackNumberTag(String),
-    FlacIOError(String, String),
-    FlacFormatError(String, String),
-    FlacUnsupported(String, String),
-    UnknownSampleRate(u32, String),
-    TooManyChannels(u32, String),
+    Category { actual: String },
+    Scene,
+    LossyMaster,
+    LossyWeb,
+    Trumpable,
+    Existing { formats: HashSet<ExistingFormat> },
+    MissingDirectory { path: PathBuf },
+    NoFlacs { path: PathBuf },
+    Imdl { details: String },
+    Length { path: PathBuf, excess: usize },
+    MissingTags { path: PathBuf, tags: Vec<String> },
+    FlacError { path: PathBuf, error: String },
+    SampleRate { path: PathBuf, rate: u32 },
+    Channels { path: PathBuf, count: u32 },
 }
 
 impl Display for SourceRule {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let message = match self {
-            IncorrectCategory(category) => format!("Category was not Music: {category}"),
-            SceneNotSupported => "Scene releases are not supported".to_owned(),
-            LossyMasterNeedsApproval => "Lossy master releases need approval".to_owned(),
-            LossyWebNeedsApproval => "Lossy web releases need approval".to_owned(),
-            TrumpableNotSuitable => "Source is trumpable".to_owned(),
-            NoTranscodeFormats => "All allowed formats have been transcoded to already".to_owned(),
-            SourceDirectoryNotFound(path) => format!("Source directory not found: {path}"),
-            NoFlacFiles(path) => format!("No Flac files found in source directory: {path}"),
-            IncorrectHash(details) => format!("Files do not match hash:\n{details}"),
-            PathTooLong(path) => format!(
-                "Path is {} characters longer than allowed: {path}",
-                path.len() - MAX_PATH_LENGTH
-            ),
-            NoArtistTag(path) => format!("No artist tag: {path}"),
-            NoAlbumTag(path) => format!("No album tag: {path}"),
-            NoTitleTag(path) => format!("No title tag: {path}"),
-            NoComposerTag(path) => format!("No composer tag: {path}"),
-            NoTrackNumberTag(path) => format!("No track number tag: {path}"),
-            UnknownSampleRate(rate, path) => format!("Unknown sample rate: {rate}: {path}"),
-            TooManyChannels(channels, path) => {
-                format!("Unable to transcode more than two channels: {channels}: {path}")
+            Category { actual } => format!("Category was not Music: {actual}"),
+            Scene => "Scene releases are not supported".to_owned(),
+            LossyMaster => "Lossy master releases need approval".to_owned(),
+            LossyWeb => "Lossy web releases need approval".to_owned(),
+            Trumpable => "Source is trumpable".to_owned(),
+            Existing { formats } => {
+                format!("All allowed formats have been transcoded to already: {formats:?}",)
             }
-            FlacIOError(message, path) => format!("IO error: {message}: {path}"),
-            FlacFormatError(message, path) => format!("Format error: {message}: {path}"),
-            FlacUnsupported(message, path) => format!("Unsupported error: {message}: {path}"),
+            MissingDirectory { path } => format!("Source directory not found: {path:?}"),
+            NoFlacs { path } => format!("No FLAC files found in source directory: {path:?}"),
+            Imdl { details } => format!("Files do not match hash:\n{details}"),
+            Length { path, excess } => {
+                format!("Path is {excess} characters longer than allowed: {path:?}")
+            }
+            MissingTags { path, tags } => format!("Missing tags: {tags:?}: {path:?}"),
+            SampleRate { path, rate } => format!("Unsupported sample rate: {rate}: {path:?}"),
+            Channels { path, count } => {
+                format!("Too many channels: {count}: {path:?}")
+            }
+            FlacError { path, error } => format!("FLAC stream error: {error}: {path:?}"),
         };
         message.fmt(formatter)
     }

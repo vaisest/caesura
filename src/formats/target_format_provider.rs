@@ -25,6 +25,17 @@ impl TargetFormatProvider {
         }
     }
 
+    /// Get the target format with the longest path length.
+    pub fn get_max_path_length(
+        &self,
+        source: SourceFormat,
+        existing: &HashSet<ExistingFormat>,
+    ) -> Option<TargetFormat> {
+        let mut targets = self.get(source, existing);
+        targets.sort();
+        targets.last().copied()
+    }
+
     /// Filter the target formats to exclude the source format.
     fn get_with_existing(&self, source: SourceFormat) -> Vec<TargetFormat> {
         let override_existing = [source.to_existing()];

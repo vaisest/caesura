@@ -10,7 +10,7 @@ use crate::dependencies::IMDL;
 use crate::errors::{AppError, OutputHandler};
 use crate::imdl::TorrentSummary;
 use crate::verify::SourceRule;
-use crate::verify::SourceRule::IncorrectHash;
+use crate::verify::SourceRule::Imdl;
 
 pub struct ImdlCommand;
 
@@ -80,7 +80,7 @@ impl ImdlCommand {
             Ok(None)
         } else {
             let details = String::from_utf8(output.stderr).unwrap_or_default();
-            Ok(Some(IncorrectHash(details)))
+            Ok(Some(Imdl { details }))
         }
     }
 
@@ -114,7 +114,7 @@ impl ImdlCommand {
             Ok(Vec::new())
         } else {
             let details = String::from_utf8(output.stderr).unwrap_or_default();
-            Ok(vec![IncorrectHash(details)])
+            Ok(vec![Imdl { details }])
         }
     }
 }

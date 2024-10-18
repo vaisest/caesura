@@ -8,3 +8,4 @@ mod tag_verifier;
 #[cfg(test)]
 mod tests;
 pub(crate) mod verify_command;
+mod verify_status;

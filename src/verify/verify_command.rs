@@ -83,54 +83,70 @@ impl VerifyCommand {
     fn api_checks(&self, source: &Source) -> Vec<SourceRule> {
         let mut errors: Vec<SourceRule> = Vec::new();
         if source.group.category_name != "Music" {
-            errors.push(IncorrectCategory(source.group.category_name.clone()));
+            errors.push(Category {
+                actual: source.group.category_name.clone(),
+            });
         }
         if source.torrent.scene {
-            errors.push(SceneNotSupported);
+            errors.push(Scene);
         }
         if source.torrent.lossy_master_approved == Some(true) {
-            errors.push(LossyMasterNeedsApproval);
+            errors.push(LossyMaster);
         }
         if source.torrent.lossy_web_approved == Some(true) {
-            errors.push(LossyWebNeedsApproval);
+            errors.push(LossyWeb);
         }
         if source.torrent.trumpable == Some(true) {
-            errors.push(TrumpableNotSuitable);
+            errors.push(Trumpable);
         }
         let target_formats = self.targets.get(source.format, &source.existing);
         if target_formats.is_empty() {
-            errors.push(NoTranscodeFormats);
+            errors.push(Existing {
+                formats: source.existing.clone(),
+            });
         }
         errors
     }
 
     fn flac_checks(&self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
         if !source.directory.exists() || !source.directory.is_dir() {
-            return Ok(vec![SourceDirectoryNotFound(
-                source.directory.to_string_lossy().to_string(),
-            )]);
+            return Ok(vec![MissingDirectory {
+                path: source.directory.clone(),
+            }]);
         }
         let flacs = Collector::get_flacs(&source.directory);
         if flacs.is_empty() {
-            return Ok(vec![NoFlacFiles(
-                source.directory.to_string_lossy().to_string(),
-            )]);
+            return Ok(vec![NoFlacs {
+                path: source.directory.clone(),
+            }]);
         }
         let mut errors: Vec<SourceRule> = Vec::new();
+        let max_target = self
+            .targets
+            .get_max_path_length(source.format, &source.existing);
+        let mut too_long = false;
         for flac in flacs {
-            let max_path = self.paths.get_max_transcode_sub_path(source, &flac);
-            if max_path.len() > MAX_PATH_LENGTH {
-                errors.push(PathTooLong(max_path));
-                Shortener::suggest_track_name(&flac);
+            if let Some(max_path) = max_target {
+                let path = self.paths.get_transcode_path(source, max_path, &flac);
+                let excess = path.to_string_lossy().len() - MAX_PATH_LENGTH;
+                if excess > 0 {
+                    errors.push(Length { path, excess });
+                    Shortener::suggest_track_name(&flac);
+                    too_long = true;
+                }
             }
-            for error in TagVerifier::execute(&flac, source)? {
-                errors.push(error);
+            let tags = TagVerifier::execute(&flac, source)?;
+            if !tags.is_empty() {
+                errors.push(MissingTags {
+                    path: flac.path.clone(),
+                    tags,
+                });
             }
             for error in StreamVerifier::execute(&flac)? {
                 errors.push(error);
             }
         }
-        if errors.iter().any(|rule| matches!(rule, &PathTooLong(_))) {
+        if too_long {
             Shortener::suggest_album_name(source);
         }
         Ok(errors)
