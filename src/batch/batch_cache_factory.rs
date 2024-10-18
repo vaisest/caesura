@@ -53,7 +53,7 @@ fn insert_items_from_file(
     } else {
         let reader = BufReader::new(file);
         let items = serde_json::from_reader(reader)
-            .or_else(|e| AppError::deserialization(e, "deserialize batch cache"))?;
+            .or_else(|e| AppError::json(e, "deserialize batch cache"))?;
         insert_vec(cache, items);
         Ok(())
     }

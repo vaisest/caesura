@@ -56,8 +56,8 @@ impl UploadForm {
 
 impl Display for UploadForm {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-        let output = if let Ok(json) = serde_json::to_string_pretty(self) {
-            json
+        let output = if let Ok(yaml) = serde_yaml::to_string(self) {
+            yaml
         } else {
             format!("{self:?}")
         };

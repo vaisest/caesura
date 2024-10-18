@@ -18,4 +18,7 @@ pub trait Options: Clone + Default + Display {
 
     /// Deserialize [`Self`] from JSON
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error>;
+
+    /// Deserialize [`Self`] from YAML
+    fn from_yaml(json: &str) -> Result<Self, serde_yaml::Error>;
 }

@@ -57,7 +57,7 @@ pub struct SharedOptions {
 
     /// Path to the configuration file.
     ///
-    /// Default: `./config.json`
+    /// Default: `./config.yml`
     #[arg(long)]
     pub config: Option<PathBuf>,
 
@@ -254,12 +254,16 @@ impl Options for SharedOptions {
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
+
+    fn from_yaml(yaml: &str) -> Result<Self, serde_yaml::Error> {
+        serde_yaml::from_str(yaml)
+    }
 }
 
 impl Display for SharedOptions {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-        let output = if let Ok(json) = serde_json::to_string_pretty(self) {
-            json
+        let output = if let Ok(yaml) = serde_yaml::to_string(self) {
+            yaml
         } else {
             format!("{self:?}")
         };

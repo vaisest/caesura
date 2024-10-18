@@ -110,7 +110,11 @@ impl AppError {
         Self::external(action, "task", Box::new(error))
     }
 
-    pub fn deserialization<T>(error: serde_json::Error, action: &str) -> Result<T, AppError> {
+    pub fn json<T>(error: serde_json::Error, action: &str) -> Result<T, AppError> {
+        Self::external(action, "deserialization", Box::new(error))
+    }
+
+    pub fn yaml<T>(error: serde_yaml::Error, action: &str) -> Result<T, AppError> {
         Self::external(action, "deserialization", Box::new(error))
     }
 

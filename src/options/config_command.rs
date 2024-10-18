@@ -24,10 +24,10 @@ impl ConfigCommand {
     pub fn execute(&self) -> Result<bool, AppError> {
         let options = self
             .get_options_hashmap()
-            .or_else(|e| AppError::deserialization(e, "collate config"))?;
-        let json = serde_json::to_string_pretty(&options)
-            .or_else(|e| AppError::deserialization(e, "serialize config"))?;
-        println!("{json}");
+            .or_else(|e| AppError::json(e, "collate config"))?;
+        let yaml = serde_yaml::to_string(&options)
+            .or_else(|e| AppError::yaml(e, "serialize config"))?;
+        println!("{yaml}");
         Ok(true)
     }
 

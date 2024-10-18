@@ -107,7 +107,7 @@ impl Api {
         let status_code = response.status();
         let json = response.text().await.unwrap_or_default();
         let deserialized = serde_json::from_str::<ApiResponse<T>>(json.as_str())
-            .or_else(|e| AppError::deserialization(e, format!("deserialize {action}").as_str()));
+            .or_else(|e| AppError::json(e, format!("deserialize {action}").as_str()));
         if status_code.is_success() {
             let deserialized = deserialized?;
             if deserialized.status == "success" {
