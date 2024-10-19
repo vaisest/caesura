@@ -1,7 +1,7 @@
 use crate::formats::ExistingFormat;
 use crate::verify::SourceRule::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
@@ -15,7 +15,7 @@ pub enum SourceRule {
     LossyMaster,
     LossyWeb,
     Trumpable,
-    Existing { formats: HashSet<ExistingFormat> },
+    Existing { formats: BTreeSet<ExistingFormat> },
     MissingDirectory { path: PathBuf },
     NoFlacs { path: PathBuf },
     Imdl { details: String },

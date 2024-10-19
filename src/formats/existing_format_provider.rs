@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use crate::api::Torrent;
 use crate::errors::AppError;
@@ -10,12 +10,12 @@ impl ExistingFormatProvider {
     pub fn get(
         source_torrent: &Torrent,
         group_torrents: &[Torrent],
-    ) -> Result<HashSet<ExistingFormat>, AppError> {
+    ) -> Result<BTreeSet<ExistingFormat>, AppError> {
         group_torrents
             .iter()
             .filter(|&other_torrent| is_alternative_format(source_torrent, other_torrent))
             .map(Torrent::get_format)
-            .collect::<Result<HashSet<_>, _>>()
+            .collect::<Result<BTreeSet<_>, _>>()
     }
 }
 

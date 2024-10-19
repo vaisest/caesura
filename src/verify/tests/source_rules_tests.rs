@@ -1,13 +1,13 @@
 use crate::formats::ExistingFormat;
 use crate::verify::SourceRule;
 use crate::verify::SourceRule::*;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::path::PathBuf;
 
 #[test]
 fn test_serialize_source_rules_vec() {
     // Arrange
-    let mut existing_formats = HashSet::new();
+    let mut existing_formats = BTreeSet::new();
     existing_formats.insert(ExistingFormat::_320);
     existing_formats.insert(ExistingFormat::Flac);
     let file = PathBuf::from("/path/to/file.flac");

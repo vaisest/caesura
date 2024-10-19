@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use di::{injectable, Ref};
 
@@ -16,7 +16,7 @@ impl TargetFormatProvider {
     pub fn get(
         &self,
         source: SourceFormat,
-        existing: &HashSet<ExistingFormat>,
+        existing: &BTreeSet<ExistingFormat>,
     ) -> Vec<TargetFormat> {
         if self.options.allow_existing == Some(true) {
             self.get_with_existing(source)
@@ -29,7 +29,7 @@ impl TargetFormatProvider {
     pub fn get_max_path_length(
         &self,
         source: SourceFormat,
-        existing: &HashSet<ExistingFormat>,
+        existing: &BTreeSet<ExistingFormat>,
     ) -> Option<TargetFormat> {
         let mut targets = self.get(source, existing);
         targets.sort();
@@ -38,16 +38,16 @@ impl TargetFormatProvider {
 
     /// Filter the target formats to exclude the source format.
     fn get_with_existing(&self, source: SourceFormat) -> Vec<TargetFormat> {
-        let override_existing = [source.to_existing()];
-        self.get_targets_except_excluded(&HashSet::from(override_existing))
+        let set = BTreeSet::from([source.to_existing()]);
+        self.get_targets_except_excluded(&set)
     }
 
     /// Filter the target formats to exclude existing formats (which will include the source format).
-    fn get_without_existing(&self, existing: &HashSet<ExistingFormat>) -> Vec<TargetFormat> {
+    fn get_without_existing(&self, existing: &BTreeSet<ExistingFormat>) -> Vec<TargetFormat> {
         self.get_targets_except_excluded(existing)
     }
 
-    fn get_targets_except_excluded(&self, exclude: &HashSet<ExistingFormat>) -> Vec<TargetFormat> {
+    fn get_targets_except_excluded(&self, exclude: &BTreeSet<ExistingFormat>) -> Vec<TargetFormat> {
         self.options
             .target
             .clone()

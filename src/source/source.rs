@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt;
 use std::path::PathBuf;
 
@@ -18,7 +18,7 @@ pub struct Source {
 
     pub group: Group,
 
-    pub existing: HashSet<ExistingFormat>,
+    pub existing: BTreeSet<ExistingFormat>,
 
     pub format: SourceFormat,
 

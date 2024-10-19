@@ -3,16 +3,17 @@ use crate::errors::AppError;
 use crate::formats::SourceFormat;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 /// Format of an existing release.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize, ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum ExistingFormat {
-    Flac24,
-    Flac,
+    Flac24 = 0,
+    Flac = 1,
     #[serde(rename = "320")]
-    _320,
-    V0,
+    _320 = 2,
+    V0 = 3,
 }
 
 impl ExistingFormat {
@@ -23,6 +24,20 @@ impl ExistingFormat {
             ExistingFormat::Flac => Ok(SourceFormat::Flac),
             _ => AppError::explained("get source format", "Format is not FLAC".to_owned()),
         }
+    }
+}
+
+impl PartialOrd for ExistingFormat {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for ExistingFormat {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let left = *self as isize;
+        let right = *other as isize;
+        left.cmp(&right)
     }
 }
 

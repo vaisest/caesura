@@ -1,14 +1,14 @@
 use crate::formats::{ExistingFormat, SourceFormat, TargetFormat, TargetFormatProvider};
 use crate::options::TargetOptions;
 use di::Ref;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 #[test]
 fn from_flac24_without_existing() {
     // Arrange
     let source = SourceFormat::Flac24;
     let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
-    let existing = HashSet::from([ExistingFormat::Flac24, ExistingFormat::_320]);
+    let existing = BTreeSet::from([ExistingFormat::Flac24, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
     // Act
@@ -23,7 +23,7 @@ fn from_flac_without_existing() {
     // Arrange
     let source = SourceFormat::Flac;
     let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
-    let existing = HashSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
+    let existing = BTreeSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
     // Act
@@ -39,7 +39,7 @@ fn from_flac24_with_existing() {
     let source = SourceFormat::Flac24;
     let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
     let source_format = ExistingFormat::Flac;
-    let existing = HashSet::from([source_format]);
+    let existing = BTreeSet::from([source_format]);
     let provider = create_provider(target, true);
 
     // Act
@@ -58,7 +58,7 @@ fn from_flac_with_existing() {
     let source = SourceFormat::Flac;
     let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
     let source_format = ExistingFormat::Flac;
-    let existing = HashSet::from([source_format]);
+    let existing = BTreeSet::from([source_format]);
     let provider = create_provider(target, true);
 
     // Act
@@ -73,7 +73,7 @@ fn from_flac_applies_allowed() {
     // Arrange
     let source = SourceFormat::Flac;
     let target = vec![TargetFormat::_320, TargetFormat::V0];
-    let existing = HashSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
+    let existing = BTreeSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
     // Act
@@ -88,7 +88,7 @@ fn from_flac_applies_allowed_none() {
     // Arrange
     let source = SourceFormat::Flac;
     let target = vec![TargetFormat::_320];
-    let existing = HashSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
+    let existing = BTreeSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
     // Act
