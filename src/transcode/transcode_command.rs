@@ -1,7 +1,6 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
-use std::fmt::Display;
 
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
@@ -9,6 +8,7 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::JobRunner;
 use crate::logging::Colors;
+use crate::naming::join_humanized;
 use crate::options::{Options, SharedOptions, TargetOptions};
 use crate::source::*;
 use crate::transcode::{AdditionalJobFactory, TranscodeJobFactory};
@@ -137,22 +137,5 @@ impl TranscodeCommand {
         }
         debug!("{} torrents {}", "Created".bold(), source);
         Ok(())
-    }
-}
-
-fn join_humanized<T: Display>(strings: &[T]) -> String {
-    let count = strings.len();
-    if count == 0 {
-        String::new()
-    } else if count == 1 {
-        format!("{}", strings.first().expect("should be 1"))
-    } else {
-        let last = strings.last().expect("should be at least 2");
-        let separated: Vec<String> = strings
-            .iter()
-            .take(count - 1)
-            .map(|x| format!("{x}"))
-            .collect();
-        format!("{} and {last}", separated.join(", "))
     }
 }
