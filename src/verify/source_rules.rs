@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
-pub const MAX_PATH_LENGTH: usize = 180;
+pub const MAX_PATH_LENGTH: isize = 180;
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]

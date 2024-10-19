@@ -108,6 +108,7 @@ impl VerifyCommand {
         errors
     }
 
+    #[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
     fn flac_checks(&self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
         if !source.directory.exists() || !source.directory.is_dir() {
             return Ok(vec![MissingDirectory {
@@ -128,8 +129,10 @@ impl VerifyCommand {
         for flac in flacs {
             if let Some(max_path) = max_target {
                 let path = self.paths.get_transcode_path(source, max_path, &flac);
-                let excess = path.to_string_lossy().len() - MAX_PATH_LENGTH;
+                let length = path.to_string_lossy().len() as isize;
+                let excess = length - MAX_PATH_LENGTH;
                 if excess > 0 {
+                    let excess = excess as usize;
                     errors.push(Length { path, excess });
                     Shortener::suggest_track_name(&flac);
                     too_long = true;
