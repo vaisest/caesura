@@ -104,7 +104,7 @@ fn from_flac_applies_allowed_none() {
 fn create_provider(target: BTreeSet<TargetFormat>, allow_existing: bool) -> TargetFormatProvider {
     TargetFormatProvider {
         options: Ref::new(TargetOptions {
-            target: Some(target.iter().cloned().collect()),
+            target: Some(target.iter().copied().collect()),
             allow_existing: Some(allow_existing),
         }),
     }
