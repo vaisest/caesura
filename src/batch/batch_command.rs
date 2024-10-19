@@ -1,9 +1,10 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{debug, info, trace};
+use std::fmt::Write;
 
-use crate::batch::BatchCacheFactory;
 use crate::batch::BatchCacheItem;
+use crate::batch::{BatchCache, BatchCacheFactory};
 use crate::errors::AppError;
 use crate::options::{
     BatchOptions, FileOptions, Options, SharedOptions, SpectrogramOptions, TargetOptions,
@@ -77,10 +78,7 @@ impl BatchCommand {
                     continue;
                 }
             };
-            if let Some(reason) = self.verify(&source).await? {
-                cache.update(&item.path, |item| item.set_skipped(reason.clone()));
-                debug!("{} {item}", "Skipping".bold());
-                trace!("{reason}");
+            if !self.verify(&source, &mut cache, &item).await {
                 continue;
             }
             if !skip_spectrogram {
@@ -136,21 +134,32 @@ impl BatchCommand {
             .await
     }
 
-    async fn verify(&mut self, source: &Source) -> Result<Option<String>, AppError> {
-        let errors: Vec<String> = self
+    async fn verify(
+        &mut self,
+        source: &Source,
+        cache: &mut BatchCache,
+        item: &BatchCacheItem,
+    ) -> bool {
+        let status = self
             .verify
             .write()
             .expect("VerifyCommand should be writeable")
             .execute(source)
-            .await?
-            .iter()
-            .map(ToString::to_string)
-            .collect();
-        if errors.is_empty() {
-            Ok(None)
-        } else {
-            let reason = errors.join(". ");
-            Ok(Some(reason))
+            .await;
+        if status.verified {
+            return true;
         }
+        debug!("{} {source}", "Skipping".bold());
+        let reason = status
+            .violations
+            .into_iter()
+            .fold(String::new(), |mut buffer, violation| {
+                writeln!(buffer, "{violation}").expect("should be able to use string as a buffer");
+                buffer
+            });
+        trace!("{reason}");
+        // TODO: Update cache to accept the reason
+        cache.update(&item.path, |item| item.set_skipped(reason.clone()));
+        false
     }
 }

@@ -24,6 +24,7 @@ pub enum SourceRule {
     FlacError { path: PathBuf, error: String },
     SampleRate { path: PathBuf, rate: u32 },
     Channels { path: PathBuf, count: u32 },
+    Error { domain: String, details: String },
 }
 
 impl Display for SourceRule {
@@ -49,6 +50,7 @@ impl Display for SourceRule {
                 format!("Too many channels: {count}: {path:?}")
             }
             FlacError { path, error } => format!("FLAC stream error: {error}: {path:?}"),
+            Error { domain, details } => format!("A {domain} error occured:\n{details}"),
         };
         message.fmt(formatter)
     }

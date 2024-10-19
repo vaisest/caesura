@@ -1,4 +1,3 @@
-use crate::errors::AppError;
 use crate::fs::FlacFile;
 use crate::transcode::get_resample_rate;
 use crate::verify::SourceRule;
@@ -7,8 +6,7 @@ use crate::verify::SourceRule::*;
 pub struct StreamVerifier;
 
 impl StreamVerifier {
-    #[allow(clippy::unnecessary_wraps)]
-    pub fn execute(flac: &FlacFile) -> Result<Vec<SourceRule>, AppError> {
+    pub fn execute(flac: &FlacFile) -> Vec<SourceRule> {
         let mut errors = Vec::new();
         let info = match flac.get_stream_info() {
             Ok(info) => info,
@@ -17,7 +15,7 @@ impl StreamVerifier {
                     path: flac.path.clone(),
                     error: format!("{claxon_error}"),
                 });
-                return Ok(errors);
+                return errors;
             }
         };
         if get_resample_rate(&info).is_none() {
@@ -32,6 +30,6 @@ impl StreamVerifier {
                 count: info.channels,
             });
         }
-        Ok(errors)
+        errors
     }
 }
