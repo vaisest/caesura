@@ -36,6 +36,18 @@ pub fn get_torrent_id_from_torrent_url(url: &str, base: &String) -> Option<i64> 
 }
 
 #[must_use]
+pub fn get_torrent_id_from_torrent_url_relaxed(url: &str) -> Option<i64> {
+    let id = Regex::new(r"/torrents\.php\?torrentid=(\d+)(#torrent\d+)?$")
+        .expect("Regex should compile")
+        .captures(url)?
+        .get(1)?
+        .as_str()
+        .parse::<i64>()
+        .expect("Number can be parsed");
+    Some(id)
+}
+
+#[must_use]
 #[allow(dead_code)]
 pub fn get_group_id_from_url(url: &str, base: &String) -> Option<i64> {
     let id = Regex::new(

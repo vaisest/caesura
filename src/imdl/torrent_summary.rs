@@ -5,6 +5,7 @@ use serde::Deserialize;
 /// <https://github.com/casey/intermodal/blob/master/src/torrent_summary.rs>
 #[derive(Deserialize)]
 #[allow(dead_code)]
+#[derive(Default)]
 pub struct TorrentSummary {
     pub name: String,
     pub comment: Option<String>,

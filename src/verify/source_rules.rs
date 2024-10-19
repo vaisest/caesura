@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 pub const MAX_PATH_LENGTH: isize = 180;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum SourceRule {
     Category { actual: String },
