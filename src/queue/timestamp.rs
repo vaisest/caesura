@@ -6,7 +6,20 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimeStamp {
-    pub datetime: DateTime<Utc>,
+    datetime: DateTime<Utc>,
+}
+
+impl TimeStamp {
+    pub fn now() -> Self {
+        TimeStamp {
+            datetime: Utc::now(),
+        }
+    }
+
+    pub fn from_rfc3339(s: &str) -> Result<Self, chrono::ParseError> {
+        let datetime = DateTime::parse_from_rfc3339(s)?.with_timezone(&Utc);
+        Ok(TimeStamp { datetime })
+    }
 }
 
 impl Serialize for TimeStamp {

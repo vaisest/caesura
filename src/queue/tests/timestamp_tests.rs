@@ -1,14 +1,9 @@
 use crate::queue::TimeStamp;
-use chrono::{DateTime, Utc};
 
 #[test]
 fn test_serialize_timestamp() {
-    let datetime = DateTime::parse_from_rfc3339("2024-10-18T12:34:56Z")
-        .expect("")
-        .with_timezone(&Utc);
-    let timestamp = TimeStamp { datetime };
-
-    let serialized = serde_json::to_string(&timestamp).expect("");
+    let timestamp = TimeStamp::from_rfc3339("2024-10-18T12:34:56Z").unwrap();
+    let serialized = serde_json::to_string(&timestamp).unwrap();
     assert_eq!(serialized, "\"2024-10-18T12:34:56+00:00\"");
 }
 
@@ -16,13 +11,10 @@ fn test_serialize_timestamp() {
 fn deserialize_timestamp() {
     // Arrange
     let json = "\"2024-10-18T12:34:56+00:00\"";
-    let deserialized: TimeStamp = serde_json::from_str(json).expect("");
+    let deserialized: TimeStamp = serde_json::from_str(json).unwrap();
 
     // Act
-    let expected = DateTime::parse_from_rfc3339("2024-10-18T12:34:56Z")
-        .expect("")
-        .with_timezone(&Utc);
-    let expected = TimeStamp { datetime: expected };
+    let expected = TimeStamp::from_rfc3339("2024-10-18T12:34:56Z").unwrap();
 
     // Assert
     assert_eq!(deserialized, expected);
@@ -31,12 +23,11 @@ fn deserialize_timestamp() {
 #[test]
 fn round_trip_serialization() {
     // Arrange
-    let datetime = Utc::now();
-    let timestamp = TimeStamp { datetime };
+    let timestamp = TimeStamp::now();
 
     // Act
-    let serialized = serde_json::to_string(&timestamp).expect("");
-    let deserialized: TimeStamp = serde_json::from_str(&serialized).expect("");
+    let serialized = serde_json::to_string(&timestamp).unwrap();
+    let deserialized: TimeStamp = serde_json::from_str(&serialized).unwrap();
 
     // Assert
     assert_eq!(timestamp, deserialized);
