@@ -31,7 +31,7 @@ pub struct UploadCommand {
 }
 
 impl UploadCommand {
-    pub async fn execute(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.upload_options.validate() {
             return Ok(false);
         }
@@ -41,10 +41,10 @@ impl UploadCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        self.execute_internal(&source).await
+        self.execute(&source).await
     }
 
-    pub async fn execute_internal(&mut self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&mut self, source: &Source) -> Result<bool, AppError> {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
         for target in targets {

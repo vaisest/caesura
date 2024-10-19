@@ -36,7 +36,7 @@ async fn transcode_command() -> Result<(), AppError> {
         .expect("Source provider should not fail");
 
     // Act
-    transcoder.execute().await?;
+    transcoder.execute_cli().await?;
 
     // Assert
     let generated_files = DirectoryReader::new()

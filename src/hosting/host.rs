@@ -41,19 +41,19 @@ impl Host {
                     .get_required_mut::<BatchCommand>()
                     .write()
                     .expect("BatchCommand should be available to write")
-                    .execute()
+                    .execute_cli()
                     .await
             }
             Spectrogram { .. } => {
                 self.services
                     .get_required::<SpectrogramCommand>()
-                    .execute()
+                    .execute_cli()
                     .await
             }
             Transcode { .. } => {
                 self.services
                     .get_required::<TranscodeCommand>()
-                    .execute()
+                    .execute_cli()
                     .await
             }
             Upload { .. } => {
@@ -61,7 +61,7 @@ impl Host {
                     .get_required_mut::<UploadCommand>()
                     .write()
                     .expect("UploadCommand should be available to write")
-                    .execute()
+                    .execute_cli()
                     .await
             }
             Verify { .. } => {
@@ -69,7 +69,7 @@ impl Host {
                     .get_required_mut::<VerifyCommand>()
                     .write()
                     .expect("VerifyCommand should be available to write")
-                    .execute()
+                    .execute_cli()
                     .await
             }
         }

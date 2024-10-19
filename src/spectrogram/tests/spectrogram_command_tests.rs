@@ -33,7 +33,7 @@ async fn spectrogram_command() -> Result<(), AppError> {
         .expect("Source provider should not fail");
 
     // Act
-    generator.execute().await?;
+    generator.execute_cli().await?;
 
     // Assert
     let generated_files: Vec<PathBuf> = DirectoryReader::new()

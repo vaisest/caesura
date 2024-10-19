@@ -20,7 +20,7 @@ async fn verify_command() -> Result<(), AppError> {
         .expect("verifier should be available to write");
 
     // Act
-    let _is_verified = verifier.execute().await?;
+    let _is_verified = verifier.execute_cli().await?;
 
     // Assert not required
     Ok(())

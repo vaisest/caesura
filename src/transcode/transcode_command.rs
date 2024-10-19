@@ -28,7 +28,7 @@ pub struct TranscodeCommand {
 }
 
 impl TranscodeCommand {
-    pub async fn execute(&self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.target_options.validate() {
             return Ok(false);
         }
@@ -38,10 +38,10 @@ impl TranscodeCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        self.execute_internal(&source).await
+        self.execute(&source).await
     }
 
-    pub async fn execute_internal(&self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
         let targets = self.targets.get(source.format, &source.existing);
         let targets = self.skip_completed(source, &targets);
         if targets.is_empty() {

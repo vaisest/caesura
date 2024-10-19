@@ -23,7 +23,7 @@ pub struct SpectrogramCommand {
 
 impl SpectrogramCommand {
     /// Generate spectrogram images from flac files.
-    pub async fn execute(&self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.spectrogram_options.validate() {
             return Ok(false);
         }
@@ -33,11 +33,11 @@ impl SpectrogramCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        self.execute_internal(&source).await
+        self.execute(&source).await
     }
 
     /// Generate spectrogram images from flac files.
-    pub async fn execute_internal(&self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
         info!("{} spectrograms for {}", "Creating".bold(), source);
         let collection = Collector::get_flacs(&source.directory);
         let jobs = self.factory.create(&collection, source);

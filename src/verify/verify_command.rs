@@ -27,7 +27,7 @@ pub struct VerifyCommand {
 }
 
 impl VerifyCommand {
-    pub async fn execute(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.verify_options.validate() {
             return Ok(false);
         }
@@ -37,7 +37,7 @@ impl VerifyCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        let errors = self.execute_internal(&source).await?;
+        let errors = self.execute(&source).await?;
         let is_verified = errors.is_empty();
         if is_verified {
             info!("{} {}", "Verified".bold(), source);
@@ -50,7 +50,7 @@ impl VerifyCommand {
         Ok(is_verified)
     }
 
-    pub async fn execute_internal(&mut self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
+    pub async fn execute(&mut self, source: &Source) -> Result<Vec<SourceRule>, AppError> {
         debug!("{} {}", "Verifying".bold(), source);
         Self::name_checks(source);
         let mut api_errors = self.api_checks(source);

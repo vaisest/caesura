@@ -34,7 +34,7 @@ pub struct BatchCommand {
 }
 
 impl BatchCommand {
-    pub async fn execute(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate()
             || !self.verify_options.validate()
             || !self.target_options.validate()
@@ -84,9 +84,9 @@ impl BatchCommand {
                 continue;
             }
             if !skip_spectrogram {
-                self.spectrogram.execute_internal(&source).await?;
+                self.spectrogram.execute(&source).await?;
             }
-            if self.transcode.execute_internal(&source).await? {
+            if self.transcode.execute(&source).await? {
                 cache.update(&item.path, BatchCacheItem::set_transcoded);
             } else {
                 cache.update(&item.path, |item| {
@@ -103,7 +103,7 @@ impl BatchCommand {
                     .upload
                     .write()
                     .expect("UploadCommand should be writeable")
-                    .execute_internal(&source)
+                    .execute(&source)
                     .await?
                 {
                     cache.update(&item.path, BatchCacheItem::set_uploaded);
@@ -141,7 +141,7 @@ impl BatchCommand {
             .verify
             .write()
             .expect("VerifyCommand should be writeable")
-            .execute_internal(source)
+            .execute(source)
             .await?
             .iter()
             .map(ToString::to_string)
