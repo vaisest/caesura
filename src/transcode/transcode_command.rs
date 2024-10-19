@@ -1,6 +1,7 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
+use std::collections::BTreeSet;
 
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
@@ -56,16 +57,16 @@ impl TranscodeCommand {
     pub fn skip_completed(
         &self,
         source: &Source,
-        targets: &Vec<TargetFormat>,
-    ) -> Vec<TargetFormat> {
-        let mut out: Vec<TargetFormat> = Vec::new();
+        targets: &BTreeSet<TargetFormat>,
+    ) -> BTreeSet<TargetFormat> {
+        let mut out: BTreeSet<TargetFormat> = BTreeSet::new();
         for target in targets {
             let path = self.paths.get_torrent_path(source, *target);
             if path.exists() {
                 debug!("{} existing {target} transcode", "Found".bold());
                 trace!("{path:?}");
             } else {
-                out.push(*target);
+                out.insert(*target);
             }
         }
         out
@@ -74,7 +75,7 @@ impl TranscodeCommand {
     pub async fn execute_transcode(
         &self,
         source: &Source,
-        targets: &Vec<TargetFormat>,
+        targets: &BTreeSet<TargetFormat>,
     ) -> Result<(), AppError> {
         let flacs = Collector::get_flacs(&source.directory);
         info!(
@@ -96,7 +97,7 @@ impl TranscodeCommand {
     pub async fn execute_additional(
         &self,
         source: &Source,
-        targets: &Vec<TargetFormat>,
+        targets: &BTreeSet<TargetFormat>,
     ) -> Result<(), AppError> {
         let files = Collector::get_additional(&source.directory);
         debug!(
@@ -116,7 +117,7 @@ impl TranscodeCommand {
     pub async fn execute_torrent(
         &self,
         source: &Source,
-        targets: &Vec<TargetFormat>,
+        targets: &BTreeSet<TargetFormat>,
     ) -> Result<(), AppError> {
         debug!("{} torrents {}", "Creating".bold(), source);
         for target in targets {

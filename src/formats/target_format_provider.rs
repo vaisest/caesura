@@ -17,7 +17,7 @@ impl TargetFormatProvider {
         &self,
         source: SourceFormat,
         existing: &BTreeSet<ExistingFormat>,
-    ) -> Vec<TargetFormat> {
+    ) -> BTreeSet<TargetFormat> {
         if self.options.allow_existing == Some(true) {
             self.get_with_existing(source)
         } else {
@@ -26,28 +26,33 @@ impl TargetFormatProvider {
     }
 
     /// Get the target format with the longest path length.
+    ///
+    /// `FLAC` + `.flac` = 9 characters
+    /// `320` + `.mp3` = 7 characters
+    /// `V0` + `.mp3` = 6 characters
     pub fn get_max_path_length(
         &self,
         source: SourceFormat,
         existing: &BTreeSet<ExistingFormat>,
     ) -> Option<TargetFormat> {
-        let mut targets = self.get(source, existing);
-        targets.sort();
-        targets.last().copied()
+        self.get(source, existing).first().copied()
     }
 
     /// Filter the target formats to exclude the source format.
-    fn get_with_existing(&self, source: SourceFormat) -> Vec<TargetFormat> {
+    fn get_with_existing(&self, source: SourceFormat) -> BTreeSet<TargetFormat> {
         let set = BTreeSet::from([source.to_existing()]);
         self.get_targets_except_excluded(&set)
     }
 
     /// Filter the target formats to exclude existing formats (which will include the source format).
-    fn get_without_existing(&self, existing: &BTreeSet<ExistingFormat>) -> Vec<TargetFormat> {
+    fn get_without_existing(&self, existing: &BTreeSet<ExistingFormat>) -> BTreeSet<TargetFormat> {
         self.get_targets_except_excluded(existing)
     }
 
-    fn get_targets_except_excluded(&self, exclude: &BTreeSet<ExistingFormat>) -> Vec<TargetFormat> {
+    fn get_targets_except_excluded(
+        &self,
+        exclude: &BTreeSet<ExistingFormat>,
+    ) -> BTreeSet<TargetFormat> {
         self.options
             .target
             .clone()

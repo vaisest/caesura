@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 fn from_flac24_without_existing() {
     // Arrange
     let source = SourceFormat::Flac24;
-    let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
+    let target = BTreeSet::from([TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0]);
     let existing = BTreeSet::from([ExistingFormat::Flac24, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
@@ -15,14 +15,15 @@ fn from_flac24_without_existing() {
     let result = provider.get(source, &existing);
 
     // Assert
-    assert_eq!(result, [TargetFormat::Flac, TargetFormat::V0]);
+    let expected = BTreeSet::from([TargetFormat::Flac, TargetFormat::V0]);
+    assert_eq!(result, expected);
 }
 
 #[test]
 fn from_flac_without_existing() {
     // Arrange
     let source = SourceFormat::Flac;
-    let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
+    let target = BTreeSet::from([TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0]);
     let existing = BTreeSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
@@ -30,14 +31,15 @@ fn from_flac_without_existing() {
     let result = provider.get(source, &existing);
 
     // Assert
-    assert_eq!(result, [TargetFormat::V0]);
+    let expected = BTreeSet::from([TargetFormat::V0]);
+    assert_eq!(result, expected);
 }
 
 #[test]
 fn from_flac24_with_existing() {
     // Arrange
     let source = SourceFormat::Flac24;
-    let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
+    let target = BTreeSet::from([TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0]);
     let source_format = ExistingFormat::Flac;
     let existing = BTreeSet::from([source_format]);
     let provider = create_provider(target, true);
@@ -46,17 +48,15 @@ fn from_flac24_with_existing() {
     let result = provider.get(source, &existing);
 
     // Assert
-    assert_eq!(
-        result,
-        [TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0]
-    );
+    let expected = BTreeSet::from([TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0]);
+    assert_eq!(result, expected);
 }
 
 #[test]
 fn from_flac_with_existing() {
     // Arrange
     let source = SourceFormat::Flac;
-    let target = vec![TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0];
+    let target = BTreeSet::from([TargetFormat::Flac, TargetFormat::_320, TargetFormat::V0]);
     let source_format = ExistingFormat::Flac;
     let existing = BTreeSet::from([source_format]);
     let provider = create_provider(target, true);
@@ -65,14 +65,15 @@ fn from_flac_with_existing() {
     let result = provider.get(source, &existing);
 
     // Assert
-    assert_eq!(result, [TargetFormat::_320, TargetFormat::V0]);
+    let expected = BTreeSet::from([TargetFormat::_320, TargetFormat::V0]);
+    assert_eq!(result, expected);
 }
 
 #[test]
 fn from_flac_applies_allowed() {
     // Arrange
     let source = SourceFormat::Flac;
-    let target = vec![TargetFormat::_320, TargetFormat::V0];
+    let target = BTreeSet::from([TargetFormat::_320, TargetFormat::V0]);
     let existing = BTreeSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
@@ -80,14 +81,15 @@ fn from_flac_applies_allowed() {
     let result = provider.get(source, &existing);
 
     // Assert
-    assert_eq!(result, [TargetFormat::V0]);
+    let expected = BTreeSet::from([TargetFormat::V0]);
+    assert_eq!(result, expected);
 }
 
 #[test]
 fn from_flac_applies_allowed_none() {
     // Arrange
     let source = SourceFormat::Flac;
-    let target = vec![TargetFormat::_320];
+    let target = BTreeSet::from([TargetFormat::_320]);
     let existing = BTreeSet::from([ExistingFormat::Flac, ExistingFormat::_320]);
     let provider = create_provider(target, false);
 
@@ -95,13 +97,14 @@ fn from_flac_applies_allowed_none() {
     let result = provider.get(source, &existing);
 
     // Assert
-    assert_eq!(result, []);
+    let expected = BTreeSet::from([]);
+    assert_eq!(result, expected);
 }
 
-fn create_provider(target: Vec<TargetFormat>, allow_existing: bool) -> TargetFormatProvider {
+fn create_provider(target: BTreeSet<TargetFormat>, allow_existing: bool) -> TargetFormatProvider {
     TargetFormatProvider {
         options: Ref::new(TargetOptions {
-            target: Some(target),
+            target: Some(target.iter().cloned().collect()),
             allow_existing: Some(allow_existing),
         }),
     }

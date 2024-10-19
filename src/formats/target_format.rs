@@ -9,10 +9,10 @@ use std::fmt::{Display, Formatter};
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize, ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum TargetFormat {
-    Flac,
+    Flac = 1,
     #[serde(rename = "320")]
-    _320,
-    V0,
+    _320 = 2,
+    V0 = 3,
 }
 
 impl TargetFormat {
@@ -67,6 +67,8 @@ impl PartialOrd for TargetFormat {
 
 impl Ord for TargetFormat {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.get_name().len().cmp(&other.get_name().len())
+        let left = *self as isize;
+        let right = *other as isize;
+        left.cmp(&right)
     }
 }
