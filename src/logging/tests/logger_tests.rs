@@ -44,7 +44,6 @@ fn log_time_elapsed() {
     trace!("This is a trace message");
 }
 
-
 #[test]
 fn log_time_none() {
     // Arrange

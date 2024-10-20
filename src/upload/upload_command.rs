@@ -9,7 +9,7 @@ use crate::api::{Api, UploadForm};
 use crate::built_info::*;
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
-use crate::fs::{Collector, PathManager};
+use crate::fs::{copy_dir, Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::Job;
 use crate::options::{Options, SharedOptions, UploadOptions};
@@ -121,14 +121,10 @@ impl UploadCommand {
             .hard_link
             .expect("hard_link should be set")
         {
-            hard_link(&source_dir, &target_dir)
-                .await
-                .or_else(|e| AppError::io(e, "hard link transcode content"))?;
+            copy_dir(&source_dir, &target_dir, true).await?;
             "Hard Linked"
         } else {
-            copy(&source_dir, &target_dir)
-                .await
-                .or_else(|e| AppError::io(e, "copy transcode content"))?;
+            copy_dir(&source_dir, &target_dir, false).await?;
             "Copied"
         };
         trace!("{} {source_dir:?} to {target_dir:?}", verb.bold());
