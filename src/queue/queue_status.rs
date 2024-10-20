@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct QueueStatus {
-    /// Did the command succeed?
+    /// Did the queue command succeed?
     pub success: bool,
     /// Number of items added to the queue
     pub added: usize,

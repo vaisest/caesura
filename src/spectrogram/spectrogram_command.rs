@@ -1,12 +1,12 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, info};
+use log::{debug, error, info};
 
 use crate::errors::AppError;
 use crate::fs::*;
 use crate::jobs::JobRunner;
-use crate::logging::Colors;
 use crate::options::{Options, SharedOptions, SpectrogramOptions};
+use crate::queue::TimeStamp;
 use crate::source::{Source, SourceProvider};
 use crate::spectrogram::*;
 
@@ -33,24 +33,50 @@ impl SpectrogramCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        self.execute(&source).await
+        let status = self.execute(&source).await;
+        Ok(status.success)
     }
 
     /// Generate spectrogram images from flac files.
-    pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&self, source: &Source) -> SpectrogramStatus {
         info!("{} spectrograms for {}", "Creating".bold(), source);
         let collection = Collector::get_flacs(&source.directory);
         let jobs = self.factory.create(&collection, source);
         let count = jobs.len();
         self.runner.add(jobs);
-        self.runner.execute().await?;
-        info!("{} {} spectrograms for {}", "Created".bold(), count, source);
-        let output_dir = self.paths.get_spectrogram_dir(source);
-        debug!(
-            "{} {}",
-            "in".gray(),
-            output_dir.to_string_lossy().to_string().gray()
+        let status = match self.runner.execute().await {
+            Ok(()) => SpectrogramStatus {
+                success: true,
+                path: Some(self.paths.get_spectrogram_dir(source)),
+                count,
+                completed: TimeStamp::now(),
+                error: None,
+            },
+            Err(error) => SpectrogramStatus {
+                success: false,
+                path: None,
+                count,
+                completed: TimeStamp::now(),
+                error: Some(error),
+            },
+        };
+        info!(
+            "{} {} spectrograms for {}",
+            "Created".bold(),
+            status.count,
+            source
         );
-        Ok(true)
+        if let Some(error) = &status.error {
+            error!("{error}");
+        } else {
+            let path = status
+                .path
+                .clone()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            debug!("in {path}");
+        }
+        status
     }
 }

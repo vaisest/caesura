@@ -82,7 +82,7 @@ impl BatchCommand {
                 continue;
             }
             if !skip_spectrogram {
-                self.spectrogram.execute(&source).await?;
+                self.spectrogram.execute(&source).await;
             }
             if self.transcode.execute(&source).await? {
                 cache.update(&item.path, BatchCacheItem::set_transcoded);
