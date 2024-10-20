@@ -17,7 +17,7 @@ fn from_torrent_with_valid_data() {
     };
 
     // Act
-    let result = QueueItem::from_torrent(torrent).unwrap();
+    let result = QueueItem::from_torrent(torrent);
 
     // Assert
     assert_eq!(result.name, name);
@@ -41,7 +41,7 @@ fn from_torrent_with_missing_source() {
     let result = QueueItem::from_torrent(torrent);
 
     // Assert
-    assert!(result.is_none());
+    assert!(result.indexer.is_empty());
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn from_torrent_with_missing_comment() {
     let result = QueueItem::from_torrent(torrent);
 
     // Assert
-    assert!(result.is_none());
+    assert!(result.id.is_none());
 }
 
 #[test]
@@ -77,5 +77,5 @@ fn from_torrent_with_invalid_comment() {
     let result = QueueItem::from_torrent(torrent);
 
     // Assert
-    assert!(result.is_none());
+    assert!(result.id.is_none());
 }

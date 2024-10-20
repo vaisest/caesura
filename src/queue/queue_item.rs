@@ -39,16 +39,16 @@ impl QueueItem {
     /// Returns `None` if the torrent does not have a source or comment
     /// or the comment does not contain a torrent id
     #[must_use]
-    pub fn from_torrent(torrent: TorrentSummary) -> Option<Self> {
-        let source = torrent.source?;
-        let comment = torrent.comment?;
-        get_torrent_id_from_torrent_url_relaxed(&comment).map(|id| Self {
+    pub fn from_torrent(torrent: TorrentSummary) -> Self {
+        let comment = torrent.comment.unwrap_or_default();
+        let id = get_torrent_id_from_torrent_url_relaxed(&comment);
+        Self {
             name: torrent.name,
             hash: torrent.info_hash,
-            indexer: source.to_lowercase(),
-            id: Some(id),
+            indexer: torrent.source.unwrap_or_default().to_lowercase(),
+            id,
             ..Self::default()
-        })
+        }
     }
 }
 
