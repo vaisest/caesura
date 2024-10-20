@@ -16,10 +16,8 @@ use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::Logger;
 use crate::options::config_command::ConfigCommand;
-use crate::options::{
-    BatchOptions, FileOptions, Options, OptionsProvider, RunnerOptions, SharedOptions,
-    SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions,
-};
+use crate::options::*;
+use crate::queue::{Queue, QueueCommand};
 use crate::source::{IdProvider, SourceProvider};
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
@@ -47,6 +45,7 @@ impl HostBuilder {
             .add(OptionsProvider::singleton())
             .add(BatchOptions::singleton())
             .add(FileOptions::singleton())
+            .add(QueueOptions::singleton())
             .add(RunnerOptions::singleton())
             .add(SharedOptions::singleton())
             .add(SpectrogramOptions::singleton())
@@ -70,6 +69,13 @@ impl HostBuilder {
             // Add batch services
             .add(BatchCommand::transient().as_mut())
             .add(BatchCacheFactory::transient().as_mut())
+            // Add queue services
+            .add(QueueCommand::transient().as_mut())
+            .add(singleton_as_self().from(|provider| {
+                let options = provider.get_required::<QueueOptions>();
+                let queue = Queue::from_options(options);
+                RefMut::new(Mut::new(queue))
+            }))
             // Add spectrogram services
             .add(SpectrogramCommand::transient())
             .add(SpectrogramJobFactory::transient())

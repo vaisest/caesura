@@ -2,8 +2,8 @@ use clap::Subcommand;
 
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{
-    BatchOptions, FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions,
-    UploadOptions,
+    BatchOptions, FileOptions, QueueOptions, RunnerOptions, SharedOptions, SpectrogramOptions,
+    TargetOptions, UploadOptions,
 };
 
 /// Cli sub-commands and arguments
@@ -11,6 +11,7 @@ use crate::options::{
 pub enum CommandArguments {
     /// Read the config file if it exists and concatenate default values.
     Config,
+
     /// Verify, transcode, and upload from multiple FLAC sources in one command.
     Batch {
         #[command(flatten)]
@@ -27,6 +28,16 @@ pub enum CommandArguments {
         file: FileOptions,
         #[command(flatten)]
         batch: BatchOptions,
+        #[command(flatten)]
+        queue: QueueOptions,
+    },
+
+    /// Add FLAC sources to the queue without transcoding
+    Queue {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        queue: QueueOptions,
     },
 
     /// Generate spectrograms for each track of a FLAC source.

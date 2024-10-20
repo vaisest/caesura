@@ -6,6 +6,7 @@ use crate::cli::CommandArguments::*;
 use crate::errors::AppError;
 use crate::logging::*;
 use crate::options::config_command::ConfigCommand;
+use crate::queue::QueueCommand;
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
@@ -41,6 +42,14 @@ impl Host {
                     .get_required_mut::<BatchCommand>()
                     .write()
                     .expect("BatchCommand should be available to write")
+                    .execute_cli()
+                    .await
+            }
+            Queue { .. } => {
+                self.services
+                    .get_required_mut::<QueueCommand>()
+                    .write()
+                    .expect("QueueCommand should be available to write")
                     .execute_cli()
                     .await
             }

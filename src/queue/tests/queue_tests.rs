@@ -5,21 +5,25 @@ use std::io::{Read, Write};
 
 const QUEUE_YAML: &str = r"abc_transcoded:
   name: 1 Transcoded but not uploaded
+  path: /path/to/abc_transcoded.torrent
   hash: abc_transcoded
   indexer: abc
   transcoded: true
 abc_uploaded:
   name: 2 Transcoded and uploaded
+  path: /path/to/abc_uploaded.torrent
   hash: abc_uploaded
   indexer: abc
   transcoded: true
   uploaded: true
 cba_item:
   name: 3 This item should be skipped
+  path: /path/to/cba_item.torrent
   hash: cba_item
   indexer: cba
 skipped_item:
   name: 4 This item should be skipped
+  path: /path/to/skipped_item.torrent
   hash: skipped_item
   indexer: abc
   skipped: Skipped for a reason
@@ -33,10 +37,10 @@ fn queue_end_to_end() {
     let path = dir.join(file_name);
     let mut file = File::create(path.clone()).unwrap();
     file.write_all(QUEUE_YAML.as_bytes()).unwrap();
-    let mut queue = Queue::new(path.clone());
+    let mut queue = Queue::from_path(path.clone());
 
     // Act LOAD
-    queue.load(path.clone()).unwrap();
+    queue.load().unwrap();
 
     // Assert
     assert_eq!(queue.len(), 4);

@@ -1,14 +1,16 @@
-use std::fmt::{Display, Formatter};
-
 use crate::imdl::TorrentSummary;
 use crate::source::get_torrent_id_from_torrent_url_relaxed;
 use crate::verify::VerifyStatus;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter};
+use std::path::PathBuf;
 
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub struct QueueItem {
     /// Source name
     pub name: String,
+    /// Torrent file path
+    pub path: PathBuf,
     /// Source info hash
     pub hash: String,
     /// Source indexer
@@ -39,11 +41,12 @@ impl QueueItem {
     /// Returns `None` if the torrent does not have a source or comment
     /// or the comment does not contain a torrent id
     #[must_use]
-    pub fn from_torrent(torrent: TorrentSummary) -> Self {
+    pub fn from_torrent(path: PathBuf, torrent: TorrentSummary) -> Self {
         let comment = torrent.comment.unwrap_or_default();
         let id = get_torrent_id_from_torrent_url_relaxed(&comment);
         Self {
             name: torrent.name,
+            path,
             hash: torrent.info_hash,
             indexer: torrent.source.unwrap_or_default().to_lowercase(),
             id,

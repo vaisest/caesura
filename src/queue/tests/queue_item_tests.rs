@@ -1,9 +1,11 @@
 use super::super::*;
 use crate::imdl::TorrentSummary;
+use std::path::PathBuf;
 
 #[test]
 fn from_torrent_with_valid_data() {
     // Arrange
+    let path = PathBuf::from("/path/to/file.torrent");
     let name = "Artist - Album (2018) [FLAC]".to_owned();
     let info_hash = "abcdef1234567890".to_owned();
     let source = "ABC".to_owned();
@@ -17,7 +19,7 @@ fn from_torrent_with_valid_data() {
     };
 
     // Act
-    let result = QueueItem::from_torrent(torrent);
+    let result = QueueItem::from_torrent(path, torrent);
 
     // Assert
     assert_eq!(result.name, name);
@@ -29,6 +31,7 @@ fn from_torrent_with_valid_data() {
 #[test]
 fn from_torrent_with_missing_source() {
     // Arrange
+    let path = PathBuf::from("/path/to/file.torrent");
     let torrent = TorrentSummary {
         name: "Example Torrent".to_owned(),
         info_hash: "some_hash".to_owned(),
@@ -38,7 +41,7 @@ fn from_torrent_with_missing_source() {
     };
 
     // Act
-    let result = QueueItem::from_torrent(torrent);
+    let result = QueueItem::from_torrent(path, torrent);
 
     // Assert
     assert!(result.indexer.is_empty());
@@ -47,6 +50,7 @@ fn from_torrent_with_missing_source() {
 #[test]
 fn from_torrent_with_missing_comment() {
     // Arrange
+    let path = PathBuf::from("/path/to/file.torrent");
     let torrent = TorrentSummary {
         name: "Example Torrent".to_owned(),
         info_hash: "some_hash".to_owned(),
@@ -56,7 +60,7 @@ fn from_torrent_with_missing_comment() {
     };
 
     // Act
-    let result = QueueItem::from_torrent(torrent);
+    let result = QueueItem::from_torrent(path, torrent);
 
     // Assert
     assert!(result.id.is_none());
@@ -65,6 +69,7 @@ fn from_torrent_with_missing_comment() {
 #[test]
 fn from_torrent_with_invalid_comment() {
     // Arrange
+    let path = PathBuf::from("/path/to/file.torrent");
     let torrent = TorrentSummary {
         name: "Example Torrent".to_owned(),
         info_hash: "some_hash".to_owned(),
@@ -74,7 +79,7 @@ fn from_torrent_with_invalid_comment() {
     };
 
     // Act
-    let result = QueueItem::from_torrent(torrent);
+    let result = QueueItem::from_torrent(path, torrent);
 
     // Assert
     assert!(result.id.is_none());

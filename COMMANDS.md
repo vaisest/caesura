@@ -7,6 +7,7 @@ This document contains the help content for the `caesura` command-line program.
 * [`caesura`↴](#caesura)
 * [`caesura config`↴](#caesura-config)
 * [`caesura batch`↴](#caesura-batch)
+* [`caesura queue`↴](#caesura-queue)
 * [`caesura spectrogram`↴](#caesura-spectrogram)
 * [`caesura transcode`↴](#caesura-transcode)
 * [`caesura upload`↴](#caesura-upload)
@@ -20,8 +21,9 @@ An all-in-one command line tool to **transcode FLAC** audio files and **upload t
 
 ###### **Subcommands:**
 
-* `config` — Generate a config.json file in the current working directory
+* `config` — Read the config file if it exists and concatenate default values
 * `batch` — Verify, transcode, and upload from multiple FLAC sources in one command
+* `queue` — Add FLAC sources to the queue without transcoding
 * `spectrogram` — Generate spectrograms for each track of a FLAC source
 * `transcode` — Transcode each track of a FLAC source to the target formats
 * `upload` — Upload transcodes of a FLAC source
@@ -31,7 +33,7 @@ An all-in-one command line tool to **transcode FLAC** audio files and **upload t
 
 ## `caesura config`
 
-Generate a config.json file in the current working directory
+Read the config file if it exists and concatenate default values
 
 **Usage:** `caesura config`
 
@@ -65,7 +67,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
-* `--content <CONTENT>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directories containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -78,7 +80,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
 * `--config <CONFIG>` — Path to the configuration file.
 
-   Default: `./config.json`
+   Default: `./config.yml`
 * `--log-time <LOG_TIME>` — Time format to use in logs.
 
    Default: `datetime`
@@ -169,6 +171,74 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 * `--cache <CACHE>` — Path to cache file.
 
    Default: `output/cache.json`
+* `--queue <QUEUE>` — Path to queue file.
+
+   Default: `output/queue.yml`
+
+
+
+## `caesura queue`
+
+Add FLAC sources to the queue without transcoding
+
+**Usage:** `caesura queue [OPTIONS] [SOURCE]`
+
+###### **Arguments:**
+
+* `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
+
+   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
+
+###### **Options:**
+
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: Determined by `announce_url`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Determined by `announce_url`
+* `--content <CONTENT>` — Directories containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: `./content`
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
+
+  Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
+
+* `--config <CONFIG>` — Path to the configuration file.
+
+   Default: `./config.yml`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
+* `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
+
+   Default: `./output`
+* `--queue <QUEUE>` — Path to queue file.
+
+   Default: `output/queue.yml`
 
 
 
@@ -200,7 +270,7 @@ Generate spectrograms for each track of a FLAC source
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
-* `--content <CONTENT>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directories containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -213,7 +283,7 @@ Generate spectrograms for each track of a FLAC source
 
 * `--config <CONFIG>` — Path to the configuration file.
 
-   Default: `./config.json`
+   Default: `./config.yml`
 * `--log-time <LOG_TIME>` — Time format to use in logs.
 
    Default: `datetime`
@@ -271,7 +341,7 @@ Transcode each track of a FLAC source to the target formats
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
-* `--content <CONTENT>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directories containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -284,7 +354,7 @@ Transcode each track of a FLAC source to the target formats
 
 * `--config <CONFIG>` — Path to the configuration file.
 
-   Default: `./config.json`
+   Default: `./config.yml`
 * `--log-time <LOG_TIME>` — Time format to use in logs.
 
    Default: `datetime`
@@ -373,7 +443,7 @@ Upload transcodes of a FLAC source
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
-* `--content <CONTENT>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directories containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -386,7 +456,7 @@ Upload transcodes of a FLAC source
 
 * `--config <CONFIG>` — Path to the configuration file.
 
-   Default: `./config.json`
+   Default: `./config.yml`
 * `--log-time <LOG_TIME>` — Time format to use in logs.
 
    Default: `datetime`
@@ -466,7 +536,7 @@ Verify a FLAC source is suitable for transcoding
    Examples: `https://redacted.ch`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
-* `--content <CONTENT>` — Directory containing torrent content.
+* `--content <CONTENT>` — Directories containing torrent content.
 
    Typically this is set as the download directory in your torrent client.
 
@@ -479,7 +549,7 @@ Verify a FLAC source is suitable for transcoding
 
 * `--config <CONFIG>` — Path to the configuration file.
 
-   Default: `./config.json`
+   Default: `./config.yml`
 * `--log-time <LOG_TIME>` — Time format to use in logs.
 
    Default: `datetime`

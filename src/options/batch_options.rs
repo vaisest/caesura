@@ -51,12 +51,6 @@ pub struct BatchOptions {
     /// Default: `output/cache.json`
     #[arg(long)]
     pub cache: Option<PathBuf>,
-
-    /// Path to queue file.
-    ///
-    /// Default: `output/queue.yml`
-    #[arg(long)]
-    pub queue: Option<PathBuf>,
 }
 
 #[injectable]
@@ -106,9 +100,6 @@ impl Options for BatchOptions {
         if self.cache.is_none() {
             self.cache.clone_from(&alternative.cache);
         }
-        if self.queue.is_none() {
-            self.queue.clone_from(&alternative.queue);
-        }
     }
 
     fn apply_defaults(&mut self) {
@@ -126,9 +117,6 @@ impl Options for BatchOptions {
         }
         if self.cache.is_none() {
             self.cache = Some(PathBuf::from("output/cache.json"));
-        }
-        if self.queue.is_none() {
-            self.queue = Some(PathBuf::from("output/queue.yml"));
         }
     }
 
@@ -148,14 +136,6 @@ impl Options for BatchOptions {
                 errors.push(DoesNotExist(
                     "Cache File".to_owned(),
                     cache.to_string_lossy().to_string(),
-                ));
-            }
-        }
-        if let Some(queue) = &self.queue {
-            if !queue.exists() && !queue.is_file() {
-                errors.push(DoesNotExist(
-                    "Queue File".to_owned(),
-                    queue.to_string_lossy().to_string(),
                 ));
             }
         }
