@@ -11,8 +11,11 @@ use crate::jobs::JobRunner;
 use crate::logging::Colors;
 use crate::naming::join_humanized;
 use crate::options::{Options, SharedOptions, TargetOptions};
+use crate::queue::TimeStamp;
 use crate::source::*;
-use crate::transcode::{AdditionalJobFactory, TranscodeJobFactory};
+use crate::transcode::{
+    AdditionalJobFactory, TranscodeFormatStatus, TranscodeJobFactory, TranscodeStatus,
+};
 
 /// Transcode each track of a FLAC source to the target formats.
 #[injectable]
@@ -38,19 +41,55 @@ impl TranscodeCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        self.execute(&source).await
+        let status = self.execute(&source).await;
+        if let Some(error) = &status.error {
+            error!("{error}");
+        }
+        Ok(status.success)
     }
 
-    pub async fn execute(&self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&self, source: &Source) -> TranscodeStatus {
         let targets = self.targets.get(source.format, &source.existing);
         let targets = self.skip_completed(source, &targets);
+        let mut status = TranscodeStatus {
+            success: false,
+            formats: None,
+            additional: None,
+            completed: TimeStamp::now(),
+            error: None,
+        };
         if targets.is_empty() {
-            return Ok(true);
+            status.error = Some(AppError::else_explained(
+                "transcode",
+                "No transcodes to perform".to_owned(),
+            ));
+            return status;
         }
-        self.execute_transcode(source, &targets).await?;
-        self.execute_additional(source, &targets).await?;
-        self.execute_torrent(source, &targets).await?;
-        Ok(true)
+        if let Err(error) = self.execute_transcode(source, &targets).await {
+            status.error = Some(error);
+            status.completed = TimeStamp::now();
+            return status;
+        }
+        let formats: Vec<TranscodeFormatStatus> = targets
+            .iter()
+            .map(|&format| TranscodeFormatStatus {
+                format,
+                path: self.paths.get_transcode_target_dir(source, format),
+            })
+            .collect();
+        status.formats = Some(formats);
+        if let Err(error) = self.execute_additional(source, &targets).await {
+            status.error = Some(error);
+            status.completed = TimeStamp::now();
+            return status;
+        }
+        if let Err(error) = self.execute_torrent(source, &targets).await {
+            status.error = Some(error);
+            status.completed = TimeStamp::now();
+            return status;
+        }
+        status.success = true;
+        status
     }
 
     #[must_use]
@@ -111,6 +150,7 @@ impl TranscodeCommand {
         }
         self.runner.execute_without_publish().await?;
         debug!("{} additional files {}", "Added".bold(), source);
+
         Ok(())
     }
 

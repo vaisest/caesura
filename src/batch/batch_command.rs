@@ -87,14 +87,15 @@ impl BatchCommand {
                     warn!("{error}");
                 }
             }
-            if self.transcode.execute(&source).await? {
-                cache.update(&item.path, BatchCacheItem::set_transcoded);
-            } else {
+            let status = self.transcode.execute(&source).await;
+            if let Some(error) = &status.error {
+                warn!("{error}");
                 cache.update(&item.path, |item| {
                     item.set_failed("transcode failed".to_owned());
                 });
                 continue;
             }
+            cache.update(&item.path, BatchCacheItem::set_transcoded);
             if !skip_upload {
                 if let Some(wait_before_upload) = self.batch_options.get_wait_before_upload() {
                     info!("{} {wait_before_upload:?} before upload", "Waiting".bold());
