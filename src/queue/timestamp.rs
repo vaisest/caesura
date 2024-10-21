@@ -28,7 +28,9 @@ impl Serialize for TimeStamp {
     where
         S: serde::Serializer,
     {
-        let s = self.datetime.to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
+        let s = self
+            .datetime
+            .to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
         serializer.serialize_str(&s)
     }
 }
