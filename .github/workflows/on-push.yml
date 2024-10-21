@@ -108,8 +108,6 @@ jobs:
       uses: actions/cache/save@v4
       with:
         key: ${{ steps.cache-cargo.outputs.cache-primary-key }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-
         path: |
           ~/.cargo/bin/
           ~/.cargo/registry/index/
