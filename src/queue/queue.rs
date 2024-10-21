@@ -11,6 +11,9 @@ use crate::errors::AppError;
 use crate::imdl::ImdlCommand;
 use crate::options::QueueOptions;
 use crate::queue::QueueItem;
+use crate::spectrogram::SpectrogramStatus;
+use crate::transcode::TranscodeStatus;
+use crate::upload::UploadStatus;
 use crate::verify::VerifyStatus;
 
 #[injectable]
@@ -51,58 +54,59 @@ impl Queue {
 
     /// Get the keys of the items that have not been processed.
     ///
-    /// If `skip_upload` is true, only items that have not been uploaded will be returned.
-    /// Otherwise, items that have not been transcoded or uploaded will be returned.
+    /// Items are filtered to ensure they:
+    /// - Match the provided indexer
+    /// - Have no reason to be skipped
+    /// - Have not been uploaded
+    /// - Have not been transcoded, unless `upload_enabled` is true
     ///
     /// Items are sorted by name
-    pub fn get_unprocessed(&mut self, indexer: String, skip_upload: bool) -> Vec<String> {
+    pub fn get_unprocessed(&mut self, indexer: String, upload_enabled: bool) -> Vec<String> {
         let mut items: Vec<&QueueItem> = self
             .items
             .values()
             .filter(|x| {
-                x.skipped.is_none()
-                    && x.uploaded.is_none()
-                    && (!skip_upload || x.transcoded.is_none())
-                    && x.indexer == indexer
+                x.indexer == indexer
+                    && x.skip.is_none()
+                    && x.upload.is_none()
+                    && (upload_enabled || x.transcode.is_none())
             })
             .collect();
         items.sort_by_key(|x| x.name.clone());
         items.iter().map(|x| x.hash.clone()).collect()
     }
 
-    /// Set the skipped reason for an item
-    pub fn set_skipped(&mut self, hash: String, reason: String) {
-        self.items
-            .entry(hash)
-            .and_modify(|x| x.skipped = Some(reason));
+    /// Set the reason an item was skipped
+    pub fn set_skip(&mut self, hash: String, reason: String) {
+        self.items.entry(hash).and_modify(|x| x.skip = Some(reason));
     }
 
-    /// Set the failed reason for an item
-    pub fn set_failed(&mut self, hash: String, reason: String) {
+    /// Set the verify status of an item
+    pub fn set_verify(&mut self, hash: String, status: VerifyStatus) {
         self.items
             .entry(hash)
-            .and_modify(|x| x.failed = Some(reason));
+            .and_modify(|x| x.verify = Some(status));
     }
 
-    /// Set the verified status for an item
-    pub fn set_verified(&mut self, hash: String, status: VerifyStatus) {
+    /// Set the spectrogram status of an item
+    pub fn set_spectrogram(&mut self, hash: String, status: SpectrogramStatus) {
         self.items
             .entry(hash)
-            .and_modify(|x| x.verified = Some(status));
+            .and_modify(|x| x.spectrogram = Some(status));
     }
 
-    /// Set the transcoded status for an item
-    pub fn set_transcoded(&mut self, hash: String) {
+    /// Set the transcode status of an item
+    pub fn set_transcode(&mut self, hash: String, status: TranscodeStatus) {
         self.items
             .entry(hash)
-            .and_modify(|x| x.transcoded = Some(true));
+            .and_modify(|x| x.transcode = Some(status));
     }
 
-    /// Set the uploaded status for an item
-    pub fn set_uploaded(&mut self, hash: String) {
+    /// Set the upload status of an item
+    pub fn set_upload(&mut self, hash: String, status: UploadStatus) {
         self.items
             .entry(hash)
-            .and_modify(|x| x.uploaded = Some(true));
+            .and_modify(|x| x.upload = Some(status));
     }
 
     /// Insert an item into the queue

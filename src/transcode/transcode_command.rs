@@ -31,6 +31,11 @@ pub struct TranscodeCommand {
 }
 
 impl TranscodeCommand {
+    /// Execute [`TranscodeCommand`] from the CLI.
+    ///
+    /// [`Source`] is retrieved from the CLI arguments.
+    ///
+    /// Returns `true` if all the transcodes succeeds.
     pub async fn execute_cli(&self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.target_options.validate() {
             return Ok(false);
@@ -48,6 +53,12 @@ impl TranscodeCommand {
         Ok(status.success)
     }
 
+    /// Execute [`TranscodeCommand`] on a [`Source`].
+    ///
+    /// Returns a [`TranscodeStatus`] indicating the success of the operation and any errors.
+    ///
+    /// Errors are not logged so should be handled by the caller.
+    #[must_use]
     pub async fn execute(&self, source: &Source) -> TranscodeStatus {
         let targets = self.targets.get(source.format, &source.existing);
         let targets = self.skip_completed(source, &targets);
@@ -93,7 +104,7 @@ impl TranscodeCommand {
     }
 
     #[must_use]
-    pub fn skip_completed(
+    fn skip_completed(
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
@@ -111,7 +122,7 @@ impl TranscodeCommand {
         out
     }
 
-    pub async fn execute_transcode(
+    async fn execute_transcode(
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
@@ -133,7 +144,7 @@ impl TranscodeCommand {
         Ok(())
     }
 
-    pub async fn execute_additional(
+    async fn execute_additional(
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
@@ -154,7 +165,7 @@ impl TranscodeCommand {
         Ok(())
     }
 
-    pub async fn execute_torrent(
+    async fn execute_torrent(
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,

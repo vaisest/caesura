@@ -33,6 +33,11 @@ pub struct UploadCommand {
 }
 
 impl UploadCommand {
+    /// Execute [`UploadCommand`] from the CLI.
+    ///
+    /// [`Source`] is retrieved from the CLI arguments.
+    ///
+    /// Returns `true` if all the uploads succeed.
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.upload_options.validate() {
             return Ok(false);
@@ -48,6 +53,12 @@ impl UploadCommand {
         Ok(status.success)
     }
 
+    /// Execute [`UploadCommand`] on a [`Source`].
+    ///
+    /// Returns an [`UploadStatus`] indicating the success of the operation and any errors.
+    ///
+    /// Errors are logged so do NOT need to be handled by the caller.
+    #[must_use]
     pub async fn execute(&mut self, source: &Source) -> UploadStatus {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
@@ -231,7 +242,7 @@ impl UploadCommand {
         .iter()
         .map(|line| format!("[quote]{line}[/quote]"))
         .collect();
-        
+
         lines.join("")
     }
 

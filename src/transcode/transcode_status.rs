@@ -1,8 +1,10 @@
 use crate::errors::AppError;
 use crate::formats::TargetFormat;
 use crate::queue::TimeStamp;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+#[derive(Deserialize, Serialize)]
 pub struct TranscodeStatus {
     /// Did the transcode command succeed?
     pub success: bool,
@@ -17,7 +19,7 @@ pub struct TranscodeStatus {
     pub error: Option<AppError>,
 }
 
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize)]
 pub struct TranscodeFormatStatus {
     /// Did the transcode command succeed?
     pub format: TargetFormat,
@@ -25,7 +27,7 @@ pub struct TranscodeFormatStatus {
     pub path: PathBuf,
 }
 
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize)]
 pub struct AdditionalStatus {
     /// Relative path of the additional file within the transcode directory
     pub path: PathBuf,

@@ -1,8 +1,9 @@
 use crate::errors::AppError;
 use crate::formats::TargetFormat;
 use crate::queue::TimeStamp;
+use serde::{Deserialize, Serialize};
 
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize)]
 pub struct UploadStatus {
     /// Did the upload command succeed?
     pub success: bool,
@@ -18,7 +19,7 @@ pub struct UploadStatus {
     pub errors: Option<Vec<AppError>>,
 }
 
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize)]
 pub struct UploadFormatStatus {
     /// Transcode format
     pub format: TargetFormat,

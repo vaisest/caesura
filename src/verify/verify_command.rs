@@ -28,6 +28,13 @@ pub struct VerifyCommand {
 }
 
 impl VerifyCommand {
+    /// Execute [`VerifyCommand`] from the CLI.
+    ///
+    /// [`Source`] is retrieved from the CLI arguments.
+    ///
+    /// [`SourceRule`] violations are logged as warnings.
+    ///
+    /// Returns `true` if the source is verified.
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.verify_options.validate() {
             return Ok(false);
@@ -50,6 +57,10 @@ impl VerifyCommand {
         Ok(status.verified)
     }
 
+    /// Execute [`VerifyCommand`] on a [`Source`].
+    ///
+    /// [`SourceRule`] violations are not logged so must be handled by the caller.
+    #[must_use]
     pub async fn execute(&mut self, source: &Source) -> VerifyStatus {
         debug!("{} {}", "Verifying".bold(), source);
         Self::name_checks(source);
@@ -68,6 +79,7 @@ impl VerifyCommand {
         }
     }
 
+    /// Validate the source against the API.
     fn api_checks(&self, source: &Source) -> Vec<SourceRule> {
         let mut errors: Vec<SourceRule> = Vec::new();
         if source.group.category_name != "Music" {

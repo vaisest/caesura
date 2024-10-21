@@ -1,20 +1,18 @@
-use colored::Colorize;
-use di::{injectable, Ref, RefMut};
-use log::{debug, info, trace, warn};
-use std::fmt::Write;
-
-use crate::batch::BatchCacheItem;
-use crate::batch::{BatchCache, BatchCacheFactory};
 use crate::errors::AppError;
 use crate::options::{
     BatchOptions, FileOptions, Options, SharedOptions, SpectrogramOptions, TargetOptions,
     VerifyOptions,
 };
+use crate::queue::Queue;
 use crate::source::*;
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
+use colored::Colorize;
+use di::{injectable, Ref, RefMut};
+use log::{debug, error, info, trace, warn};
+use tokio::time::sleep;
 
 /// Batch a FLAC source is suitable for transcoding.
 #[injectable]
@@ -25,16 +23,19 @@ pub struct BatchCommand {
     spectrogram_options: Ref<SpectrogramOptions>,
     file_options: Ref<FileOptions>,
     batch_options: Ref<BatchOptions>,
-    batch_cache_factory: RefMut<BatchCacheFactory>,
-    id_provider: Ref<IdProvider>,
     source_provider: RefMut<SourceProvider>,
     verify: RefMut<VerifyCommand>,
     spectrogram: Ref<SpectrogramCommand>,
     transcode: Ref<TranscodeCommand>,
     upload: RefMut<UploadCommand>,
+    queue: RefMut<Queue>,
 }
 
 impl BatchCommand {
+    /// Execute [`BatchCommand`] from the CLI.
+    ///
+    /// Returns `true` if the batch process succeeds.
+    #[allow(clippy::too_many_lines)]
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate()
             || !self.verify_options.validate()
@@ -45,61 +46,96 @@ impl BatchCommand {
         {
             return Ok(false);
         }
-        let mut cache = self
-            .batch_cache_factory
+        let mut queue = self.queue.write().expect("Queue should be writeable");
+        let mut source_provider = self
+            .source_provider
             .write()
-            .expect("BatchCacheFactory should be writeable")
-            .create()?;
-        let skip_spectrogram = !self
+            .expect("SourceProvider should be writable");
+        let spectrogram_enabled = self
             .batch_options
             .spectrogram
             .expect("spectrogram should be set");
-        let skip_upload = !self.batch_options.upload.expect("upload should be set");
-        let queue = cache.get_queue(skip_upload);
+        let upload_enabled = self.batch_options.upload.expect("upload should be set");
+        let indexer = self
+            .shared_options
+            .indexer
+            .clone()
+            .expect("indexer should be set");
         let limit = self.batch_options.get_limit();
-        debug!("{} {} sources", "Queued".bold(), queue.len());
+        let items = queue.get_unprocessed(indexer.clone(), upload_enabled);
+        if items.is_empty() {
+            info!(
+                "{} items in the queue for {}",
+                "No".bold(),
+                indexer.to_uppercase()
+            );
+            info!("{} the `queue` command to add items", "Use".bold());
+            return Ok(true);
+        }
+        debug!(
+            "{} {} sources in the queue for {}",
+            "Found".bold(),
+            items.len(),
+            indexer.to_uppercase()
+        );
         let mut count = 0;
-        for item in queue {
-            let id = match self.id_provider.get_by_file(&item.path).await {
-                Ok(id) => id,
-                Err(error) => {
-                    cache.update(&item.path, |item| item.set_skipped(error.to_string()));
-                    debug!("{} {item}", "Skipping".bold());
-                    trace!("{error}");
-                    continue;
-                }
+        for hash in items {
+            let Some(item) = queue.get(&hash) else {
+                error!("{} to retrieve {hash} from the queue", "Failed".bold());
+                continue;
             };
-            let source = match self.get_source(id).await {
+            let Some(id) = item.id else {
+                warn!("{} {item} as it doesn't have an id", "Skipping".bold());
+                queue.set_skip(hash, "no id".to_owned());
+                continue;
+            };
+            let source = match source_provider.get(id).await {
                 Ok(source) => source,
                 Err(error) => {
-                    cache.update(&item.path, |item| item.set_skipped(error.to_string()));
-                    debug!("{} {item}", "Skipping".bold());
-                    trace!("{error}");
+                    warn!("{} {item} {error}", "Skipping".bold());
+                    warn!("This is likely to be a temporary issue with the API.\nIf it persists, please submit an issue on GitHub.");
                     continue;
                 }
             };
-            if !self.verify(&source, &mut cache, &item).await {
+            let status = self
+                .verify
+                .write()
+                .expect("VerifyCommand should be writeable")
+                .execute(&source)
+                .await;
+            if status.verified {
+                debug!("{} {}", "Verified".bold(), source);
+                queue.set_verify(hash.clone(), status);
+            } else {
+                debug!("{} {source}", "Skipping".bold());
+                trace!("{} to verify {}", "Failed".bold(), source);
+                for violation in &status.violations {
+                    trace!("{violation}");
+                }
+                queue.set_verify(hash, status);
                 continue;
             }
-            if !skip_spectrogram {
+            if spectrogram_enabled {
                 let status = self.spectrogram.execute(&source).await;
                 if let Some(error) = &status.error {
                     warn!("{error}");
                 }
+                queue.set_spectrogram(hash.clone(), status);
             }
             let status = self.transcode.execute(&source).await;
             if let Some(error) = &status.error {
-                warn!("{error}");
-                cache.update(&item.path, |item| {
-                    item.set_failed("transcode failed".to_owned());
-                });
+                error!("{error}");
+            }
+            if status.success {
+                queue.set_transcode(hash.clone(), status);
+            } else {
+                queue.set_transcode(hash, status);
                 continue;
             }
-            cache.update(&item.path, BatchCacheItem::set_transcoded);
-            if !skip_upload {
+            if upload_enabled {
                 if let Some(wait_before_upload) = self.batch_options.get_wait_before_upload() {
                     info!("{} {wait_before_upload:?} before upload", "Waiting".bold());
-                    tokio::time::sleep(wait_before_upload).await;
+                    sleep(wait_before_upload).await;
                 }
                 let status = self
                     .upload
@@ -107,17 +143,10 @@ impl BatchCommand {
                     .expect("UploadCommand should be writeable")
                     .execute(&source)
                     .await;
-                // status.errors were already printed so no need to log them here
-                if status.success {
-                    cache.update(&item.path, BatchCacheItem::set_uploaded);
-                } else {
-                    cache.update(&item.path, |item| {
-                        item.set_failed("upload failed".to_owned());
-                    });
-                    continue;
-                }
+                // Errors were already logged in UploadCommand::Execute()
+                queue.set_upload(hash, status);
             }
-            cache.save(false)?;
+            queue.save()?;
             count += 1;
             if let Some(limit) = limit {
                 if count >= limit {
@@ -126,45 +155,8 @@ impl BatchCommand {
                 }
             }
         }
-        cache.save(true)?;
+        queue.save()?;
         info!("{} batch process of {count} items", "Completed".bold());
         Ok(true)
-    }
-
-    async fn get_source(&mut self, id: i64) -> Result<Source, AppError> {
-        self.source_provider
-            .write()
-            .expect("SourceProvider should be writable")
-            .get(id)
-            .await
-    }
-
-    async fn verify(
-        &mut self,
-        source: &Source,
-        cache: &mut BatchCache,
-        item: &BatchCacheItem,
-    ) -> bool {
-        let status = self
-            .verify
-            .write()
-            .expect("VerifyCommand should be writeable")
-            .execute(source)
-            .await;
-        if status.verified {
-            return true;
-        }
-        debug!("{} {source}", "Skipping".bold());
-        let reason = status
-            .violations
-            .into_iter()
-            .fold(String::new(), |mut buffer, violation| {
-                writeln!(buffer, "{violation}").expect("should be able to use string as a buffer");
-                buffer
-            });
-        trace!("{reason}");
-        // TODO: Update cache to accept the reason
-        cache.update(&item.path, |item| item.set_skipped(reason.clone()));
-        false
     }
 }

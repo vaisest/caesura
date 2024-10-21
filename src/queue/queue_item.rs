@@ -1,11 +1,14 @@
 use crate::imdl::TorrentSummary;
 use crate::source::get_torrent_id_from_torrent_url_relaxed;
+use crate::spectrogram::SpectrogramStatus;
+use crate::transcode::TranscodeStatus;
+use crate::upload::UploadStatus;
 use crate::verify::VerifyStatus;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
-#[derive(Clone, Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default)]
 pub struct QueueItem {
     /// Source name
     pub name: String,
@@ -20,19 +23,19 @@ pub struct QueueItem {
     pub id: Option<i64>,
     /// Reason for skipping?
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub skipped: Option<String>,
-    /// Reason for failing?
+    pub skip: Option<String>,
+    /// Verification status
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub failed: Option<String>,
-    /// Has the item been verified?
+    pub verify: Option<VerifyStatus>,
+    /// Transcode status
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub verified: Option<VerifyStatus>,
-    /// Has the item been transcoded?
+    pub spectrogram: Option<SpectrogramStatus>,
+    /// Transcode status
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transcoded: Option<bool>,
-    /// Has the item been uploaded?
+    pub transcode: Option<TranscodeStatus>,
+    /// Upload status
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub uploaded: Option<bool>,
+    pub upload: Option<UploadStatus>,
 }
 
 impl QueueItem {
@@ -43,6 +46,7 @@ impl QueueItem {
     #[must_use]
     pub fn from_torrent(path: PathBuf, torrent: TorrentSummary) -> Self {
         let comment = torrent.comment.unwrap_or_default();
+        // TODO It's possible (but highly unlikely) that the URL does not match the indexer
         let id = get_torrent_id_from_torrent_url_relaxed(&comment);
         Self {
             name: torrent.name,

@@ -49,7 +49,7 @@ impl IdProvider {
         get_torrent_id_from_url(url, base)
     }
 
-    pub async fn get_by_file(&self, path: &Path) -> Result<i64, AppError> {
+    async fn get_by_file(&self, path: &Path) -> Result<i64, AppError> {
         let summary = ImdlCommand::show(path).await?;
         let tracker_id = self
             .options

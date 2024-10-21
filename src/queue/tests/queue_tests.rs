@@ -1,5 +1,7 @@
 use super::super::Queue;
+use crate::queue::TimeStamp;
 use crate::testing::TempDirectory;
+use crate::upload::UploadStatus;
 use std::fs::File;
 use std::io::{Read, Write};
 
@@ -65,10 +67,21 @@ fn queue_end_to_end() {
 
     // Act GET
     let hash = "abc_transcoded";
-    let item_before = queue.get(hash).unwrap().clone();
-    // Item has to be cloned so that we can then use the queue as mutable
-    queue.set_uploaded(hash.to_owned());
+    let item_before = queue.get(hash).unwrap();
+
+    // Assert
+    assert!(item_before.upload.is_none());
+
+    // Act SET
+    let status = UploadStatus {
+        success: true,
+        formats: None,
+        completed: TimeStamp::now(),
+        errors: None,
+    };
+    queue.set_upload(hash.to_owned(), status);
+
+    // Assert
     let item_after = queue.get(hash).unwrap();
-    assert_eq!(item_before.uploaded, None);
-    assert_eq!(item_after.uploaded, Some(true));
+    assert!(item_after.upload.is_some());
 }

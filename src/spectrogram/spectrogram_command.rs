@@ -22,7 +22,11 @@ pub struct SpectrogramCommand {
 }
 
 impl SpectrogramCommand {
-    /// Generate spectrogram images from flac files.
+    /// Execute [`SpectrogramCommand`] from the CLI.
+    ///
+    /// [`Source`] is retrieved from the CLI arguments.
+    ///
+    /// Returns `true` if the spectrogram generation succeeds.
     pub async fn execute_cli(&self) -> Result<bool, AppError> {
         if !self.shared_options.validate() || !self.spectrogram_options.validate() {
             return Ok(false);
@@ -40,7 +44,11 @@ impl SpectrogramCommand {
         Ok(status.success)
     }
 
-    /// Generate spectrogram images from flac files.
+    /// Execute [`SpectrogramCommand`] on a [`Source`].
+    ///
+    /// Returns a [`SpectrogramStatus`] indicating the success of the operation and any errors.
+    ///
+    /// Errors are not logged so should be handled by the caller.
     #[must_use]
     pub async fn execute(&self, source: &Source) -> SpectrogramStatus {
         info!("{} spectrograms for {}", "Creating".bold(), source);
