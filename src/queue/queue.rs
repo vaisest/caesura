@@ -57,6 +57,7 @@ impl Queue {
     /// Items are filtered to ensure they:
     /// - Match the provided indexer
     /// - Have no reason to be skipped
+    /// - Have not been verified or have been and `verified` is true
     /// - Have not been uploaded
     /// - Have not been transcoded, unless `upload_enabled` is true
     ///
@@ -68,6 +69,7 @@ impl Queue {
             .filter(|x| {
                 x.indexer == indexer
                     && x.skip.is_none()
+                    && x.verify.as_ref().map_or(true, |v| v.verified)
                     && x.upload.is_none()
                     && (upload_enabled || x.transcode.is_none())
             })

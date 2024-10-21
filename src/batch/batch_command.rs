@@ -47,6 +47,7 @@ impl BatchCommand {
             return Ok(false);
         }
         let mut queue = self.queue.write().expect("Queue should be writeable");
+        queue.load()?;
         let mut source_provider = self
             .source_provider
             .write()
@@ -84,6 +85,7 @@ impl BatchCommand {
                 error!("{} to retrieve {hash} from the queue", "Failed".bold());
                 continue;
             };
+            trace!("{} {item}", "Processing".bold());
             let Some(id) = item.id else {
                 warn!("{} {item} as it doesn't have an id", "Skipping".bold());
                 queue.set_skip(hash, "no id".to_owned());
@@ -108,9 +110,9 @@ impl BatchCommand {
                 queue.set_verify(hash.clone(), status);
             } else {
                 debug!("{} {source}", "Skipping".bold());
-                trace!("{} to verify {}", "Failed".bold(), source);
+                debug!("{} to verify {}", "Failed".bold(), source);
                 for violation in &status.violations {
-                    trace!("{violation}");
+                    debug!("{violation}");
                 }
                 queue.set_verify(hash, status);
                 continue;
