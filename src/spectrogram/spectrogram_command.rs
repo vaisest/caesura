@@ -34,24 +34,34 @@ impl SpectrogramCommand {
             .get_from_options()
             .await?;
         let status = self.execute(&source).await;
+        if let Some(error) = &status.error {
+            error!("{error}");
+        }
         Ok(status.success)
     }
 
     /// Generate spectrogram images from flac files.
+    #[must_use]
     pub async fn execute(&self, source: &Source) -> SpectrogramStatus {
         info!("{} spectrograms for {}", "Creating".bold(), source);
         let collection = Collector::get_flacs(&source.directory);
         let jobs = self.factory.create(&collection, source);
         let count = jobs.len();
         self.runner.add(jobs);
-        let status = match self.runner.execute().await {
-            Ok(()) => SpectrogramStatus {
-                success: true,
-                path: Some(self.paths.get_spectrogram_dir(source)),
-                count,
-                completed: TimeStamp::now(),
-                error: None,
-            },
+        match self.runner.execute().await {
+            Ok(()) => {
+                info!("{} {count} spectrograms for {source}", "Created".bold());
+                let path = self.paths.get_spectrogram_dir(source);
+                let path_display = path.to_string_lossy().to_string();
+                debug!("in {path_display}");
+                SpectrogramStatus {
+                    success: true,
+                    path: Some(path),
+                    count,
+                    completed: TimeStamp::now(),
+                    error: None,
+                }
+            }
             Err(error) => SpectrogramStatus {
                 success: false,
                 path: None,
@@ -59,24 +69,6 @@ impl SpectrogramCommand {
                 completed: TimeStamp::now(),
                 error: Some(error),
             },
-        };
-        info!(
-            "{} {} spectrograms for {}",
-            "Created".bold(),
-            status.count,
-            source
-        );
-        if let Some(error) = &status.error {
-            error!("{error}");
-        } else {
-            let path = status
-                .path
-                .clone()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .to_string();
-            debug!("in {path}");
         }
-        status
     }
 }

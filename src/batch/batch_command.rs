@@ -1,6 +1,6 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, info, trace};
+use log::{debug, info, trace, warn};
 use std::fmt::Write;
 
 use crate::batch::BatchCacheItem;
@@ -82,7 +82,10 @@ impl BatchCommand {
                 continue;
             }
             if !skip_spectrogram {
-                self.spectrogram.execute(&source).await;
+                let status = self.spectrogram.execute(&source).await;
+                if let Some(error) = &status.error {
+                    warn!("{error}");
+                }
             }
             if self.transcode.execute(&source).await? {
                 cache.update(&item.path, BatchCacheItem::set_transcoded);
