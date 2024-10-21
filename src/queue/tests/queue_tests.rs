@@ -10,14 +10,20 @@ const QUEUE_YAML: &str = r"abc_transcoded:
   path: /path/to/abc_transcoded.torrent
   hash: abc_transcoded
   indexer: abc
-  transcoded: true
+  transcode:
+    success: true
+    completed: 2021-08-01T00:00:00Z
 abc_uploaded:
   name: 2 Transcoded and uploaded
   path: /path/to/abc_uploaded.torrent
   hash: abc_uploaded
   indexer: abc
-  transcoded: true
-  uploaded: true
+  transcode:
+    success: true
+    completed: 2021-08-01T00:00:00Z
+  upload:
+    success: true
+    completed: 2021-08-01T00:00:00Z
 cba_item:
   name: 3 This item should be skipped
   path: /path/to/cba_item.torrent
@@ -28,7 +34,7 @@ skipped_item:
   path: /path/to/skipped_item.torrent
   hash: skipped_item
   indexer: abc
-  skipped: Skipped for a reason
+  skip: Skipped for a reason
 ";
 
 #[test]
@@ -58,8 +64,8 @@ fn queue_end_to_end() {
 
     // Act GET_UNPROCESSED
     let indexer = "abc".to_owned();
-    let with_transcoded = queue.get_unprocessed(indexer.clone(), false);
-    let without_transcoded = queue.get_unprocessed(indexer, true);
+    let with_transcoded = queue.get_unprocessed(indexer.clone(), true);
+    let without_transcoded = queue.get_unprocessed(indexer, false);
 
     // Assert
     assert_eq!(with_transcoded.len(), 1);

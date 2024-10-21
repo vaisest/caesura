@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Deserialize, Serialize)]
 pub struct VerifyStatus {
     pub verified: bool,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub violations: Vec<SourceRule>,
     pub completed: TimeStamp,
 }

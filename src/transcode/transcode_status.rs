@@ -9,13 +9,16 @@ pub struct TranscodeStatus {
     /// Did the transcode command succeed?
     pub success: bool,
     /// Transcode formats
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub formats: Option<Vec<TranscodeFormatStatus>>,
     /// Additional files
     #[allow(dead_code)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub additional: Option<Vec<AdditionalStatus>>,
     /// Time the transcode completed
     pub completed: TimeStamp,
     /// Error message if the transcode failed
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<AppError>,
 }
 
@@ -34,9 +37,12 @@ pub struct AdditionalStatus {
     /// File size in bytes
     pub size: u64,
     /// Was the file resized?
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub resized: Option<bool>,
     /// Size of the additional file before resizing in bytes
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub source_size: Option<u64>,
     /// Resize command
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub resize_command: Option<String>,
 }
