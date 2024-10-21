@@ -44,12 +44,15 @@ impl VerifyCommand {
             .write()
             .expect("Source provider should be writeable")
             .get_from_options()
-            .await?;
-        let status = self.execute(&source).await;
+            .await;
+        let (status, id) = match source {
+            Ok(source) => (self.execute(&source).await, source.to_string()),
+            Err(error) => (VerifyStatus::new(vec![error]), "unknown".to_owned()),
+        };
         if status.verified {
-            info!("{} {}", "Verified".bold(), source);
+            info!("{} {id}", "Verified".bold());
         } else {
-            warn!("{} to verify {}", "Failed".bold(), source);
+            warn!("{} to verify {id}", "Failed".bold());
             for violation in status.violations {
                 warn!("{violation}");
             }

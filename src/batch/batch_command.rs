@@ -8,10 +8,11 @@ use crate::source::*;
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
-use crate::verify::VerifyCommand;
+use crate::verify::{SourceRule, VerifyCommand, VerifyStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{debug, error, info, trace, warn};
+use reqwest::StatusCode;
 use tokio::time::sleep;
 
 /// Batch a FLAC source is suitable for transcoding.
@@ -93,9 +94,34 @@ impl BatchCommand {
             };
             let source = match source_provider.get(id).await {
                 Ok(source) => source,
-                Err(error) => {
-                    warn!("{} {item} {error}", "Skipping".bold());
-                    warn!("This is likely to be a temporary issue with the API.\nIf it persists, please submit an issue on GitHub.");
+                Err(violation) => {
+                    if let SourceRule::ApiResponse {
+                        action: _,
+                        status_code,
+                        error,
+                    } = violation.clone()
+                    {
+                        let reason = StatusCode::from_u16(status_code).map_or_else(
+                            |_| status_code.to_string(),
+                            |sc| sc.canonical_reason().unwrap_or("").to_owned(),
+                        );
+                        if status_code == 429 || status_code >= 500 {
+                            warn!("{} {item} due to {reason}", "Skipping".bold());
+                            warn!("{error}");
+                            warn!("This is likely to be a temporary issue with the API.");
+                            warn!("If it persists, please submit an issue on GitHub.");
+                        } else {
+                            debug!("{} {item} due to {reason}", "Skipping".bold());
+                            debug!("{error}");
+                            let status = VerifyStatus::new(vec![violation]);
+                            queue.set_verify(hash.clone(), status);
+                        }
+                    } else {
+                        debug!("{} {item}", "Skipping".bold());
+                        debug!("{violation}");
+                        let status = VerifyStatus::new(vec![violation]);
+                        queue.set_verify(hash.clone(), status);
+                    }
                     continue;
                 }
             };

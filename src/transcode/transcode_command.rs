@@ -45,7 +45,8 @@ impl TranscodeCommand {
             .write()
             .expect("Source provider should be writeable")
             .get_from_options()
-            .await?;
+            .await
+            .map_err(|e| AppError::else_explained("get source from options", e.to_string()))?;
         let status = self.execute(&source).await;
         if let Some(error) = &status.error {
             error!("{error}");

@@ -1,21 +1,17 @@
 use std::collections::BTreeSet;
 
 use crate::api::Torrent;
-use crate::errors::AppError;
 use crate::formats::ExistingFormat;
 
 pub struct ExistingFormatProvider;
 
 impl ExistingFormatProvider {
-    pub fn get(
-        source_torrent: &Torrent,
-        group_torrents: &[Torrent],
-    ) -> Result<BTreeSet<ExistingFormat>, AppError> {
+    pub fn get(source_torrent: &Torrent, group_torrents: &[Torrent]) -> BTreeSet<ExistingFormat> {
         group_torrents
             .iter()
             .filter(|&other_torrent| is_alternative_format(source_torrent, other_torrent))
-            .map(Torrent::get_format)
-            .collect::<Result<BTreeSet<_>, _>>()
+            .filter_map(Torrent::get_format)
+            .collect()
     }
 }
 

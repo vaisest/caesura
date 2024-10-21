@@ -22,7 +22,8 @@ async fn source_provider() -> Result<(), AppError> {
         .write()
         .expect("Source provider should be writeable")
         .get_from_options()
-        .await?;
+        .await
+        .unwrap();
 
     // Assert
     let file_count = DirectoryReader::new()

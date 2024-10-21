@@ -1,5 +1,6 @@
 use crate::formats::ExistingFormat;
 use crate::verify::SourceRule::*;
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
@@ -7,29 +8,84 @@ use std::path::PathBuf;
 
 pub const MAX_PATH_LENGTH: isize = 180;
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum SourceRule {
-    Category { actual: String },
+    IdError {
+        details: String,
+    },
+    GroupMismatch {
+        actual: i64,
+        expected: i64,
+    },
+    ApiResponse {
+        action: String,
+        status_code: u16,
+        error: String,
+    },
+    Category {
+        actual: String,
+    },
     Scene,
     LossyMaster,
     LossyWeb,
     Trumpable,
-    Existing { formats: BTreeSet<ExistingFormat> },
-    MissingDirectory { path: PathBuf },
-    NoFlacs { path: PathBuf },
-    Imdl { details: String },
-    Length { path: PathBuf, excess: usize },
-    MissingTags { path: PathBuf, tags: Vec<String> },
-    FlacError { path: PathBuf, error: String },
-    SampleRate { path: PathBuf, rate: u32 },
-    Channels { path: PathBuf, count: u32 },
-    Error { domain: String, details: String },
+    Existing {
+        formats: BTreeSet<ExistingFormat>,
+    },
+    MissingDirectory {
+        path: PathBuf,
+    },
+    NoFlacs {
+        path: PathBuf,
+    },
+    Imdl {
+        details: String,
+    },
+    Length {
+        path: PathBuf,
+        excess: usize,
+    },
+    MissingTags {
+        path: PathBuf,
+        tags: Vec<String>,
+    },
+    FlacError {
+        path: PathBuf,
+        error: String,
+    },
+    SampleRate {
+        path: PathBuf,
+        rate: u32,
+    },
+    Channels {
+        path: PathBuf,
+        count: u32,
+    },
+    Error {
+        domain: String,
+        details: String,
+    },
 }
 
 impl Display for SourceRule {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let message = match self {
+            IdError { details } => format!("Invalid source id: {details}"),
+            ApiResponse {
+                action,
+                status_code,
+                error,
+            } => {
+                let status = StatusCode::from_u16(*status_code)
+                    .expect("Status code is valid")
+                    .canonical_reason()
+                    .unwrap_or("Unknown");
+                format!("API responded {status} to {action}: {error}")
+            }
+            GroupMismatch { actual, expected } => {
+                format!("Group of torrent `{actual}` did not match torrent group `{expected}`")
+            }
             Category { actual } => format!("Category was not Music: {actual}"),
             Scene => "Scene releases are not supported".to_owned(),
             LossyMaster => "Lossy master releases need approval".to_owned(),

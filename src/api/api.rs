@@ -116,17 +116,17 @@ impl Api {
                 AppError::explained(action, format!("{deserialized}"))
             }
         } else {
-            let number = status_code.as_u16();
-            let status = status_code.canonical_reason().unwrap_or("unknown");
-            let message = if let Ok(message) = deserialized {
-                format!("{message}")
+            let message = if let Ok(response) = deserialized {
+                response.error.unwrap_or(json)
             } else {
                 json
             };
-            AppError::explained(
-                action,
-                format!("Received a {number} {status} response:\n{message}"),
-            )
+            Err(AppError {
+                action: action.to_owned(),
+                message,
+                status_code: Some(status_code.as_u16()),
+                ..AppError::default()
+            })
         }
     }
 

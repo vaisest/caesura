@@ -10,7 +10,7 @@ use tokio::task::JoinError;
 
 use crate::errors::CommandError;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Default, Deserialize, Serialize)]
 pub struct AppError {
     pub action: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,6 +20,8 @@ pub struct AppError {
     pub actual: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expected: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status_code: Option<u16>,
     #[serde(skip)]
     pub backtrace: Option<Backtrace>,
 }
@@ -29,11 +31,9 @@ impl AppError {
     pub fn else_explained(action: &str, message: String) -> AppError {
         Self {
             action: action.to_owned(),
-            domain: None,
             message,
-            actual: None,
-            expected: None,
             backtrace: get_backtrace(),
+            ..Self::default()
         }
     }
 
@@ -46,9 +46,8 @@ impl AppError {
             action: action.to_owned(),
             domain: Some(domain.to_owned()),
             message,
-            actual: None,
-            expected: None,
             backtrace: get_backtrace(),
+            ..Self::default()
         }
     }
 
@@ -64,11 +63,11 @@ impl AppError {
     ) -> Result<T, AppError> {
         Err(Self {
             action: action.to_owned(),
-            domain: None,
             message: message.to_owned(),
             actual: Some(actual),
             expected: Some(expected),
             backtrace: get_backtrace(),
+            ..Self::default()
         })
     }
 

@@ -9,5 +9,6 @@ pub(crate) mod metadata;
 pub(crate) mod source;
 pub(crate) mod source_provider;
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests;
 pub(crate) mod url_helpers;

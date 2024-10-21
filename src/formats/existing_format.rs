@@ -1,7 +1,8 @@
 use crate::api::Torrent;
-use crate::errors::AppError;
 use crate::formats::SourceFormat;
 use clap::ValueEnum;
+use colored::Colorize;
+use log::trace;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
@@ -18,11 +19,11 @@ pub enum ExistingFormat {
 
 impl ExistingFormat {
     #[allow(clippy::wildcard_enum_match_arm)]
-    pub fn to_source(self) -> Result<SourceFormat, AppError> {
+    pub fn to_source(self) -> Option<SourceFormat> {
         match self {
-            ExistingFormat::Flac24 => Ok(SourceFormat::Flac24),
-            ExistingFormat::Flac => Ok(SourceFormat::Flac),
-            _ => AppError::explained("get source format", "Format is not FLAC".to_owned()),
+            ExistingFormat::Flac24 => Some(SourceFormat::Flac24),
+            ExistingFormat::Flac => Some(SourceFormat::Flac),
+            _ => None,
         }
     }
 }
@@ -42,26 +43,19 @@ impl Ord for ExistingFormat {
 }
 
 impl Torrent {
-    #[allow(clippy::wildcard_enum_match_arm)]
-    pub fn get_format(&self) -> Result<ExistingFormat, AppError> {
-        match self.format.as_str() {
-            "FLAC" => match self.encoding.as_str() {
-                "Lossless" => Ok(ExistingFormat::Flac),
-                "24bit Lossless" => Ok(ExistingFormat::Flac24),
-                _ => AppError::explained(
-                    "get format",
-                    format!("unknown encoding: {}", self.encoding),
-                ),
-            },
-            "MP3" => match self.encoding.as_str() {
-                "320" => Ok(ExistingFormat::_320),
-                "V0 (VBR)" => Ok(ExistingFormat::V0),
-                _ => AppError::explained(
-                    "get format",
-                    format!("unknown encoding: {}", self.encoding),
-                ),
-            },
-            _ => AppError::explained("get format", format!("unknown format: {}", self.format)),
+    pub fn get_format(&self) -> Option<ExistingFormat> {
+        match (self.format.as_str(), self.encoding.as_str()) {
+            ("FLAC", "Lossless") => Some(ExistingFormat::Flac),
+            ("FLAC", "24bit Lossless") => Some(ExistingFormat::Flac24),
+            ("MP3", "320") => Some(ExistingFormat::_320),
+            ("MP3", "V0 (VBR)") => Some(ExistingFormat::V0),
+            (format, encoding) => {
+                trace!(
+                    "{} to determine ExistingFormat of `{format}` with encoding `{encoding}`",
+                    "Failed".bold()
+                );
+                None
+            }
         }
     }
 }
