@@ -2,7 +2,7 @@ use std::path::Path;
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, error, info, trace, warn};
+use log::{error, info, trace, warn};
 use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
@@ -13,8 +13,10 @@ use crate::fs::{copy_dir, Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::Job;
 use crate::options::{Options, SharedOptions, UploadOptions};
+use crate::queue::TimeStamp;
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{CommandFactory, TranscodeJobFactory};
+use crate::upload::UploadStatus;
 
 const MUSIC_CATEGORY_ID: u8 = 0;
 
@@ -41,34 +43,61 @@ impl UploadCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await?;
-        self.execute(&source).await
+        let status = self.execute(&source).await;
+        // Errors were already printed as they occurred
+        Ok(status.success)
     }
 
-    pub async fn execute(&mut self, source: &Source) -> Result<bool, AppError> {
+    pub async fn execute(&mut self, source: &Source) -> UploadStatus {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");
+        let mut status = UploadStatus {
+            success: true,
+            formats: None,
+            completed: TimeStamp::now(),
+            errors: None,
+        };
+        let mut errors = Vec::new();
         for target in targets {
             let torrent_path = self.paths.get_torrent_path(source, target);
             if !torrent_path.exists() {
-                return AppError::explained(
+                let error = AppError::else_explained(
                     "upload",
                     format!("The torrent file does not exist: {torrent_path:?}"),
                 );
+                error!("{error}");
+                errors.push(error);
+                status.success = false;
+                continue;
             }
             let target_dir = self.paths.get_transcode_target_dir(source, target);
-            if let Some(error) = ImdlCommand::verify(&torrent_path, &target_dir).await? {
-                error!("{} to verify the torrent content:", "Failed".bold());
+            trace!("{} content of {target_dir:?}", "Verifying".bold());
+            if let Err(error) = ImdlCommand::verify(&torrent_path, &target_dir).await {
+                let error =
+                    AppError::else_external("verify torrent content", "IMDL", format!("{error}"));
                 error!("{error}");
+                errors.push(error);
+                status.success = false;
+                continue;
+            }
+            if let Some(torrent_dir) = &self.upload_options.copy_torrent_to {
+                if let Err(error) = self.copy_torrent(source, &target, torrent_dir).await {
+                    // If copy_torrent fails we can still continue with the upload
+                    warn!("{error}");
+                    errors.push(error);
+                }
             }
             if self
                 .upload_options
                 .copy_transcode_to_content_dir
                 .expect("copy_transcode_to_content_dir should be set")
             {
-                self.copy_transcode(source, &target).await?;
-            }
-            if let Some(target_dir) = &self.upload_options.copy_torrent_to {
-                self.copy_torrent(source, &target, target_dir).await?;
+                trace!("{} {target_dir:?} to content directory", "Copying".bold());
+                if let Err(error) = self.copy_transcode(source, &target).await {
+                    // If copy_transcode fails we can still continue with the upload
+                    warn!("{error}");
+                    errors.push(error);
+                }
             }
             let form = UploadForm {
                 path: torrent_path,
@@ -80,7 +109,7 @@ impl UploadCommand {
                 format: target.get_file_extension().to_uppercase(),
                 bitrate: target.get_bitrate().to_owned(),
                 media: source.torrent.media.clone(),
-                release_desc: self.create_description(source, target)?,
+                release_desc: self.create_description(source, target),
                 group_id: source.group.id,
             };
             if self.upload_options.dry_run.expect("dry_run should be set") {
@@ -89,20 +118,31 @@ impl UploadCommand {
                 info!("{}", form);
                 continue;
             }
-            let response = api.upload_torrent(form).await?;
-            debug!("{} {target} for {source}", "Uploaded".bold());
-            let base = &self
-                .shared_options
-                .indexer_url
-                .clone()
-                .expect("indexer_url should be set");
-            debug!(
-                "{}",
-                get_permalink(base, response.group_id, response.torrent_id)
-            );
+            match api.upload_torrent(form).await {
+                Ok(response) => {
+                    info!("{} {target} for {source}", "Uploaded".bold());
+                    let base = &self
+                        .shared_options
+                        .indexer_url
+                        .clone()
+                        .expect("indexer_url should be set");
+                    let link = get_permalink(base, response.group_id, response.torrent_id);
+                    info!("{link}");
+                }
+                Err(error) => {
+                    error!("{error}");
+                    errors.push(error);
+                    status.success = false;
+                    continue;
+                }
+            }
         }
-        info!("{} {source}", "Uploaded".bold());
-        Ok(true)
+        status.errors = if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        };
+        status
     }
 
     async fn copy_transcode(&self, source: &Source, target: &TargetFormat) -> Result<(), AppError> {
@@ -164,11 +204,7 @@ impl UploadCommand {
     }
 
     #[allow(clippy::uninlined_format_args)]
-    fn create_description(
-        &self,
-        source: &Source,
-        target: TargetFormat,
-    ) -> Result<String, AppError> {
+    fn create_description(&self, source: &Source, target: TargetFormat) -> String {
         let base = &self
             .shared_options
             .indexer_url
@@ -176,7 +212,10 @@ impl UploadCommand {
             .expect("indexer_url should be set");
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         let source_title = source.format.get_title();
-        let transcode_command = self.get_command(source, target)?;
+        let transcode_command = self.get_command(source, target).unwrap_or_else(|error| {
+            warn!("Failed to get transcode command: {error}");
+            String::new()
+        });
         let lines: Vec<String> = [
             format!(
                 "Transcoded and uploaded with [url={}][b]{}[/b] v{}[/url]",
@@ -192,8 +231,8 @@ impl UploadCommand {
         .iter()
         .map(|line| format!("[quote]{line}[/quote]"))
         .collect();
-        let description = lines.join("");
-        Ok(description)
+        
+        lines.join("")
     }
 
     pub fn get_command(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {

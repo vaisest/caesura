@@ -41,15 +41,19 @@ impl AppError {
         Err(Self::else_explained(action, message))
     }
 
-    pub fn external<T>(action: &str, domain: &str, message: String) -> Result<T, AppError> {
-        Err(Self {
+    pub fn else_external(action: &str, domain: &str, message: String) -> AppError {
+        Self {
             action: action.to_owned(),
             domain: Some(domain.to_owned()),
             message,
             actual: None,
             expected: None,
             backtrace: get_backtrace(),
-        })
+        }
+    }
+
+    pub fn external<T>(action: &str, domain: &str, message: String) -> Result<T, AppError> {
+        Err(Self::else_external(action, domain, message))
     }
 
     pub fn unexpected<T>(

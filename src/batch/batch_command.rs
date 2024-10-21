@@ -101,13 +101,14 @@ impl BatchCommand {
                     info!("{} {wait_before_upload:?} before upload", "Waiting".bold());
                     tokio::time::sleep(wait_before_upload).await;
                 }
-                if self
+                let status = self
                     .upload
                     .write()
                     .expect("UploadCommand should be writeable")
                     .execute(&source)
-                    .await?
-                {
+                    .await;
+                // status.errors were already printed so no need to log them here
+                if status.success {
                     cache.update(&item.path, BatchCacheItem::set_uploaded);
                 } else {
                     cache.update(&item.path, |item| {
