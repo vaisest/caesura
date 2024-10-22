@@ -17,6 +17,12 @@ pub struct BatchOptions {
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub spectrogram: Option<bool>,
 
+    /// Should the transcode command be executed?
+    ///
+    /// Default: `false`
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub transcode: Option<bool>,
+
     /// Should the upload command be executed?
     ///
     /// Default: `false`
@@ -77,6 +83,9 @@ impl Options for BatchOptions {
         if self.spectrogram.is_none() {
             self.spectrogram = alternative.spectrogram;
         }
+        if self.transcode.is_none() {
+            self.transcode = alternative.transcode;
+        }
         if self.upload.is_none() {
             self.upload = alternative.upload;
         }
@@ -95,6 +104,9 @@ impl Options for BatchOptions {
     fn apply_defaults(&mut self) {
         if self.spectrogram.is_none() {
             self.spectrogram = Some(false);
+        }
+        if self.transcode.is_none() {
+            self.transcode = Some(false);
         }
         if self.upload.is_none() {
             self.upload = Some(false);
@@ -118,6 +130,12 @@ impl Options for BatchOptions {
                 ));
             }
         }
+        if self.upload == Some(true) && self.transcode != Some(true) {
+            errors.push(OptionRule::Dependent(
+                "Upload".to_owned(),
+                "Transcode".to_owned(),
+            ));
+        }
         OptionRule::show(&errors);
         errors.is_empty()
     }
@@ -132,6 +150,9 @@ impl Options for BatchOptions {
         let mut options = options;
         if options.spectrogram == Some(false) {
             options.spectrogram = None;
+        }
+        if options.transcode == Some(false) {
+            options.transcode = None;
         }
         if options.upload == Some(false) {
             options.upload = None;

@@ -7,6 +7,7 @@ use std::fmt::{Display, Formatter};
 pub enum OptionRule {
     Changed(String, String, String),
     NotSet(String),
+    Dependent(String, String),
     IsEmpty(String),
     UrlNotHttp(String, String),
     UrlInvalidSuffix(String, String),
@@ -18,6 +19,7 @@ impl Display for OptionRule {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = match self {
             Changed(name, value, details) => format!("{name} use has changed: {value}\n{details}"),
+            Dependent(this, that) => format!("{this} requires {that} to be set"),
             NotSet(name) => format!("{name} is not set"),
             IsEmpty(name) => format!("{name} must have at least one value"),
             UrlNotHttp(name, value) => {

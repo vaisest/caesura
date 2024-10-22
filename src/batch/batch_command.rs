@@ -59,6 +59,10 @@ impl BatchCommand {
             .batch_options
             .spectrogram
             .expect("spectrogram should be set");
+        let transcode_enabled = self
+            .batch_options
+            .transcode
+            .expect("transcode should be set");
         let upload_enabled = self.batch_options.upload.expect("upload should be set");
         let indexer = self
             .shared_options
@@ -152,29 +156,31 @@ impl BatchCommand {
                 }
                 queue.set_spectrogram(hash.clone(), status);
             }
-            let status = self.transcode.execute(&source).await;
-            if let Some(error) = &status.error {
-                error!("{error}");
-            }
-            if status.success {
-                queue.set_transcode(hash.clone(), status);
-            } else {
-                queue.set_transcode(hash, status);
-                continue;
-            }
-            if upload_enabled {
-                if let Some(wait_before_upload) = self.batch_options.get_wait_before_upload() {
-                    info!("{} {wait_before_upload:?} before upload", "Waiting".bold());
-                    sleep(wait_before_upload).await;
+            if transcode_enabled {
+                let status = self.transcode.execute(&source).await;
+                if let Some(error) = &status.error {
+                    error!("{error}");
                 }
-                let status = self
-                    .upload
-                    .write()
-                    .expect("UploadCommand should be writeable")
-                    .execute(&source)
-                    .await;
-                // Errors were already logged in UploadCommand::Execute()
-                queue.set_upload(hash, status);
+                if status.success {
+                    queue.set_transcode(hash.clone(), status);
+                } else {
+                    queue.set_transcode(hash, status);
+                    continue;
+                }
+                if upload_enabled {
+                    if let Some(wait_before_upload) = self.batch_options.get_wait_before_upload() {
+                        info!("{} {wait_before_upload:?} before upload", "Waiting".bold());
+                        sleep(wait_before_upload).await;
+                    }
+                    let status = self
+                        .upload
+                        .write()
+                        .expect("UploadCommand should be writeable")
+                        .execute(&source)
+                        .await;
+                    // Errors were already logged in UploadCommand::Execute()
+                    queue.set_upload(hash, status);
+                }
             }
             queue.save()?;
             count += 1;
