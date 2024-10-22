@@ -47,7 +47,9 @@ impl Options for CacheOptions {
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
         if let Some(cache) = &self.cache {
-            if cache.ends_with(".json") || cache.eq(&PathBuf::from("output/cache.yml")) {
+            if cache.ends_with(".json")
+                || (cache.eq(&PathBuf::from("output/cache.yml")) && !cache.exists())
+            {
                 errors.push(Changed(
                     "Cache File".to_owned(),
                     cache.to_string_lossy().to_string(),
