@@ -20,10 +20,10 @@ impl Collector {
             collection.push(FlacFile::new(path, source_dir));
         }
         trace!(
-            "{} {} flacs in: {:?}",
+            "{} {} flacs in: {}",
             "Found".bold(),
             collection.len(),
-            source_dir
+            source_dir.display()
         );
         collection
     }
@@ -41,10 +41,10 @@ impl Collector {
             collection.push(AdditionalFile::new(path, source_dir));
         }
         trace!(
-            "{} {} files in: {:?}",
+            "{} {} files in: {}",
             "Found".bold(),
             collection.len(),
-            source_dir
+            source_dir.display()
         );
         collection
     }

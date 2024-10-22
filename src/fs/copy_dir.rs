@@ -15,13 +15,13 @@ pub async fn copy_dir(
     if !source_dir.exists() {
         return AppError::explained(
             "copy directory",
-            format!("source directory does not exist: {source_dir:?}"),
+            format!("source directory does not exist: {}", source_dir.display()),
         );
     }
     if !source_dir.is_dir() {
         return AppError::explained(
             "copy directory",
-            format!("source path is not a directory: {source_dir:?}"),
+            format!("source path is not a directory: {}", source_dir.display()),
         );
     }
     let target_parent = target_dir.parent().ok_or_else(|| {
@@ -33,13 +33,16 @@ pub async fn copy_dir(
     if !target_parent.exists() {
         return AppError::explained(
             "copy directory",
-            format!("parent of the target directory does not exist: {target_parent:?}"),
+            format!(
+                "parent of the target directory does not exist: {}",
+                target_parent.display()
+            ),
         );
     }
     if target_dir.exists() {
         return AppError::explained(
             "copy directory",
-            format!("target directory already exists: {target_dir:?}"),
+            format!("target directory already exists: {}", target_dir.display()),
         );
     }
     create_dir(target_dir)

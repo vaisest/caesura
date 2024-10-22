@@ -1,5 +1,5 @@
 use crate::api::Torrent;
-use crate::formats::{SourceFormat, TargetFormat};
+use crate::formats::SourceFormat;
 use clap::ValueEnum;
 use colored::Colorize;
 use log::trace;

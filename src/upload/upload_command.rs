@@ -79,7 +79,10 @@ impl UploadCommand {
             if !torrent_path.exists() {
                 let error = AppError::else_explained(
                     "upload",
-                    format!("The torrent file does not exist: {torrent_path:?}"),
+                    format!(
+                        "The torrent file does not exist: {}",
+                        torrent_path.display()
+                    ),
                 );
                 error!("{error}");
                 errors.push(error);
@@ -87,7 +90,7 @@ impl UploadCommand {
                 continue;
             }
             let target_dir = self.paths.get_transcode_target_dir(source, target);
-            trace!("{} content of {target_dir:?}", "Verifying".bold());
+            trace!("{} content of {}", "Verifying".bold(), target_dir.display());
             if let Err(error) = ImdlCommand::verify(&torrent_path, &target_dir).await {
                 let error =
                     AppError::else_external("verify torrent content", "IMDL", format!("{error}"));
@@ -108,7 +111,11 @@ impl UploadCommand {
                 .copy_transcode_to_content_dir
                 .expect("copy_transcode_to_content_dir should be set")
             {
-                trace!("{} {target_dir:?} to content directory", "Copying".bold());
+                trace!(
+                    "{} {} to content directory",
+                    "Copying".bold(),
+                    target_dir.display()
+                );
                 if let Err(error) = self.copy_transcode(source, &target).await {
                     // If copy_transcode fails we can still continue with the upload
                     warn!("{error}");
@@ -185,7 +192,12 @@ impl UploadCommand {
             copy_dir(&source_dir, &target_dir, false).await?;
             "Copied"
         };
-        trace!("{} {source_dir:?} to {target_dir:?}", verb.bold());
+        trace!(
+            "{} {} to {}",
+            verb.bold(),
+            source_dir.display(),
+            target_dir.display()
+        );
         Ok(())
     }
 
@@ -215,7 +227,12 @@ impl UploadCommand {
                 .or_else(|e| AppError::io(e, "copy torrent file"))?;
             "Copied"
         };
-        trace!("{} {source_path:?} to {target_path:?}", verb.bold());
+        trace!(
+            "{} {} to {}",
+            verb.bold(),
+            source_path.display(),
+            target_path.display()
+        );
         Ok(())
     }
 

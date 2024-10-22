@@ -41,10 +41,10 @@ impl AdditionalJob {
         let is_image = IMAGE_EXTENSIONS.contains(&self.extension.as_str());
         if is_large && (!is_image || self.no_image_compression) {
             warn!(
-                "Including large {} ({} KB): {:?}",
+                "Including large {} ({} KB): {}",
                 self.extension,
                 size / 1_000,
-                self.source_path
+                self.source_path.display()
             );
         }
         create_dir_all(&self.output_dir)
@@ -73,9 +73,9 @@ impl AdditionalJob {
             "Copied"
         };
         trace!(
-            "{} {:?} to {}",
+            "{} {} to {}",
             verb.bold(),
-            &self.source_path,
+            &self.source_path.display(),
             &self.output_path
         );
 

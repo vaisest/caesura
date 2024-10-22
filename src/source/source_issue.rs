@@ -99,18 +99,28 @@ impl Display for SourceIssue {
                     join_humanized(formats)
                 )
             }
-            MissingDirectory { path } => format!("Source directory not found: {path:?}"),
-            NoFlacs { path } => format!("No FLAC files found in source directory: {path:?}"),
+            MissingDirectory { path } => format!("Source directory not found: {}", path.display()),
+            NoFlacs { path } => format!(
+                "No FLAC files found in source directory: {}",
+                path.display()
+            ),
             Imdl { details } => format!("Files do not match hash:\n{details}"),
             Length { path, excess } => {
-                format!("Path is {excess} characters longer than allowed: {path:?}")
+                format!(
+                    "Path is {excess} characters longer than allowed: {}",
+                    path.display()
+                )
             }
-            MissingTags { path, tags } => format!("Missing tags: {tags:?}: {path:?}"),
-            SampleRate { path, rate } => format!("Unsupported sample rate: {rate}: {path:?}"),
+            MissingTags { path, tags } => {
+                format!("Missing tags: {}: {}", join_humanized(tags), path.display())
+            }
+            SampleRate { path, rate } => {
+                format!("Unsupported sample rate: {rate}: {}", path.display())
+            }
             Channels { path, count } => {
-                format!("Too many channels: {count}: {path:?}")
+                format!("Too many channels: {count}: {}", path.display())
             }
-            FlacError { path, error } => format!("FLAC stream error: {error}: {path:?}"),
+            FlacError { path, error } => format!("FLAC stream error: {error}: {}", path.display()),
             Error { domain, details } => format!("A {domain} error occured:\n{details}"),
             Other(details) => details.clone(),
         };

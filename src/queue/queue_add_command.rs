@@ -44,7 +44,7 @@ impl QueueAddCommand {
         if !torrent_dir.is_dir() {
             return AppError::explained("get torrent files", "path is not a directory".to_owned());
         }
-        trace!("Reading torrent directory: {torrent_dir:?}");
+        trace!("Reading torrent directory: {}", torrent_dir.display());
         let paths = DirectoryReader::new()
             .with_extension("torrent")
             .with_max_depth(0)

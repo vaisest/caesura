@@ -83,7 +83,9 @@ impl SourceProvider {
                 "{} multiple content directories matching the torrent. The first will be used.",
                 "Found".bold()
             );
-            trace!("{directories:?}");
+            for directory in &directories {
+                trace!("{}", directory.display());
+            }
         }
         Ok(directories.first().expect("should be at least one").clone())
     }

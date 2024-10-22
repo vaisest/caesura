@@ -119,7 +119,7 @@ impl TranscodeCommand {
             let path = self.paths.get_torrent_path(source, *target);
             if path.exists() {
                 debug!("{} existing {target} transcode", "Found".bold());
-                trace!("{path:?}");
+                trace!("{}", path.display());
             } else {
                 out.insert(*target);
             }
@@ -190,7 +190,7 @@ impl TranscodeCommand {
                 .clone()
                 .expect("indexer should be set");
             ImdlCommand::create(&content_dir, &output_path, announce_url, indexer).await?;
-            trace!("{} torrent {:?}", "Created".bold(), output_path);
+            trace!("{} torrent {}", "Created".bold(), output_path.display());
         }
         debug!("{} torrents {}", "Created".bold(), source);
         Ok(())

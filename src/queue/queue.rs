@@ -133,7 +133,7 @@ impl Queue {
         let torrent = match ImdlCommand::show(&path).await {
             Ok(torrent) => torrent,
             Err(error) => {
-                error!("Failed to read torrent: {path:?}\n{error}");
+                error!("Failed to read torrent: {}\n{error}", path.display());
                 return false;
             }
         };
@@ -153,7 +153,7 @@ impl Queue {
         if !path.exists() || !path.is_file() {
             return AppError::explained("write queue", "queue file does not exist".to_owned());
         }
-        trace!("{} queue file: {:?}", "Writing".bold(), path);
+        trace!("{} queue file: {}", "Writing".bold(), path.display());
         let file = File::create(path).or_else(|e| AppError::io(e, "open queue"))?;
         let mut writer = BufWriter::new(file);
         serde_yaml::to_writer(&mut writer, &self.items)
@@ -170,10 +170,10 @@ impl Queue {
         if !path.exists() || !path.is_file() {
             return AppError::explained("load queue", "queue file does not exist".to_owned());
         }
-        trace!("{} queue from: {path:?}", "Loading".bold());
+        trace!("{} queue from: {}", "Loading".bold(), path.display());
         let file = File::open(path.clone()).or_else(|e| AppError::io(e, "open queue file"))?;
         if file.metadata().expect("file should have metadata").len() == 0 {
-            trace!("Queue file is empty: {path:?}");
+            trace!("Queue file is empty: {}", path.display());
         } else {
             let reader = BufReader::new(file);
             let items: HashMap<String, QueueItem> = serde_yaml::from_reader(reader)
