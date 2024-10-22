@@ -1,4 +1,6 @@
 use crate::formats::ExistingFormat;
+use std::fmt::{Display, Formatter};
+use SourceFormat::*;
 
 /// Format of a [Source].
 #[derive(Clone, Copy, Debug)]
@@ -9,17 +11,31 @@ pub enum SourceFormat {
 
 impl SourceFormat {
     #[must_use]
+    pub fn get_name(&self) -> &str {
+        match self {
+            Flac24 => "FLAC 24bit",
+            Flac => "FLAC",
+        }
+    }
+
+    #[must_use]
     pub fn to_existing(self) -> ExistingFormat {
         match self {
-            SourceFormat::Flac24 => ExistingFormat::Flac24,
-            SourceFormat::Flac => ExistingFormat::Flac,
+            Flac24 => ExistingFormat::Flac24,
+            Flac => ExistingFormat::Flac,
         }
     }
     #[must_use]
     pub fn get_title(&self) -> &str {
         match self {
-            SourceFormat::Flac24 => "FLAC 24bit Lossless",
-            SourceFormat::Flac => "FLAC Lossless",
+            Flac24 => "FLAC 24bit Lossless",
+            Flac => "FLAC Lossless",
         }
+    }
+}
+
+impl Display for SourceFormat {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "{}", self.get_name())
     }
 }

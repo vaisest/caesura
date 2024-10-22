@@ -1,4 +1,5 @@
 use crate::formats::ExistingFormat;
+use crate::naming::join_humanized;
 use crate::source::SourceIssue::*;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -93,7 +94,10 @@ impl Display for SourceIssue {
             LossyWeb => "Lossy web releases need approval".to_owned(),
             Trumpable => "Source is trumpable".to_owned(),
             Existing { formats } => {
-                format!("All allowed formats have been transcoded to already: {formats:?}",)
+                format!(
+                    "All allowed formats have been transcoded to already: {}",
+                    join_humanized(formats)
+                )
             }
             MissingDirectory { path } => format!("Source directory not found: {path:?}"),
             NoFlacs { path } => format!("No FLAC files found in source directory: {path:?}"),
