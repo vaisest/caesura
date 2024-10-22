@@ -64,6 +64,7 @@ impl UploadCommand {
     ///
     /// Errors are logged so do NOT need to be handled by the caller.
     #[must_use]
+    #[allow(clippy::too_many_lines)]
     pub async fn execute(&mut self, source: &Source) -> UploadStatus {
         let targets = self.targets.get(source.format, &source.existing);
         let mut api = self.api.write().expect("API should be available to read");

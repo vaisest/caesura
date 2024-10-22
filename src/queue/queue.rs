@@ -199,7 +199,7 @@ impl Queue {
     }
 }
 
-fn exclude_verify_failures(item: &&QueueItem) -> bool {
+fn exclude_verify_failures(item: &QueueItem) -> bool {
     if let Some(verify) = &item.verify {
         verify.verified
     } else {
@@ -207,7 +207,7 @@ fn exclude_verify_failures(item: &&QueueItem) -> bool {
     }
 }
 
-fn exclude_transcode_failures(item: &&QueueItem) -> bool {
+fn exclude_transcode_failures(item: &QueueItem) -> bool {
     if let Some(transcode) = &item.transcode {
         transcode.success
     } else {
