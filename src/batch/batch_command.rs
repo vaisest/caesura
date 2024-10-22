@@ -95,9 +95,10 @@ impl BatchCommand {
             trace!("{} {item}", "Processing".bold());
             let Some(id) = item.id else {
                 debug!("{} {item} as it doesn't have an id", "Skipping".bold());
-                queue.set_verify(hash, VerifyStatus::from_issue(SourceIssue::IdError {
+                let status = VerifyStatus::from_issue(SourceIssue::IdError {
                     details: "missing id".to_owned(),
-                }));
+                });
+                queue.set_verify(hash, status);
                 continue;
             };
             let source = match source_provider.get(id).await {
