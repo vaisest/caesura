@@ -9,7 +9,7 @@ use log::{error, trace};
 
 use crate::errors::AppError;
 use crate::imdl::ImdlCommand;
-use crate::options::QueueOptions;
+use crate::options::CacheOptions;
 use crate::queue::QueueItem;
 use crate::spectrogram::SpectrogramStatus;
 use crate::transcode::TranscodeStatus;
@@ -39,8 +39,8 @@ impl Queue {
 
     /// DI constructor for [`Queue`]
     #[inject]
-    pub fn from_options(options: Ref<QueueOptions>) -> Self {
-        let path = options.queue.clone().expect("queue path should be set");
+    pub fn from_options(options: Ref<CacheOptions>) -> Self {
+        let path = options.cache.clone().expect("queue path should be set");
         Self {
             path,
             items: BTreeMap::new(),

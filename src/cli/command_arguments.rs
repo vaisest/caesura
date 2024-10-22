@@ -2,7 +2,7 @@ use clap::Subcommand;
 
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{
-    BatchOptions, FileOptions, QueueOptions, RunnerOptions, SharedOptions, SpectrogramOptions,
+    BatchOptions, CacheOptions, FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions,
     TargetOptions, UploadOptions,
 };
 
@@ -29,7 +29,7 @@ pub enum CommandArguments {
         #[command(flatten)]
         batch: BatchOptions,
         #[command(flatten)]
-        queue: QueueOptions,
+        queue: CacheOptions,
     },
 
     /// Add FLAC sources to the queue without transcoding
@@ -37,7 +37,7 @@ pub enum CommandArguments {
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
-        queue: QueueOptions,
+        queue: CacheOptions,
     },
 
     /// Generate spectrograms for each track of a FLAC source.

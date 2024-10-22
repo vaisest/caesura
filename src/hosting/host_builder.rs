@@ -44,8 +44,8 @@ impl HostBuilder {
             // Add options
             .add(OptionsProvider::singleton())
             .add(BatchOptions::singleton())
+            .add(CacheOptions::singleton())
             .add(FileOptions::singleton())
-            .add(QueueOptions::singleton())
             .add(RunnerOptions::singleton())
             .add(SharedOptions::singleton())
             .add(SpectrogramOptions::singleton())
@@ -71,7 +71,7 @@ impl HostBuilder {
             // Add queue services
             .add(QueueCommand::transient().as_mut())
             .add(singleton_as_self().from(|provider| {
-                let options = provider.get_required::<QueueOptions>();
+                let options = provider.get_required::<CacheOptions>();
                 let queue = Queue::from_options(options);
                 RefMut::new(Mut::new(queue))
             }))

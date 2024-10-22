@@ -1,7 +1,7 @@
 use crate::errors::AppError;
 use crate::options::{
-    BatchOptions, FileOptions, Options, SharedOptions, SpectrogramOptions, TargetOptions,
-    VerifyOptions,
+    BatchOptions, CacheOptions, FileOptions, Options, SharedOptions, SpectrogramOptions,
+    TargetOptions, VerifyOptions,
 };
 use crate::queue::Queue;
 use crate::source::*;
@@ -18,6 +18,7 @@ use tokio::time::sleep;
 /// Batch a FLAC source is suitable for transcoding.
 #[injectable]
 pub struct BatchCommand {
+    cache_options: Ref<CacheOptions>,
     shared_options: Ref<SharedOptions>,
     verify_options: Ref<VerifyOptions>,
     target_options: Ref<TargetOptions>,
@@ -38,7 +39,8 @@ impl BatchCommand {
     /// Returns `true` if the batch process succeeds.
     #[allow(clippy::too_many_lines)]
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
-        if !self.shared_options.validate()
+        if !self.cache_options.validate()
+            || !self.shared_options.validate()
             || !self.verify_options.validate()
             || !self.target_options.validate()
             || !self.spectrogram_options.validate()

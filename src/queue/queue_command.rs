@@ -1,6 +1,6 @@
 use crate::errors::AppError;
 use crate::fs::DirectoryReader;
-use crate::options::{Options, QueueOptions, SharedOptions};
+use crate::options::{CacheOptions, Options, SharedOptions};
 use crate::queue::{Queue, QueueStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
@@ -11,7 +11,7 @@ use std::path::PathBuf;
 #[injectable]
 pub struct QueueCommand {
     shared_options: Ref<SharedOptions>,
-    queue_options: Ref<QueueOptions>,
+    queue_options: Ref<CacheOptions>,
     queue: RefMut<Queue>,
 }
 

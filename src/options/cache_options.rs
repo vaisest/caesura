@@ -7,50 +7,61 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{DoesNotExist, OptionRule, Options, OptionsProvider};
+use crate::options::{Changed, DoesNotExist, OptionRule, Options, OptionsProvider};
 
-/// Options for [`BatchCommand`]
+/// Options for [`Queue`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct QueueOptions {
-    /// Path to queue file.
+pub struct CacheOptions {
+    /// Path to cache file.
     ///
-    /// Default: `output/queue.yml`
+    /// Default: `output/cache.yml`
     #[arg(long)]
-    pub queue: Option<PathBuf>,
+    pub cache: Option<PathBuf>,
 }
 
 #[injectable]
-impl QueueOptions {
+impl CacheOptions {
     fn new(provider: Ref<OptionsProvider>) -> Self {
         provider.get()
     }
 }
 
-impl Options for QueueOptions {
+impl Options for CacheOptions {
     fn get_name() -> String {
-        "Batch Options".to_owned()
+        "Cache Options".to_owned()
     }
 
     fn merge(&mut self, alternative: &Self) {
-        if self.queue.is_none() {
-            self.queue.clone_from(&alternative.queue);
+        if self.cache.is_none() {
+            self.cache.clone_from(&alternative.cache);
         }
     }
 
     fn apply_defaults(&mut self) {
-        if self.queue.is_none() {
-            self.queue = Some(PathBuf::from("output/queue.yml"));
+        if self.cache.is_none() {
+            self.cache = Some(PathBuf::from("output/cache.yml"));
         }
     }
 
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
-        if let Some(queue) = &self.queue {
-            if !queue.exists() || !queue.is_file() {
+        if let Some(cache) = &self.cache {
+            if cache.ends_with(".json") || cache.eq(&PathBuf::from("output/cache.yml")) {
+                errors.push(Changed(
+                    "Cache File".to_owned(),
+                    cache.to_string_lossy().to_string(),
+                    "In v0.19.0 the cache file format changed to YAML.
+Please see the release notes for more details:
+https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
+                        .to_owned(),
+                ));
+            }
+
+            if !cache.exists() || !cache.is_file() {
                 errors.push(DoesNotExist(
-                    "Queue File".to_owned(),
-                    queue.to_string_lossy().to_string(),
+                    "Cache File".to_owned(),
+                    cache.to_string_lossy().to_string(),
                 ));
             }
         }
@@ -77,7 +88,7 @@ impl Options for QueueOptions {
     }
 }
 
-impl Display for QueueOptions {
+impl Display for CacheOptions {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

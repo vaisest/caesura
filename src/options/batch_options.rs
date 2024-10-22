@@ -1,5 +1,4 @@
 use std::fmt::{Display, Formatter};
-use std::path::PathBuf;
 
 use clap::{ArgAction, Args};
 use di::{injectable, Ref};
@@ -7,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::options::{DoesNotExist, OptionRule, Options, OptionsProvider};
+use crate::options::{OptionRule, Options, OptionsProvider};
 
 /// Options for [`BatchCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -45,12 +44,6 @@ pub struct BatchOptions {
     /// Default: `null`
     #[arg(long)]
     pub wait_before_upload: Option<String>,
-
-    /// Path to cache file.
-    ///
-    /// Default: `output/cache.json`
-    #[arg(long)]
-    pub cache: Option<PathBuf>,
 }
 
 #[injectable]
@@ -97,9 +90,6 @@ impl Options for BatchOptions {
             self.wait_before_upload
                 .clone_from(&alternative.wait_before_upload);
         }
-        if self.cache.is_none() {
-            self.cache.clone_from(&alternative.cache);
-        }
     }
 
     fn apply_defaults(&mut self) {
@@ -115,9 +105,6 @@ impl Options for BatchOptions {
         if self.no_limit.is_none() {
             self.no_limit = Some(false);
         }
-        if self.cache.is_none() {
-            self.cache = Some(PathBuf::from("output/cache.json"));
-        }
     }
 
     #[must_use]
@@ -128,14 +115,6 @@ impl Options for BatchOptions {
                 errors.push(OptionRule::DurationInvalid(
                     "Wait Before Upload".to_owned(),
                     wait_before_upload.clone(),
-                ));
-            }
-        }
-        if let Some(cache) = &self.cache {
-            if !cache.exists() || !cache.is_file() {
-                errors.push(DoesNotExist(
-                    "Cache File".to_owned(),
-                    cache.to_string_lossy().to_string(),
                 ));
             }
         }
