@@ -33,27 +33,11 @@ impl OptionsProvider {
     /// Get the [`Options`]
     #[must_use]
     pub fn get<T: Options>(&self) -> T {
-        let mut options = if let Some(options) = T::from_args() {
-            trace!(
-                "{} {} from command line:\n{}",
-                "Parsed".bold(),
-                T::get_name(),
-                options
-            );
-            options
-        } else {
-            T::default()
-        };
+        let mut options = T::from_args().unwrap_or_default();
         if let Some(yaml) = &self.yaml {
             if !yaml.is_empty() {
                 match T::from_yaml(yaml) {
                     Ok(file_options) => {
-                        trace!(
-                            "{} {} from file:\n{}",
-                            "Parsed".bold(),
-                            T::get_name(),
-                            file_options
-                        );
                         options.merge(&file_options);
                     }
                     Err(error) => {
@@ -64,7 +48,6 @@ impl OptionsProvider {
             }
         }
         options.apply_defaults();
-        trace!("{} {}: {}", "Using".bold(), T::get_name(), options);
         options
     }
 }
@@ -77,7 +60,6 @@ fn read_config_file(options: &SharedOptions) -> String {
         .config
         .clone()
         .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
-    trace!("{} options from file: {:?}", "Reading".bold(), path);
     read_to_string(path).unwrap_or_else(|error| {
         Logger::force_init();
         warn!("{} to read config file: {}", "Failed".bold(), error);
