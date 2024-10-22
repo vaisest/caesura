@@ -10,7 +10,8 @@ use crate::cli::CommandArguments::{Batch, Queue, Spectrogram, Transcode, Upload,
 use crate::cli::QueueCommandArguments::{Add, List};
 use crate::logging::{TimeFormat, Verbosity};
 use crate::options::{
-    DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
+    Changed, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
+    UrlNotHttp, DEFAULT_CONFIG_PATH,
 };
 
 /// Options shared by all commands
@@ -156,6 +157,26 @@ impl Options for SharedOptions {
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
+        if let Some(config) = &self.config {
+            if config.ends_with(".json")
+                || (config.eq(&PathBuf::from(DEFAULT_CONFIG_PATH)) && !config.exists())
+            {
+                errors.push(Changed(
+                    "Config File".to_owned(),
+                    config.to_string_lossy().to_string(),
+                    "In v0.19.0 the config file format changed to YAML.
+Please see the release notes for more details:
+https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
+                        .to_owned(),
+                ));
+            }
+            if !config.exists() || !config.is_file() {
+                errors.push(DoesNotExist(
+                    "Config File".to_owned(),
+                    config.to_string_lossy().to_string(),
+                ));
+            }
+        }
         if self.api_key.is_none() {
             errors.push(NotSet("API Key".to_owned()));
         }
@@ -204,14 +225,6 @@ impl Options for SharedOptions {
             }
         } else {
             errors.push(NotSet("Content Directory".to_owned()));
-        }
-        if let Some(config_path) = &self.config {
-            if !config_path.exists() || !config_path.is_file() {
-                errors.push(DoesNotExist(
-                    "Config File".to_owned(),
-                    config_path.to_string_lossy().to_string(),
-                ));
-            }
         }
         if let Some(output_directory) = &self.output {
             if !output_directory.exists() || !output_directory.is_dir() {
