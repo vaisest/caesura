@@ -51,9 +51,9 @@ impl QueueAddCommand {
             .read(&torrent_dir)
             .or_else(|e| AppError::io(e, "read torrent directory"))?;
         let found = paths.len();
-        debug!("Found {} torrent files", found);
+        info!("{} {} torrent files", "Found".bold(), found);
         if found > 250 {
-            debug!("This may take a while");
+            info!("This may take a while");
         }
         let mut queue = self.queue.write().expect("queue should be writeable");
         queue.load()?;
