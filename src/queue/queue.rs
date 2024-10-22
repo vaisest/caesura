@@ -54,23 +54,31 @@ impl Queue {
 
     /// Get the keys of the items that have not been processed.
     ///
-    /// Items are filtered to ensure they:
-    /// - Match the provided indexer
-    /// - Have no reason to be skipped
-    /// - Have not been verified or have been and `verified` is true
-    /// - Have not been uploaded
-    /// - Have not been transcoded, unless `upload_enabled` is true
+    /// Items are filtered to ensure they have:
+    /// - the correct indexer
+    /// - not been verified, unless `transcode_enabled` is true
+    /// - not been transcoded, unless `upload_enabled` is true
+    /// - not been verified OR have been and `verified` is true
+    /// - not been transcoded OR have been and `success` is true
+    /// - not been uploaded
     ///
     /// Items are sorted by name
-    pub fn get_unprocessed(&mut self, indexer: String, upload_enabled: bool) -> Vec<String> {
+    pub fn get_unprocessed(
+        &mut self,
+        indexer: String,
+        transcode_enabled: bool,
+        upload_enabled: bool,
+    ) -> Vec<String> {
         let mut items: Vec<&QueueItem> = self
             .items
             .values()
-            .filter(|x| {
-                x.indexer == indexer
-                    && x.verify.as_ref().map_or(true, |v| v.verified)
-                    && x.upload.is_none()
-                    && (upload_enabled || x.transcode.is_none())
+            .filter(|item| {
+                item.indexer == indexer
+                    && exclude_verified_if_transcode_disabled(item, transcode_enabled)
+                    && exclude_transcoded_if_upload_disabled(item, upload_enabled)
+                    && exclude_verify_failures(item)
+                    && exclude_transcode_failures(item)
+                    && item.upload.is_none()
             })
             .collect();
         items.sort_by_key(|x| x.name.clone());
@@ -189,4 +197,28 @@ impl Queue {
     pub fn len(&self) -> usize {
         self.items.len()
     }
+}
+
+fn exclude_verify_failures(item: &&QueueItem) -> bool {
+    if let Some(verify) = &item.verify {
+        verify.verified
+    } else {
+        true
+    }
+}
+
+fn exclude_transcode_failures(item: &&QueueItem) -> bool {
+    if let Some(transcode) = &item.transcode {
+        transcode.success
+    } else {
+        true
+    }
+}
+
+fn exclude_verified_if_transcode_disabled(item: &QueueItem, transcode_enabled: bool) -> bool {
+    transcode_enabled || item.verify.is_none()
+}
+
+fn exclude_transcoded_if_upload_disabled(x: &QueueItem, upload_enabled: bool) -> bool {
+    upload_enabled || x.transcode.is_none()
 }

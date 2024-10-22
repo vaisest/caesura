@@ -12,5 +12,6 @@ pub(crate) mod queue_list_command;
 pub(crate) mod queue_status;
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
+#[allow(clippy::too_many_lines)]
 mod tests;
 pub(crate) mod timestamp;

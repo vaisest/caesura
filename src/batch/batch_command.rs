@@ -70,7 +70,7 @@ impl BatchCommand {
             .clone()
             .expect("indexer should be set");
         let limit = self.batch_options.get_limit();
-        let items = queue.get_unprocessed(indexer.clone(), upload_enabled);
+        let items = queue.get_unprocessed(indexer.clone(), transcode_enabled, upload_enabled);
         if items.is_empty() {
             info!(
                 "{} items in the queue for {}",

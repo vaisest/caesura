@@ -24,13 +24,14 @@ impl QueueListCommand {
         }
         let mut queue = self.queue.write().expect("Queue should be writeable");
         queue.load()?;
+        let transcode_enabled = self.batch_options.transcode.expect("transcode should be set");
         let upload_enabled = self.batch_options.upload.expect("upload should be set");
         let indexer = self
             .shared_options
             .indexer
             .clone()
             .expect("indexer should be set");
-        let items = queue.get_unprocessed(indexer.clone(), upload_enabled);
+        let items = queue.get_unprocessed(indexer.clone(), transcode_enabled, upload_enabled);
         if items.is_empty() {
             info!(
                 "{} items in the queue for {}",
