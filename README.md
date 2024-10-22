@@ -86,7 +86,7 @@ docker run ghcr.io/rogueoneecho/caesura --help
 Run the `config` command to print the default configuration and redirect it to `config.json`.
 
 ```bash
-docker run ghcr.io/rogueoneecho/caesura config > config.json
+docker run ghcr.io/rogueoneecho/caesura config > config.yml
 ```
 
 > [!NOTE]
@@ -96,9 +96,12 @@ Edit `config.json` in your preferred text editor. Set the following fields for y
 - `announce_url` Your personal announce URL. Find it on upload page.
 - `api_key` Create an API key with `Torrents` permission `Settings > Access Settings > Create an API Key`
 - `content` the directory containing torrent content. Typically this is set as the download directory in your torrent client. Defaults to `./content`.
-- `indexer` the id of the indexer: `red`, `pth`, `ops`.
-- `indexer_url` the URL of the indexer: `https://redacted.ch`, `https://orpheus.network`.
 - `output` the directory where transcodes, spectrograms and .torrent files will be written. Defaults to `./output`.
+
+> [!TIP]
+> The following fields are optional, if not set they're set based on the `announce_url`:
+> - `indexer` the id of the indexer: `red`, `pth`, `ops`.
+> - `indexer_url` the URL of the indexer: `https://redacted.ch`, `https://orpheus.network`.
 
 ### 3. Verify a source
 
@@ -209,9 +212,26 @@ Go to your indexer and check your uploads to make sure everything has gone to pl
 >
 > Misuse of this application, especially the `batch` command, can result in the loss of your upload privileges or a ban.
 
-Now that you have the hang of the application we can speed things up with the `batch` command.
+Now that you have the hang of the application we can speed things up with the `queue` and `batch` commands.
 
-This handles `verify`, `spectrogram`, `transcode` and `upload` in a single command. It can also be pointed at a directory containing torrent files to automatically sort through and pick out suitable sources.
+The `batch` command handles `verify`, `spectrogram`, `transcode` and `upload` in a single command. It can also be pointed at a directory containing torrent files to automatically sort through and pick out suitable sources.
+
+Run the `queue add` command to search through a directory of torrents and queue them for batch processing:
+
+> [!NOTE]
+> The `batch` and `queue` commands use a cache file to store progress helping speed up subsequent runs.
+>
+> Make sure the cache file is in a mounted volume so it's not deleted between runs.
+
+```bash
+docker compose run --rm caesura queue add /path/to/your/torrents
+```
+
+Run the `queue list` command to see what is next in the queue for the current `indexer`:
+
+```bash
+docker compose run --rm caesura queue list
+```
 
 By default the `batch` command will limit to processing just `3` transcodes and it won't create spectrograms or upload unless explicitly instructed. These safeguards are in place to prevent mistakenly uploading a bunch of sources that you haven't checked.
 
@@ -220,10 +240,10 @@ By default the `batch` command will limit to processing just `3` transcodes and 
 >
 > Make sure the cache file is in a mounted volume so it's not deleted between runs.
 
-Run the command to compile a cache and transcode the first three sources in the directory:
+Run the command to batch verify and transcode the three sources in the queue:
 
 ```bash
-docker compose run --rm caesura batch /path/to/your/torrents
+docker compose run --rm caesura batch
 ```
 
 > [!TIP]
@@ -231,28 +251,28 @@ docker compose run --rm caesura batch /path/to/your/torrents
 
 If everything goes to plan three sources should have transcoded to your output directory.
 
-You can filter the cache file with `jq` to see what has been transcoded:
+You can filter the cache file with `yq` to see what has been transcoded:
 
 ```bash
-cat ./output/cache.json | jq 'map(select(.transcoded == true))'
+cat ./output/cache.yml | yq 'map(select(.transcode != null))'
 ```
 
 Or to see what has been skipped and why:
 
 ```bash
-cat ./output/cache.json | jq 'map(select(.skipped != null))'
+cat ./output/cache.yml | yq 'map(select(.skipped != null or .verify.verified == false))'
 ```
 
 If you're working with a lot of files then `less` can be helpful:
 
 ```bash
-cat ./output/cache.json | jq --color-output 'map(select(.transcoded == true))' | less -R
+cat ./output/cache.yml | yq --colors  'map(select(.skipped != null or .verify.verified == false)) | less -R
 ```
 
 Nothing was uploaded in the first run giving you a chance to check the transcodes and spectrograms. Once you're satisfied run the command again but with the `--upload` flag (or set `"upload": true` in the config file).
 
 ```bash
-docker compose run --rm caesura batch /path/to/your/torrents --upload
+docker compose run --rm caesura batch --upload
 ```
 
 Check the uploads on your indexer to make sure everything has gone to plan.
@@ -260,13 +280,13 @@ Check the uploads on your indexer to make sure everything has gone to plan.
 Now, we can set the batch command loose with the `--no-limit` option to transcode (but not upload) every source in the directory:
 
 ```bash
-docker compose run --rm caesura batch /path/to/your/torrents --no-limit
+docker compose run --rm caesura batch --no-limit
 ```
 
 Once you've checked the transcodes you can start to upload them in batches. The `--wait-before-upload 30s` option will add a 30 second wait interval between uploads to give you time to check everything looks good, and spread out the load on your indexer:
 
 ```bash
-docker compose run --rm caesura batch /path/to/your/torrents --upload --limit 10 --wait-before-upload 30s
+docker compose run --rm caesura batch --upload --limit 10 --wait-before-upload 30s
 ```
 
 > [!WARNING]
@@ -286,11 +306,9 @@ By default the application loads `config.json` from the current working director
 
 Most options have sensible defaults so the minimum required configuration is:
 
-```json
-{
-    "announce_url": "https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce",
-    "api_key": "YOUR_API_KEY",
-}
+```yaml
+announce_url: https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce
+api_key: "YOUR_API_KEY"
 ```
 
 ### Recommended configuration
@@ -303,21 +321,19 @@ This is based around the setup in this guide: [how to set up Deluge via Proton V
 - `/srv/deluge/state` is the Deluge state directory, containing all `.torrent` files loaded in Deluge.
 - `/srv/shared/deluge` is the Deluge download directory, containing all the content.
 
-#### `config.json`
+#### `config.yml`
 
-- `"source": "/srv/deluge/state",` in `config.json` means the source can be ommitted from the command.
+- `source: /srv/deluge/state,` in `config.yml` means the source can be ommitted from the command.
 
-```json
-{
-    "announce_url": "https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce",
-    "api_key": "YOUR_API_KEY",
-    "cache": "/srv/shared/caesura/cache.json",
-    "content": "/srv/shared/deluge",
-    "limit": 5,
-    "output": "/srv/shared/caesura",
-    "source": "/srv/deluge/state",
-    "verbosity": "debug"
-}
+```yaml
+announce_url: https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce
+api_key: YOUR_API_KEY
+cache: /srv/shared/caesura/cache.json
+content: /srv/shared/deluge
+limit: 5
+output: /srv/shared/caesura
+source: /srv/deluge/state
+verbosity: debug
 ```
 
 #### `docker-compose.yml`
@@ -344,7 +360,7 @@ services:
 
 If you encounter any issues:
 
-1. Check the logs for errors.
+1. Check the logs for errors
 
 The logging verbosity can be adjusted with the `--verbosity <LOG-LEVEL>` option. The available log levels are:
 
@@ -353,9 +369,15 @@ The logging verbosity can be adjusted with the `--verbosity <LOG-LEVEL>` option.
 - `debug` provides insight into each step
 - `trace` is detailed logging to see exactly what's happening
 
-2. Re-read the getting started guide
-3. [Ask for help in GitHub Discussions](https://github.com/RogueOneEcho/caesura/discussions)
-4. [Create an issue](https://github.com/RogueOneEcho/caesura/issues)
+2. Ask ChatGPT
+
+You might be surprised how often just copying and pasting the command and error message into ChatGPT can provide an instant solution.
+
+3. Re-read the getting started guide
+4. [Ask for help in support discussion](https://github.com/RogueOneEcho/caesura/discussions/categories/support)
+5. If it's an idea or request for a new feature [search for an existing or create a new idea discussion](https://github.com/RogueOneEcho/caesura/discussions/categories/ideas)
+5. If it's a bug report [search for an existing or create a new issue](https://github.com/RogueOneEcho/caesura/issues)
+
 
 > [!TIP]
 > If you manage to resolve your issue it's always worth creating a new discussion anyway because it might help someone else in the future, or identify an area where the documentation could be improved.
