@@ -119,14 +119,12 @@ impl BatchCommand {
                         } else {
                             debug!("{} {item} due to {reason}", "Skipping".bold());
                             debug!("{error}");
-                            let status = VerifyStatus::new(vec![issue]);
-                            queue.set_verify(hash.clone(), status);
+                            queue.set_verify(hash.clone(), VerifyStatus::from_issue(issue));
                         }
                     } else {
                         debug!("{} {item}", "Skipping".bold());
                         debug!("{issue}");
-                        let status = VerifyStatus::new(vec![issue]);
-                        queue.set_verify(hash.clone(), status);
+                        queue.set_verify(hash.clone(), VerifyStatus::from_issue(issue));
                     }
                     continue;
                 }
@@ -143,8 +141,10 @@ impl BatchCommand {
             } else {
                 debug!("{} {source}", "Skipping".bold());
                 debug!("{} to verify {}", "Failed".bold(), source);
-                for issue in &status.issues {
-                    debug!("{issue}");
+                if let Some(issues) = &status.issues {
+                    for issue in issues {
+                        debug!("{issue}");
+                    }
                 }
                 queue.set_verify(hash, status);
                 continue;

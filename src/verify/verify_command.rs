@@ -51,14 +51,16 @@ impl VerifyCommand {
             .await;
         let (status, id) = match source {
             Ok(source) => (self.execute(&source).await, source.to_string()),
-            Err(error) => (VerifyStatus::new(vec![error]), "unknown".to_owned()),
+            Err(issue) => (VerifyStatus::from_issue(issue), "unknown".to_owned()),
         };
         if status.verified {
             info!("{} {id}", "Verified".bold());
         } else {
             warn!("{} to verify {id}", "Failed".bold());
-            for issue in status.issues {
-                warn!("{issue}");
+            if let Some(issues) = &status.issues {
+                for issue in issues {
+                    warn!("{issue}");
+                }
             }
         }
         Ok(status.verified)
@@ -71,11 +73,11 @@ impl VerifyCommand {
     pub async fn execute(&mut self, source: &Source) -> VerifyStatus {
         debug!("{} {}", "Verifying".bold(), source);
         Self::name_checks(source);
-        let mut errors: Vec<SourceIssue> = Vec::new();
-        errors.append(&mut self.api_checks(source));
-        errors.append(&mut self.flac_checks(source));
-        errors.append(&mut self.hash_check(source).await);
-        VerifyStatus::new(errors)
+        let mut issues: Vec<SourceIssue> = Vec::new();
+        issues.append(&mut self.api_checks(source));
+        issues.append(&mut self.flac_checks(source));
+        issues.append(&mut self.hash_check(source).await);
+        VerifyStatus::from_issues(issues)
     }
 
     fn name_checks(source: &Source) {
@@ -88,31 +90,31 @@ impl VerifyCommand {
 
     /// Validate the source against the API.
     fn api_checks(&self, source: &Source) -> Vec<SourceIssue> {
-        let mut errors: Vec<SourceIssue> = Vec::new();
+        let mut issues: Vec<SourceIssue> = Vec::new();
         if source.group.category_name != "Music" {
-            errors.push(Category {
+            issues.push(Category {
                 actual: source.group.category_name.clone(),
             });
         }
         if source.torrent.scene {
-            errors.push(Scene);
+            issues.push(Scene);
         }
         if source.torrent.lossy_master_approved == Some(true) {
-            errors.push(LossyMaster);
+            issues.push(LossyMaster);
         }
         if source.torrent.lossy_web_approved == Some(true) {
-            errors.push(LossyWeb);
+            issues.push(LossyWeb);
         }
         if source.torrent.trumpable == Some(true) {
-            errors.push(Trumpable);
+            issues.push(Trumpable);
         }
         let target_formats = self.targets.get(source.format, &source.existing);
         if target_formats.is_empty() {
-            errors.push(Existing {
+            issues.push(Existing {
                 formats: source.existing.clone(),
             });
         }
-        errors
+        issues
     }
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
@@ -128,7 +130,7 @@ impl VerifyCommand {
                 path: source.directory.clone(),
             }];
         }
-        let mut errors: Vec<SourceIssue> = Vec::new();
+        let mut issues: Vec<SourceIssue> = Vec::new();
         let max_target = self
             .targets
             .get_max_path_length(source.format, &source.existing);
@@ -140,7 +142,7 @@ impl VerifyCommand {
                 let excess = length - MAX_PATH_LENGTH;
                 if excess > 0 {
                     let excess = excess as usize;
-                    errors.push(Length { path, excess });
+                    issues.push(Length { path, excess });
                     Shortener::suggest_track_name(&flac);
                     too_long = true;
                 }
@@ -148,19 +150,19 @@ impl VerifyCommand {
             let tags = TagVerifier::execute(&flac, source)
                 .unwrap_or(vec!["failed to retrieve tags".to_owned()]);
             if !tags.is_empty() {
-                errors.push(MissingTags {
+                issues.push(MissingTags {
                     path: flac.path.clone(),
                     tags,
                 });
             }
             for error in StreamVerifier::execute(&flac) {
-                errors.push(error);
+                issues.push(error);
             }
         }
         if too_long {
             Shortener::suggest_album_name(source);
         }
-        errors
+        issues
     }
 
     async fn hash_check(&mut self, source: &Source) -> Vec<SourceIssue> {
