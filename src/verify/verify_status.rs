@@ -1,20 +1,20 @@
 use crate::queue::TimeStamp;
-use crate::verify::SourceRule;
+use crate::source::SourceIssue;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct VerifyStatus {
     pub verified: bool,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub violations: Vec<SourceRule>,
+    pub issues: Vec<SourceIssue>,
     pub completed: TimeStamp,
 }
 
 impl VerifyStatus {
-    pub fn new(violations: Vec<SourceRule>) -> Self {
+    pub fn new(issues: Vec<SourceIssue>) -> Self {
         Self {
-            verified: violations.is_empty(),
-            violations,
+            verified: issues.is_empty(),
+            issues,
             completed: TimeStamp::now(),
         }
     }

@@ -9,8 +9,8 @@ use crate::built_info::{PKG_NAME, PKG_VERSION};
 use crate::dependencies::IMDL;
 use crate::errors::{AppError, OutputHandler};
 use crate::imdl::TorrentSummary;
-use crate::verify::SourceRule;
-use crate::verify::SourceRule::Imdl;
+use crate::source::SourceIssue;
+use crate::source::SourceIssue::Imdl;
 
 pub struct ImdlCommand;
 
@@ -63,7 +63,7 @@ impl ImdlCommand {
     pub async fn verify(
         torrent_file: &PathBuf,
         directory: &PathBuf,
-    ) -> Result<Option<SourceRule>, AppError> {
+    ) -> Result<Option<SourceIssue>, AppError> {
         let output = Command::new(IMDL)
             .arg("torrent")
             .arg("verify")
@@ -88,7 +88,7 @@ impl ImdlCommand {
     pub async fn verify_from_buffer(
         buffer: &[u8],
         directory: &PathBuf,
-    ) -> Result<Vec<SourceRule>, AppError> {
+    ) -> Result<Vec<SourceIssue>, AppError> {
         let mut child = Command::new(IMDL)
             .arg("torrent")
             .arg("verify")

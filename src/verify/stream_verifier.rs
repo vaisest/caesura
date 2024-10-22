@@ -1,12 +1,12 @@
 use crate::fs::FlacFile;
+use crate::source::SourceIssue;
+use crate::source::SourceIssue::*;
 use crate::transcode::get_resample_rate;
-use crate::verify::SourceRule;
-use crate::verify::SourceRule::*;
 
 pub struct StreamVerifier;
 
 impl StreamVerifier {
-    pub fn execute(flac: &FlacFile) -> Vec<SourceRule> {
+    pub fn execute(flac: &FlacFile) -> Vec<SourceIssue> {
         let mut errors = Vec::new();
         let info = match flac.get_stream_info() {
             Ok(info) => info,

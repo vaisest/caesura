@@ -1,6 +1,6 @@
 use crate::formats::ExistingFormat;
-use crate::verify::SourceRule;
-use crate::verify::SourceRule::*;
+use crate::source::SourceIssue;
+use crate::source::SourceIssue::*;
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 
@@ -11,7 +11,7 @@ fn test_serialize_source_rules_vec() {
     existing_formats.insert(ExistingFormat::_320);
     existing_formats.insert(ExistingFormat::Flac);
     let file = PathBuf::from("/path/to/file.flac");
-    let rules: Vec<SourceRule> = vec![
+    let rules: Vec<SourceIssue> = vec![
         Category {
             actual: "Music".to_owned(),
         },
@@ -54,7 +54,7 @@ fn test_serialize_source_rules_vec() {
     ];
 
     // Act
-    let yaml = serde_yaml::to_string(&rules).expect("Failed to serialize SourceRules");
+    let yaml = serde_yaml::to_string(&rules).expect("Failed to serialize SourceIssue");
     println!("{yaml}");
 
     // Assert

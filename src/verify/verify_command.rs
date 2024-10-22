@@ -10,10 +10,10 @@ use crate::imdl::imdl_command::ImdlCommand;
 use crate::naming::{Shortener, SourceName};
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{Options, SharedOptions};
+use crate::source::SourceIssue::*;
 use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::verify_status::VerifyStatus;
-use crate::verify::SourceRule::*;
 use crate::verify::*;
 
 /// Verify a FLAC source is suitable for transcoding.
@@ -32,7 +32,7 @@ impl VerifyCommand {
     ///
     /// [`Source`] is retrieved from the CLI arguments.
     ///
-    /// [`SourceRule`] violations are logged as warnings.
+    /// [`SourceIssue`] issues are logged as warnings.
     ///
     /// Returns `true` if the source is verified.
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
@@ -53,8 +53,8 @@ impl VerifyCommand {
             info!("{} {id}", "Verified".bold());
         } else {
             warn!("{} to verify {id}", "Failed".bold());
-            for violation in status.violations {
-                warn!("{violation}");
+            for issue in status.issues {
+                warn!("{issue}");
             }
         }
         Ok(status.verified)
@@ -62,12 +62,12 @@ impl VerifyCommand {
 
     /// Execute [`VerifyCommand`] on a [`Source`].
     ///
-    /// [`SourceRule`] violations are not logged so must be handled by the caller.
+    /// [`SourceIssue`] issues are not logged so must be handled by the caller.
     #[must_use]
     pub async fn execute(&mut self, source: &Source) -> VerifyStatus {
         debug!("{} {}", "Verifying".bold(), source);
         Self::name_checks(source);
-        let mut errors: Vec<SourceRule> = Vec::new();
+        let mut errors: Vec<SourceIssue> = Vec::new();
         errors.append(&mut self.api_checks(source));
         errors.append(&mut self.flac_checks(source));
         errors.append(&mut self.hash_check(source).await);
@@ -83,8 +83,8 @@ impl VerifyCommand {
     }
 
     /// Validate the source against the API.
-    fn api_checks(&self, source: &Source) -> Vec<SourceRule> {
-        let mut errors: Vec<SourceRule> = Vec::new();
+    fn api_checks(&self, source: &Source) -> Vec<SourceIssue> {
+        let mut errors: Vec<SourceIssue> = Vec::new();
         if source.group.category_name != "Music" {
             errors.push(Category {
                 actual: source.group.category_name.clone(),
@@ -112,7 +112,7 @@ impl VerifyCommand {
     }
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
-    fn flac_checks(&self, source: &Source) -> Vec<SourceRule> {
+    fn flac_checks(&self, source: &Source) -> Vec<SourceIssue> {
         if !source.directory.exists() || !source.directory.is_dir() {
             return vec![MissingDirectory {
                 path: source.directory.clone(),
@@ -124,7 +124,7 @@ impl VerifyCommand {
                 path: source.directory.clone(),
             }];
         }
-        let mut errors: Vec<SourceRule> = Vec::new();
+        let mut errors: Vec<SourceIssue> = Vec::new();
         let max_target = self
             .targets
             .get_max_path_length(source.format, &source.existing);
@@ -159,7 +159,7 @@ impl VerifyCommand {
         errors
     }
 
-    async fn hash_check(&mut self, source: &Source) -> Vec<SourceRule> {
+    async fn hash_check(&mut self, source: &Source) -> Vec<SourceIssue> {
         if self
             .verify_options
             .no_hash_check

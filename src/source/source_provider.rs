@@ -1,8 +1,8 @@
 use crate::api::{Api, Torrent};
 use crate::formats::{ExistingFormat, ExistingFormatProvider};
 use crate::options::SharedOptions;
+use crate::source::SourceIssue;
 use crate::source::*;
-use crate::verify::SourceRule;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use html_escape::decode_html_entities;
@@ -18,11 +18,11 @@ pub struct SourceProvider {
 }
 
 impl SourceProvider {
-    pub async fn get(&mut self, id: i64) -> Result<Source, SourceRule> {
+    pub async fn get(&mut self, id: i64) -> Result<Source, SourceIssue> {
         let mut api = self.api.write().expect("API should be available to read");
         let response = match api.get_torrent(id).await {
             Ok(response) => response,
-            Err(error) => Err(SourceRule::ApiResponse {
+            Err(error) => Err(SourceIssue::ApiResponse {
                 action: "get torrent".to_owned(),
                 status_code: error.status_code.unwrap_or_default(),
                 error: error.message,
@@ -32,21 +32,21 @@ impl SourceProvider {
         let group = response.group;
         let response = match api.get_torrent_group(group.id).await {
             Ok(response) => response,
-            Err(error) => Err(SourceRule::ApiResponse {
+            Err(error) => Err(SourceIssue::ApiResponse {
                 action: "get torrent group".to_owned(),
                 status_code: error.status_code.unwrap_or_default(),
                 error: error.message,
             })?,
         };
         if group.id != response.group.id {
-            return Err(SourceRule::GroupMismatch {
+            return Err(SourceIssue::GroupMismatch {
                 actual: group.id,
                 expected: response.group.id,
             });
         }
         let group_torrents = response.torrents;
         let Some(format) = torrent.get_format().and_then(ExistingFormat::to_source) else {
-            return Err(SourceRule::MissingDirectory {
+            return Err(SourceIssue::MissingDirectory {
                 path: PathBuf::new(),
             });
         };
@@ -63,7 +63,7 @@ impl SourceProvider {
         })
     }
 
-    fn get_source_directory(&self, torrent: &Torrent) -> Result<PathBuf, SourceRule> {
+    fn get_source_directory(&self, torrent: &Torrent) -> Result<PathBuf, SourceIssue> {
         let path = decode_html_entities(&torrent.file_path).to_string();
         let directories: Vec<PathBuf> = self
             .options
@@ -75,7 +75,7 @@ impl SourceProvider {
             .filter(|x| x.exists() && x.is_dir())
             .collect();
         if directories.is_empty() {
-            return Err(SourceRule::MissingDirectory {
+            return Err(SourceIssue::MissingDirectory {
                 path: PathBuf::new(),
             });
         } else if directories.len() > 1 {
@@ -88,10 +88,10 @@ impl SourceProvider {
         Ok(directories.first().expect("should be at least one").clone())
     }
 
-    pub async fn get_from_options(&mut self) -> Result<Source, SourceRule> {
+    pub async fn get_from_options(&mut self) -> Result<Source, SourceIssue> {
         match self.id_provider.get_by_options().await {
             Ok(id) => self.get(id).await,
-            Err(error) => Err(SourceRule::IdError {
+            Err(error) => Err(SourceIssue::IdError {
                 details: error.to_string(),
             }),
         }

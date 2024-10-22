@@ -1,5 +1,5 @@
 use crate::formats::ExistingFormat;
-use crate::verify::SourceRule::*;
+use crate::source::SourceIssue::*;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -10,7 +10,7 @@ pub const MAX_PATH_LENGTH: isize = 180;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
-pub enum SourceRule {
+pub enum SourceIssue {
     IdError {
         details: String,
     },
@@ -68,7 +68,7 @@ pub enum SourceRule {
     },
 }
 
-impl Display for SourceRule {
+impl Display for SourceIssue {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let message = match self {
             IdError { details } => format!("Invalid source id: {details}"),

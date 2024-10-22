@@ -8,7 +8,7 @@ use crate::source::*;
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
-use crate::verify::{SourceRule, VerifyCommand, VerifyStatus};
+use crate::verify::{VerifyCommand, VerifyStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{debug, error, info, trace, warn};
@@ -94,12 +94,12 @@ impl BatchCommand {
             };
             let source = match source_provider.get(id).await {
                 Ok(source) => source,
-                Err(violation) => {
-                    if let SourceRule::ApiResponse {
+                Err(issue) => {
+                    if let SourceIssue::ApiResponse {
                         action: _,
                         status_code,
                         error,
-                    } = violation.clone()
+                    } = issue.clone()
                     {
                         let reason = StatusCode::from_u16(status_code).map_or_else(
                             |_| status_code.to_string(),
@@ -113,13 +113,13 @@ impl BatchCommand {
                         } else {
                             debug!("{} {item} due to {reason}", "Skipping".bold());
                             debug!("{error}");
-                            let status = VerifyStatus::new(vec![violation]);
+                            let status = VerifyStatus::new(vec![issue]);
                             queue.set_verify(hash.clone(), status);
                         }
                     } else {
                         debug!("{} {item}", "Skipping".bold());
-                        debug!("{violation}");
-                        let status = VerifyStatus::new(vec![violation]);
+                        debug!("{issue}");
+                        let status = VerifyStatus::new(vec![issue]);
                         queue.set_verify(hash.clone(), status);
                     }
                     continue;
@@ -137,8 +137,8 @@ impl BatchCommand {
             } else {
                 debug!("{} {source}", "Skipping".bold());
                 debug!("{} to verify {}", "Failed".bold(), source);
-                for violation in &status.violations {
-                    debug!("{violation}");
+                for issue in &status.issues {
+                    debug!("{issue}");
                 }
                 queue.set_verify(hash, status);
                 continue;
