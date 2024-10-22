@@ -68,7 +68,6 @@ impl Queue {
             .values()
             .filter(|x| {
                 x.indexer == indexer
-                    && x.skip.is_none()
                     && x.verify.as_ref().map_or(true, |v| v.verified)
                     && x.upload.is_none()
                     && (upload_enabled || x.transcode.is_none())
@@ -76,11 +75,6 @@ impl Queue {
             .collect();
         items.sort_by_key(|x| x.name.clone());
         items.iter().map(|x| x.hash.clone()).collect()
-    }
-
-    /// Set the reason an item was skipped
-    pub fn set_skip(&mut self, hash: String, reason: String) {
-        self.items.entry(hash).and_modify(|x| x.skip = Some(reason));
     }
 
     /// Set the verify status of an item

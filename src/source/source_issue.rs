@@ -66,6 +66,7 @@ pub enum SourceIssue {
         domain: String,
         details: String,
     },
+    Other(String),
 }
 
 impl Display for SourceIssue {
@@ -107,6 +108,7 @@ impl Display for SourceIssue {
             }
             FlacError { path, error } => format!("FLAC stream error: {error}: {path:?}"),
             Error { domain, details } => format!("A {domain} error occured:\n{details}"),
+            Other(details) => details.clone(),
         };
         message.fmt(formatter)
     }

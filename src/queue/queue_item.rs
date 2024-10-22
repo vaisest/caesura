@@ -21,9 +21,6 @@ pub struct QueueItem {
     /// Source id
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<i64>,
-    /// Reason for skipping?
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub skip: Option<String>,
     /// Verification status
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verify: Option<VerifyStatus>,
