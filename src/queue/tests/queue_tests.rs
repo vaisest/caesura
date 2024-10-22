@@ -34,7 +34,9 @@ skipped_item:
   path: /path/to/skipped_item.torrent
   hash: skipped_item
   indexer: abc
-  skip: Skipped for a reason
+  verify:
+    verified: false
+    completed: 2021-08-01T00:00:00Z
 ";
 
 #[test]
@@ -60,6 +62,7 @@ fn queue_end_to_end() {
     let mut file = File::open(path.clone()).unwrap();
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
+    println!("{content}");
     assert_eq!(content, QUEUE_YAML);
 
     // Act GET_UNPROCESSED
