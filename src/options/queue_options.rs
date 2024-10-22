@@ -47,7 +47,7 @@ impl Options for QueueOptions {
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
         if let Some(queue) = &self.queue {
-            if !queue.exists() && !queue.is_file() {
+            if !queue.exists() || !queue.is_file() {
                 errors.push(DoesNotExist(
                     "Queue File".to_owned(),
                     queue.to_string_lossy().to_string(),

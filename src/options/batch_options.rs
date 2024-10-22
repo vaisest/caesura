@@ -132,7 +132,7 @@ impl Options for BatchOptions {
             }
         }
         if let Some(cache) = &self.cache {
-            if !cache.exists() && !cache.is_file() {
+            if !cache.exists() || !cache.is_file() {
                 errors.push(DoesNotExist(
                     "Cache File".to_owned(),
                     cache.to_string_lossy().to_string(),

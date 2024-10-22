@@ -207,7 +207,7 @@ impl Options for SharedOptions {
         }
         if let Some(directories) = &self.content {
             for dir in directories {
-                if !dir.exists() && !dir.is_dir() {
+                if !dir.exists() || !dir.is_dir() {
                     errors.push(DoesNotExist(
                         "Content Directory".to_owned(),
                         dir.to_string_lossy().to_string(),
@@ -218,7 +218,7 @@ impl Options for SharedOptions {
             errors.push(NotSet("Content Directory".to_owned()));
         }
         if let Some(config_path) = &self.config {
-            if !config_path.exists() && !config_path.is_file() {
+            if !config_path.exists() || !config_path.is_file() {
                 errors.push(DoesNotExist(
                     "Config File".to_owned(),
                     config_path.to_string_lossy().to_string(),
