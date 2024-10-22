@@ -130,7 +130,6 @@ impl Queue {
         if existing.contains(&path) {
             return false;
         }
-        trace!("Reading torrent: {path:?}");
         let torrent = match ImdlCommand::show(&path).await {
             Ok(torrent) => torrent,
             Err(error) => {

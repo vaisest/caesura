@@ -4,7 +4,7 @@ use crate::options::{CacheOptions, Options, QueueOptions, SharedOptions};
 use crate::queue::{Queue, QueueStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{info, trace};
+use log::{debug, info, trace};
 use std::path::PathBuf;
 
 /// Add a directory of `.torrent` files to the queue
@@ -51,7 +51,10 @@ impl QueueAddCommand {
             .read(&torrent_dir)
             .or_else(|e| AppError::io(e, "read torrent directory"))?;
         let found = paths.len();
-        trace!("Found {} torrent files", found);
+        debug!("Found {} torrent files", found);
+        if found > 250 {
+            debug!("This may take a while");
+        }
         let mut queue = self.queue.write().expect("queue should be writeable");
         queue.load()?;
         let added = queue.insert_new_torrent_files(paths).await;
