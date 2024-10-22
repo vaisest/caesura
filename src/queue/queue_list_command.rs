@@ -24,7 +24,10 @@ impl QueueListCommand {
         }
         let mut queue = self.queue.write().expect("Queue should be writeable");
         queue.load()?;
-        let transcode_enabled = self.batch_options.transcode.expect("transcode should be set");
+        let transcode_enabled = self
+            .batch_options
+            .transcode
+            .expect("transcode should be set");
         let upload_enabled = self.batch_options.upload.expect("upload should be set");
         let indexer = self
             .shared_options

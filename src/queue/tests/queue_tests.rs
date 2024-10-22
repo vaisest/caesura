@@ -71,7 +71,7 @@ fn queue_end_to_end() {
 
     // Act GET_UNPROCESSED
     let indexer = "abc".to_owned();
-    let with_transcoded = queue.get_unprocessed(indexer.clone(), true,true);
+    let with_transcoded = queue.get_unprocessed(indexer.clone(), true, true);
     let without_transcoded = queue.get_unprocessed(indexer, true, false);
 
     // Assert
