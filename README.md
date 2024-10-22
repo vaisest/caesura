@@ -243,7 +243,7 @@ By default the `batch` command will limit to processing just `3` transcodes and 
 Run the command to batch verify and transcode the three sources in the queue:
 
 ```bash
-docker compose run --rm caesura batch
+docker compose run --rm caesura batch --transcode
 ```
 
 > [!TIP]
@@ -260,19 +260,19 @@ cat ./output/cache.yml | yq 'map(select(.transcode != null))'
 Or to see what has been skipped and why:
 
 ```bash
-cat ./output/cache.yml | yq 'map(select(.skipped != null or .verify.verified == false))'
+cat ./output/cache.yml | yq 'map(select(.verify.verified == false))'
 ```
 
 If you're working with a lot of files then `less` can be helpful:
 
 ```bash
-cat ./output/cache.yml | yq --colors  'map(select(.skipped != null or .verify.verified == false)) | less -R
+cat ./output/cache.yml | yq --colors  'map(select(.verify.verified == false)) | less -R
 ```
 
-Nothing was uploaded in the first run giving you a chance to check the transcodes and spectrograms. Once you're satisfied run the command again but with the `--upload` flag (or set `"upload": true` in the config file).
+Nothing was uploaded in the first run giving you a chance to check the transcodes and spectrograms. Once you're satisfied run the command again but with the `--upload` flag (or set `upload: true` in the config file).
 
 ```bash
-docker compose run --rm caesura batch --upload
+docker compose run --rm caesura batch --transcode --upload
 ```
 
 Check the uploads on your indexer to make sure everything has gone to plan.
@@ -280,7 +280,7 @@ Check the uploads on your indexer to make sure everything has gone to plan.
 Now, we can set the batch command loose with the `--no-limit` option to transcode (but not upload) every source in the directory:
 
 ```bash
-docker compose run --rm caesura batch --no-limit
+docker compose run --rm caesura batch --transcode --no-limit
 ```
 
 Once you've checked the transcodes you can start to upload them in batches. The `--wait-before-upload 30s` option will add a 30 second wait interval between uploads to give you time to check everything looks good, and spread out the load on your indexer:
