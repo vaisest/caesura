@@ -66,7 +66,6 @@ impl TranscodeCommand {
     #[must_use]
     pub async fn execute(&self, source: &Source) -> TranscodeStatus {
         let targets = self.targets.get(source.format, &source.existing);
-        let targets = self.skip_completed(source, &targets);
         let mut status = TranscodeStatus {
             success: false,
             formats: None,
@@ -81,11 +80,6 @@ impl TranscodeCommand {
             ));
             return status;
         }
-        if let Err(error) = self.execute_transcode(source, &targets).await {
-            status.error = Some(error);
-            status.completed = TimeStamp::now();
-            return status;
-        }
         let formats: Vec<TranscodeFormatStatus> = targets
             .iter()
             .map(|&format| TranscodeFormatStatus {
@@ -94,6 +88,16 @@ impl TranscodeCommand {
             })
             .collect();
         status.formats = Some(formats);
+        let targets = self.skip_completed(source, &targets);
+        if targets.is_empty() {
+            status.success = true;
+            return status;
+        }
+        if let Err(error) = self.execute_transcode(source, &targets).await {
+            status.error = Some(error);
+            status.completed = TimeStamp::now();
+            return status;
+        }
         if let Err(error) = self.execute_additional(source, &targets).await {
             status.error = Some(error);
             status.completed = TimeStamp::now();
