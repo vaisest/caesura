@@ -81,7 +81,7 @@ impl Queue {
                     && item.upload.is_none()
             })
             .collect();
-        items.sort_by_key(|x| x.name.clone());
+        items.sort_by_key(|x| &x.name);
         items.iter().map(|x| x.hash.clone()).collect()
     }
 
