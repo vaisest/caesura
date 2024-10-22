@@ -1,13 +1,13 @@
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
-use crate::cli::ArgumentsParser;
+use crate::cli::CommandArguments::Queue;
+use crate::cli::{ArgumentsParser, QueueCommandArguments};
+use crate::options::{DoesNotExist, NotSet, OptionRule, Options, OptionsProvider};
 use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
-
-use crate::cli::CommandArguments::Queue;
-use crate::options::{DoesNotExist, NotSet, OptionRule, Options, OptionsProvider};
+use QueueCommandArguments::Add;
 
 /// Options for the [`QueueCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -56,9 +56,13 @@ impl Options for QueueOptions {
         errors.is_empty()
     }
 
+    #[allow(clippy::match_wildcard_for_single_variants)]
     fn from_args() -> Option<Self> {
         match ArgumentsParser::get() {
-            Some(Queue { queue, .. }) => Some(queue),
+            Some(Queue {
+                command: Add { queue, .. },
+                ..
+            }) => Some(queue),
             _ => None,
         }
     }

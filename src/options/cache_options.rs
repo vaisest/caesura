@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
+use crate::cli::QueueCommandArguments::{Add, List};
 use crate::options::{Changed, DoesNotExist, OptionRule, Options, OptionsProvider};
 
 /// Options for [`Queue`]
@@ -76,7 +77,10 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
             Some(Batch { cache, .. }) => cache,
-            Some(Queue { cache, .. }) => cache,
+            Some(Queue { command, .. }) => match command {
+                Add { cache, .. } => cache,
+                List { cache, .. } => cache,
+            },
             _ => return None,
         };
         Some(options)

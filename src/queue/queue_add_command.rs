@@ -9,14 +9,14 @@ use std::path::PathBuf;
 
 /// Add a directory of `.torrent` files to the queue
 #[injectable]
-pub struct QueueCommand {
+pub struct QueueAddCommand {
     shared_options: Ref<SharedOptions>,
     cache_options: Ref<CacheOptions>,
     queue_options: Ref<QueueOptions>,
     queue: RefMut<Queue>,
 }
 
-impl QueueCommand {
+impl QueueAddCommand {
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate()
             || !self.cache_options.validate()

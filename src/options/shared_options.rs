@@ -6,7 +6,8 @@ use clap::Args;
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
-use crate::cli::CommandArguments::{Batch, Spectrogram, Transcode, Upload, Verify};
+use crate::cli::CommandArguments::{Batch, Queue, Spectrogram, Transcode, Upload, Verify};
+use crate::cli::QueueCommandArguments::{Add, List};
 use crate::logging::{TimeFormat, Verbosity};
 use crate::options::{
     DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix, UrlNotHttp,
@@ -227,14 +228,19 @@ impl Options for SharedOptions {
     }
 
     fn from_args() -> Option<Self> {
-        match ArgumentsParser::get() {
-            Some(Batch { shared, .. }) => Some(shared),
-            Some(Spectrogram { shared, .. }) => Some(shared),
-            Some(Transcode { shared, .. }) => Some(shared),
-            Some(Verify { shared, .. }) => Some(shared),
-            Some(Upload { shared, .. }) => Some(shared),
-            _ => None,
-        }
+        let options = match ArgumentsParser::get() {
+            Some(Batch { shared, .. }) => shared,
+            Some(Queue { command, .. }) => match command {
+                Add { shared, .. } => shared,
+                List { shared, .. } => shared,
+            },
+            Some(Spectrogram { shared, .. }) => shared,
+            Some(Transcode { shared, .. }) => shared,
+            Some(Verify { shared, .. }) => shared,
+            Some(Upload { shared, .. }) => shared,
+            _ => return None,
+        };
+        Some(options)
     }
 
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {

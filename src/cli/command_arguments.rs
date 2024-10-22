@@ -35,12 +35,8 @@ pub enum CommandArguments {
 
     /// Add FLAC sources to the queue without transcoding
     Queue {
-        #[command(flatten)]
-        shared: SharedOptions,
-        #[command(flatten)]
-        cache: CacheOptions,
-        #[command(flatten)]
-        queue: QueueOptions,
+        #[command(subcommand)]
+        command: QueueCommandArguments,
     },
 
     /// Generate spectrograms for each track of a FLAC source.
@@ -91,5 +87,28 @@ pub enum CommandArguments {
         target: TargetOptions,
         #[command(flatten)]
         verify: VerifyOptions,
+    },
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum QueueCommandArguments {
+    /// Add a directory of `.torrent` files to the queue
+    Add {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        cache: CacheOptions,
+        #[command(flatten)]
+        queue: QueueOptions,
+    },
+
+    /// List the sources in the queue
+    List {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        cache: CacheOptions,
+        #[command(flatten)]
+        batch: BatchOptions,
     },
 }

@@ -8,6 +8,8 @@ This document contains the help content for the `caesura` command-line program.
 * [`caesura config`↴](#caesura-config)
 * [`caesura batch`↴](#caesura-batch)
 * [`caesura queue`↴](#caesura-queue)
+* [`caesura queue add`↴](#caesura-queue-add)
+* [`caesura queue list`↴](#caesura-queue-list)
 * [`caesura spectrogram`↴](#caesura-spectrogram)
 * [`caesura transcode`↴](#caesura-transcode)
 * [`caesura upload`↴](#caesura-upload)
@@ -172,7 +174,20 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
 Add FLAC sources to the queue without transcoding
 
-**Usage:** `caesura queue [OPTIONS] [TORRENT_DIRECTORY]`
+**Usage:** `caesura queue <COMMAND>`
+
+###### **Subcommands:**
+
+* `add` — Add a directory of `.torrent` files to the queue
+* `list` — List the sources in the queue
+
+
+
+## `caesura queue add`
+
+Add a directory of `.torrent` files to the queue
+
+**Usage:** `caesura queue add [OPTIONS] [TORRENT_DIRECTORY]`
 
 ###### **Arguments:**
 
@@ -230,6 +245,84 @@ Add FLAC sources to the queue without transcoding
 * `--cache <CACHE>` — Path to cache file.
 
    Default: `output/cache.yml`
+
+
+
+## `caesura queue list`
+
+List the sources in the queue
+
+**Usage:** `caesura queue list [OPTIONS]`
+
+###### **Options:**
+
+* `--announce-url <ANNOUNCE_URL>` — Announce URL including passkey
+
+   Examples: `https://flacsfor.me/a1b2c3d4e5f6/announce`, `https://home.opsfet.ch/a1b2c3d4e5f6/announce`
+* `--api-key <API_KEY>` — API key with torrent permissions for the indexer
+* `--indexer <INDEXER>` — ID of the tracker as it appears in the source field of a torrent.
+
+   Examples: `red`, `pth`, `ops`
+
+   Default: Determined by `announce_url`
+* `--indexer-url <INDEXER_URL>` — URL of the indexer.
+
+   Examples: `https://redacted.ch`, `https://orpheus.network`
+
+   Default: Determined by `announce_url`
+* `--content <CONTENT>` — Directories containing torrent content.
+
+   Typically this is set as the download directory in your torrent client.
+
+   Default: `./content`
+* `--verbosity <VERBOSITY>` — Level of logs to display.
+
+   Default: `info`
+
+  Possible values: `silent`, `error`, `warn`, `info`, `debug`, `trace`
+
+* `--config <CONFIG>` — Path to the configuration file.
+
+   Default: `./config.yml`
+* `--log-time <LOG_TIME>` — Time format to use in logs.
+
+   Default: `datetime`
+
+  Possible values:
+  - `local`:
+    Local date and time in an ISO 8601 like format
+  - `utc`:
+    Utc date and time in an ISO 8601 like format
+  - `elapsed`:
+    Elapsed time since the start of the program formatted in seconds with millisecond precision
+  - `none`:
+    No timestamp
+
+* `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
+
+   Default: `./output`
+* `--cache <CACHE>` — Path to cache file.
+
+   Default: `output/cache.yml`
+* `--spectrogram` — Should the spectrogram command be executed?
+
+   Default: `false`
+* `--upload` — Should the upload command be executed?
+
+   Default: `false`
+* `--limit <LIMIT>` — Limit the number of torrents to batch process.
+
+   If `no_limit` is set, this option is ignored.
+
+   Default: `3`
+* `--no-limit` — Should the `limit` option be ignored?
+
+   Default: `false`
+* `--wait-before-upload <WAIT_BEFORE_UPLOAD>` — Wait for a duration before uploading the torrent.
+
+   The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
+
+   Default: `null`
 
 
 
