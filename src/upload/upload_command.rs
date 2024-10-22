@@ -12,7 +12,7 @@ use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::{copy_dir, Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::Job;
-use crate::options::{Options, SharedOptions, UploadOptions};
+use crate::options::{Options, SharedOptions, SourceArg, UploadOptions};
 use crate::queue::TimeStamp;
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{CommandFactory, TranscodeJobFactory};
@@ -23,6 +23,7 @@ const MUSIC_CATEGORY_ID: u8 = 0;
 /// Upload transcodes of a FLAC source.
 #[injectable]
 pub struct UploadCommand {
+    arg: Ref<SourceArg>,
     shared_options: Ref<SharedOptions>,
     upload_options: Ref<UploadOptions>,
     source_provider: RefMut<SourceProvider>,
@@ -39,7 +40,10 @@ impl UploadCommand {
     ///
     /// Returns `true` if all the uploads succeed.
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
-        if !self.shared_options.validate() || !self.upload_options.validate() {
+        if !self.arg.validate()
+            || !self.shared_options.validate()
+            || !self.upload_options.validate()
+        {
             return Ok(false);
         }
         let source = self

@@ -9,7 +9,7 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
 use crate::naming::{Shortener, SourceName};
 use crate::options::verify_options::VerifyOptions;
-use crate::options::{Options, SharedOptions};
+use crate::options::{Options, SharedOptions, SourceArg};
 use crate::source::SourceIssue::*;
 use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
@@ -19,6 +19,7 @@ use crate::verify::*;
 /// Verify a FLAC source is suitable for transcoding.
 #[injectable]
 pub struct VerifyCommand {
+    arg: Ref<SourceArg>,
     shared_options: Ref<SharedOptions>,
     verify_options: Ref<VerifyOptions>,
     source_provider: RefMut<SourceProvider>,
@@ -36,7 +37,10 @@ impl VerifyCommand {
     ///
     /// Returns `true` if the source is verified.
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
-        if !self.shared_options.validate() || !self.verify_options.validate() {
+        if !self.arg.validate()
+            || !self.shared_options.validate()
+            || !self.verify_options.validate()
+        {
             return Ok(false);
         }
         let source = self

@@ -43,13 +43,7 @@ Read the config file if it exists and concatenate default values
 
 Verify, transcode, and upload from multiple FLAC sources in one command
 
-**Usage:** `caesura batch [OPTIONS] [SOURCE]`
-
-###### **Arguments:**
-
-* `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
-
-   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
+**Usage:** `caesura batch [OPTIONS]`
 
 ###### **Options:**
 
@@ -170,10 +164,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    Default: `null`
 * `--cache <CACHE>` — Path to cache file.
 
-   Default: `output/cache.json`
-* `--queue <QUEUE>` — Path to queue file.
-
-   Default: `output/queue.yml`
+   Default: `output/cache.yml`
 
 
 
@@ -181,13 +172,13 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
 Add FLAC sources to the queue without transcoding
 
-**Usage:** `caesura queue [OPTIONS] [SOURCE]`
+**Usage:** `caesura queue [OPTIONS] [TORRENT_DIRECTORY]`
 
 ###### **Arguments:**
 
-* `<SOURCE>` — Source as: torrent id, path to torrent file, or indexer url.
+* `<TORRENT_DIRECTORY>` — Path to directory of `.torrent` files.
 
-   Examples: `4871992`, `path/to/something.torrent`, `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or `https://example.com/torrents.php?torrentid=4871992`
+   Examples: `./torrents`, `/path/to/torrents`
 
 ###### **Options:**
 
@@ -236,9 +227,9 @@ Add FLAC sources to the queue without transcoding
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
-* `--queue <QUEUE>` — Path to queue file.
+* `--cache <CACHE>` — Path to cache file.
 
-   Default: `output/queue.yml`
+   Default: `output/cache.yml`
 
 
 

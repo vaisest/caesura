@@ -1,5 +1,5 @@
 use crate::errors::AppError;
-use crate::options::{BatchOptions, CacheOptions, FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions};
+use crate::options::*;
 use di::{injectable, Ref};
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -11,6 +11,7 @@ pub struct ConfigCommand {
     batch_options: Ref<BatchOptions>,
     cache_options: Ref<CacheOptions>,
     file_options: Ref<FileOptions>,
+    queue_options: Ref<QueueOptions>,
     runner_options: Ref<RunnerOptions>,
     shared_options: Ref<SharedOptions>,
     spectrogram_options: Ref<SpectrogramOptions>,
@@ -35,6 +36,7 @@ impl ConfigCommand {
             serde_json::to_value(&*self.batch_options)?,
             serde_json::to_value(&*self.cache_options)?,
             serde_json::to_value(&*self.file_options)?,
+            serde_json::to_value(&*self.queue_options)?,
             serde_json::to_value(&*self.runner_options)?,
             serde_json::to_value(&*self.shared_options)?,
             serde_json::to_value(&*self.spectrogram_options)?,

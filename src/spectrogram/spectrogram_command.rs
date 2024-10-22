@@ -5,7 +5,7 @@ use log::{debug, error, info};
 use crate::errors::AppError;
 use crate::fs::*;
 use crate::jobs::JobRunner;
-use crate::options::{Options, SharedOptions, SpectrogramOptions};
+use crate::options::{Options, SharedOptions, SourceArg, SpectrogramOptions};
 use crate::queue::TimeStamp;
 use crate::source::{Source, SourceProvider};
 use crate::spectrogram::*;
@@ -13,6 +13,7 @@ use crate::spectrogram::*;
 /// Generate spectrograms for each track of a FLAC source.
 #[injectable]
 pub struct SpectrogramCommand {
+    arg: Ref<SourceArg>,
     shared_options: Ref<SharedOptions>,
     spectrogram_options: Ref<SpectrogramOptions>,
     source_provider: RefMut<SourceProvider>,
@@ -28,7 +29,10 @@ impl SpectrogramCommand {
     ///
     /// Returns `true` if the spectrogram generation succeeds.
     pub async fn execute_cli(&self) -> Result<bool, AppError> {
-        if !self.shared_options.validate() || !self.spectrogram_options.validate() {
+        if !self.arg.validate()
+            || !self.shared_options.validate()
+            || !self.spectrogram_options.validate()
+        {
             return Ok(false);
         }
         let source = self

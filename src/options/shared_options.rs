@@ -61,16 +61,6 @@ pub struct SharedOptions {
     #[arg(long)]
     pub config: Option<PathBuf>,
 
-    /// Source as: torrent id, path to torrent file, or indexer url.
-    ///
-    /// Examples:
-    /// `4871992`,
-    /// `path/to/something.torrent`,
-    /// `https://example.com/torrents.php?id=2259978&torrentid=4871992#torrent4871992`, or
-    /// `https://example.com/torrents.php?torrentid=4871992`
-    #[arg(value_name = "SOURCE")]
-    pub source: Option<String>,
-
     /// Time format to use in logs.
     ///
     /// Default: `datetime`
@@ -120,9 +110,6 @@ impl Options for SharedOptions {
         }
         if self.log_time.is_none() {
             self.log_time.clone_from(&alternative.log_time);
-        }
-        if self.source.is_none() {
-            self.source.clone_from(&alternative.source);
         }
         if self.output.is_none() {
             self.output.clone_from(&alternative.output);
@@ -224,9 +211,6 @@ impl Options for SharedOptions {
                     config_path.to_string_lossy().to_string(),
                 ));
             }
-        }
-        if self.source.is_none() {
-            errors.push(NotSet("Source".to_owned()));
         }
         if let Some(output_directory) = &self.output {
             if !output_directory.exists() || !output_directory.is_dir() {

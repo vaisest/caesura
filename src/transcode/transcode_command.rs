@@ -10,7 +10,7 @@ use crate::imdl::ImdlCommand;
 use crate::jobs::JobRunner;
 use crate::logging::Colors;
 use crate::naming::join_humanized;
-use crate::options::{Options, SharedOptions, TargetOptions};
+use crate::options::{Options, SharedOptions, SourceArg, TargetOptions};
 use crate::queue::TimeStamp;
 use crate::source::*;
 use crate::transcode::{
@@ -20,6 +20,7 @@ use crate::transcode::{
 /// Transcode each track of a FLAC source to the target formats.
 #[injectable]
 pub struct TranscodeCommand {
+    arg: Ref<SourceArg>,
     shared_options: Ref<SharedOptions>,
     target_options: Ref<TargetOptions>,
     source_provider: RefMut<SourceProvider>,
@@ -37,7 +38,10 @@ impl TranscodeCommand {
     ///
     /// Returns `true` if all the transcodes succeeds.
     pub async fn execute_cli(&self) -> Result<bool, AppError> {
-        if !self.shared_options.validate() || !self.target_options.validate() {
+        if !self.arg.validate()
+            || !self.shared_options.validate()
+            || !self.target_options.validate()
+        {
             return Ok(false);
         }
         let source = self

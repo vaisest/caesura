@@ -1,9 +1,10 @@
 use clap::Subcommand;
 
+use crate::options::source_arg::SourceArg;
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{
-    BatchOptions, CacheOptions, FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions,
-    TargetOptions, UploadOptions,
+    BatchOptions, CacheOptions, FileOptions, QueueOptions, RunnerOptions, SharedOptions,
+    SpectrogramOptions, TargetOptions, UploadOptions,
 };
 
 /// Cli sub-commands and arguments
@@ -29,7 +30,7 @@ pub enum CommandArguments {
         #[command(flatten)]
         batch: BatchOptions,
         #[command(flatten)]
-        queue: CacheOptions,
+        cache: CacheOptions,
     },
 
     /// Add FLAC sources to the queue without transcoding
@@ -37,11 +38,15 @@ pub enum CommandArguments {
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
-        queue: CacheOptions,
+        cache: CacheOptions,
+        #[command(flatten)]
+        queue: QueueOptions,
     },
 
     /// Generate spectrograms for each track of a FLAC source.
     Spectrogram {
+        #[command(flatten)]
+        source: SourceArg,
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
@@ -52,6 +57,8 @@ pub enum CommandArguments {
 
     /// Transcode each track of a FLAC source to the target formats.
     Transcode {
+        #[command(flatten)]
+        source: SourceArg,
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
@@ -65,6 +72,8 @@ pub enum CommandArguments {
     /// Upload transcodes of a FLAC source.
     Upload {
         #[command(flatten)]
+        source: SourceArg,
+        #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]
         target: TargetOptions,
@@ -74,6 +83,8 @@ pub enum CommandArguments {
 
     /// Verify a FLAC source is suitable for transcoding.
     Verify {
+        #[command(flatten)]
+        source: SourceArg,
         #[command(flatten)]
         shared: SharedOptions,
         #[command(flatten)]

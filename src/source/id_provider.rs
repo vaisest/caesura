@@ -4,18 +4,19 @@ use di::{injectable, Ref};
 
 use crate::errors::AppError;
 use crate::imdl::ImdlCommand;
-use crate::options::SharedOptions;
+use crate::options::{SharedOptions, SourceArg};
 use crate::source::*;
 
 /// Retrieve the id of a source.
 #[injectable]
 pub struct IdProvider {
     options: Ref<SharedOptions>,
+    arg: Ref<SourceArg>,
 }
 
 impl IdProvider {
     pub async fn get_by_options(&self) -> Result<i64, AppError> {
-        let source_input = self.options.source.clone().unwrap_or_default();
+        let source_input = self.arg.source.clone().unwrap_or_default();
         self.get_by_string(&source_input).await
     }
 

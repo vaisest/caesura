@@ -75,7 +75,8 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
     #[allow(clippy::manual_let_else)]
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
-            Some(Queue { queue, .. }) => queue,
+            Some(Batch { cache, .. }) => cache,
+            Some(Queue { cache, .. }) => cache,
             _ => return None,
         };
         Some(options)
