@@ -1,8 +1,5 @@
 use crate::errors::AppError;
-use crate::options::{
-    BatchOptions, FileOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions,
-    VerifyOptions,
-};
+use crate::options::{BatchOptions, CacheOptions, FileOptions, RunnerOptions, SharedOptions, SpectrogramOptions, TargetOptions, UploadOptions, VerifyOptions};
 use di::{injectable, Ref};
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -12,7 +9,9 @@ use std::collections::BTreeMap;
 #[injectable]
 pub struct ConfigCommand {
     batch_options: Ref<BatchOptions>,
+    cache_options: Ref<CacheOptions>,
     file_options: Ref<FileOptions>,
+    runner_options: Ref<RunnerOptions>,
     shared_options: Ref<SharedOptions>,
     spectrogram_options: Ref<SpectrogramOptions>,
     target_options: Ref<TargetOptions>,
@@ -34,7 +33,9 @@ impl ConfigCommand {
     fn get_options_hashmap(&self) -> Result<BTreeMap<String, Value>, serde_json::Error> {
         let options = [
             serde_json::to_value(&*self.batch_options)?,
+            serde_json::to_value(&*self.cache_options)?,
             serde_json::to_value(&*self.file_options)?,
+            serde_json::to_value(&*self.runner_options)?,
             serde_json::to_value(&*self.shared_options)?,
             serde_json::to_value(&*self.spectrogram_options)?,
             serde_json::to_value(&*self.target_options)?,
