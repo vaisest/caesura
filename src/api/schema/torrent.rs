@@ -1,6 +1,8 @@
+use regex::Regex;
 use serde::Deserialize;
+use std::path::PathBuf;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Torrent {
@@ -39,4 +41,14 @@ pub struct Torrent {
     pub file_path: String,
     pub user_id: i64,
     pub username: String,
+}
+
+impl Torrent {
+    pub fn get_flacs(&self) -> Vec<PathBuf> {
+        Regex::new(r"([^|]+\.flac)\{\{\{\d+\}\}\}(?:\|\|\|)?")
+            .expect("Regex should compile")
+            .captures_iter(&self.file_list)
+            .map(|cap| PathBuf::from(&cap[1]))
+            .collect()
+    }
 }

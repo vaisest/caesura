@@ -42,6 +42,10 @@ pub enum SourceIssue {
     NoFlacs {
         path: PathBuf,
     },
+    FlacCount {
+        expected: usize,
+        actual: usize,
+    },
     Imdl {
         details: String,
     },
@@ -114,6 +118,9 @@ impl Display for SourceIssue {
                 "No FLAC files found in source directory: {}",
                 path.display()
             ),
+            FlacCount { expected, actual } => {
+                format!("Expected {expected} FLACs, found {actual}")
+            }
             Imdl { details } => format!("Files do not match hash:\n{details}"),
             Length { path, excess } => {
                 format!(

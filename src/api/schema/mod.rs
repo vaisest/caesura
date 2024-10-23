@@ -13,6 +13,9 @@ pub(crate) mod artist;
 pub(crate) mod group;
 pub(crate) mod group_response;
 pub(crate) mod music_info;
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests;
 pub(crate) mod torrent;
 pub(crate) mod torrent_response;
 pub(crate) mod upload_form;

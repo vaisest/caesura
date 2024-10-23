@@ -7,7 +7,7 @@ use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
-use crate::naming::{Shortener, SourceName};
+use crate::naming::Shortener;
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{Options, SharedOptions, SourceArg};
 use crate::source::SourceIssue::*;
@@ -122,6 +122,13 @@ impl VerifyCommand {
             }];
         }
         let mut issues: Vec<SourceIssue> = Vec::new();
+        let api_flacs = source.torrent.get_flacs();
+        if flacs.len() != api_flacs.len() {
+            issues.push(FlacCount {
+                expected: api_flacs.len(),
+                actual: flacs.len(),
+            });
+        }
         let max_target = self
             .targets
             .get_max_path_length(source.format, &source.existing);
