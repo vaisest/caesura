@@ -18,7 +18,7 @@ impl StreamVerifier {
                 return errors;
             }
         };
-        if get_resample_rate(&info).is_none() {
+        if get_resample_rate(&info).is_err() {
             errors.push(SampleRate {
                 path: flac.path.clone(),
                 rate: info.sample_rate,

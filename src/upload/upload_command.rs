@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
@@ -15,7 +15,7 @@ use crate::jobs::Job;
 use crate::options::{Options, SharedOptions, SourceArg, UploadOptions};
 use crate::queue::TimeStamp;
 use crate::source::{get_permalink, Source, SourceProvider};
-use crate::transcode::{CommandFactory, TranscodeJobFactory};
+use crate::transcode::{TranscodeJobFactory, Variant};
 use crate::upload::UploadStatus;
 
 const MUSIC_CATEGORY_ID: u8 = 0;
@@ -275,31 +275,38 @@ impl UploadCommand {
         let job = self
             .transcode_job_factory
             .create_single(0, flac, source, target)?;
-
         let Job::Transcode(job) = job else {
             return AppError::explained(
                 "get transcode command",
                 "expected a transcode job".to_owned(),
             );
         };
-        let commands: Vec<String> = job
-            .commands
-            .iter()
-            .map(CommandFactory::to_cli_string)
-            .collect();
-        let command = commands.join(" | ");
-        let input_path = flac.path.to_string_lossy().to_string();
-        let output_path = job.output_path.to_string_lossy().to_string();
-        let output_extension = job
-            .output_path
-            .extension()
-            .expect("ouput path should have an extension")
-            .to_string_lossy()
-            .to_string();
-        let command = command.replace(input_path.as_str(), "input.flac").replace(
-            output_path.as_str(),
-            format!("output.{output_extension}").as_str(),
-        );
+        let command = match job.variant {
+            Variant::Transcode(mut decode, mut encode) => {
+                decode.input = PathBuf::from("input.flac");
+                let extension = encode
+                    .output
+                    .extension()
+                    .expect("output should have an extension")
+                    .to_string_lossy();
+                encode.output = PathBuf::from(format!("output.{extension}"));
+                format!(
+                    "{} | {}",
+                    decode.to_info().display(),
+                    encode.to_info().display()
+                )
+            }
+            Variant::Resample(mut resample) => {
+                resample.input = PathBuf::from("input.flac");
+                let extension = resample
+                    .output
+                    .extension()
+                    .expect("output should have an extension")
+                    .to_string_lossy();
+                resample.output = PathBuf::from(format!("output.{extension}"));
+                resample.to_info().display()
+            }
+        };
         Ok(command)
     }
 }

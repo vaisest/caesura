@@ -9,6 +9,7 @@ use crate::source::Source;
 use crate::transcode::transcode_job::TranscodeJob;
 use crate::transcode::*;
 
+/// Create a [`TranscodeJob`] for each [`FlacFile`] in the [`Vec<FlacFile>`].
 #[injectable]
 pub struct TranscodeJobFactory {
     paths: Ref<PathManager>,
@@ -42,13 +43,28 @@ impl TranscodeJobFactory {
             .or_else(|e| AppError::claxon(e, "read FLAC"))?;
         let id = format!("Transcode {:<4}{index:>3}", format.to_string());
         let output_path = self.paths.get_transcode_path(source, format, flac);
-        let commands = if matches!(format, TargetFormat::Flac) && is_resample_required(&info) {
-            let cmd = CommandFactory::new_flac_resample(flac, &info, &output_path)?;
-            vec![cmd]
+        let variant = if matches!(format, TargetFormat::Flac) && is_resample_required(&info) {
+            Variant::Resample(Resample {
+                input: flac.path.clone(),
+                output: output_path.clone(),
+                resample_rate: get_resample_rate(&info)?,
+            })
         } else {
-            let decode_cmd = CommandFactory::new_decode(flac, &info)?;
-            let encode_cmd = CommandFactory::new_encode(format, &output_path);
-            vec![decode_cmd, encode_cmd]
+            let resample_rate = if is_resample_required(&info) {
+                Some(get_resample_rate(&info)?)
+            } else {
+                None
+            };
+            Variant::Transcode(
+                Decode {
+                    input: flac.path.clone(),
+                    resample_rate,
+                },
+                Encode {
+                    format,
+                    output: output_path.clone(),
+                },
+            )
         };
         let tags = if matches!(format, TargetFormat::_320) || matches!(format, TargetFormat::V0) {
             let tags = flac.get_tags()?;
@@ -56,11 +72,6 @@ impl TranscodeJobFactory {
         } else {
             None
         };
-        Ok(Job::Transcode(TranscodeJob {
-            id,
-            output_path,
-            commands,
-            tags,
-        }))
+        Ok(Job::Transcode(TranscodeJob { id, variant, tags }))
     }
 }
