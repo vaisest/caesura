@@ -8,6 +8,8 @@ use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
 pub const MAX_PATH_LENGTH: isize = 180;
+pub const MIN_BIT_RATE_KBPS: u32 = 192;
+pub const MAX_DURATION: u32 = 12 * 60 * 60;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -58,6 +60,14 @@ pub enum SourceIssue {
     SampleRate {
         path: PathBuf,
         rate: u32,
+    },
+    BitRate {
+        path: PathBuf,
+        rate: u32,
+    },
+    Duration {
+        path: PathBuf,
+        seconds: u32,
     },
     Channels {
         path: PathBuf,
@@ -111,11 +121,24 @@ impl Display for SourceIssue {
                     path.display()
                 )
             }
+            Duration { path, seconds } => {
+                let minutes = seconds / 60;
+                format!(
+                    "Duration is excessive: {minutes} minutes: {}",
+                    path.display()
+                )
+            }
             MissingTags { path, tags } => {
                 format!("Missing tags: {}: {}", join_humanized(tags), path.display())
             }
             SampleRate { path, rate } => {
                 format!("Unsupported sample rate: {rate}: {}", path.display())
+            }
+            BitRate { path, rate } => {
+                format!(
+                    "Bit rate was less than {MIN_BIT_RATE_KBPS} kbps: {rate}: {}",
+                    path.display()
+                )
             }
             Channels { path, count } => {
                 format!("Too many channels: {count}: {}", path.display())
