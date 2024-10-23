@@ -72,20 +72,11 @@ impl VerifyCommand {
     #[must_use]
     pub async fn execute(&mut self, source: &Source) -> VerifyStatus {
         debug!("{} {}", "Verifying".bold(), source);
-        Self::name_checks(source);
         let mut issues: Vec<SourceIssue> = Vec::new();
         issues.append(&mut self.api_checks(source));
         issues.append(&mut self.flac_checks(source));
         issues.append(&mut self.hash_check(source).await);
         VerifyStatus::from_issues(issues)
-    }
-
-    fn name_checks(source: &Source) {
-        let sanitized = SourceName::get(&source.metadata);
-        let unsanitized = SourceName::get_unsanitized(&source.metadata);
-        if sanitized != unsanitized {
-            debug!("Source name has been sanitized: {sanitized}");
-        }
     }
 
     /// Validate the source against the API.
