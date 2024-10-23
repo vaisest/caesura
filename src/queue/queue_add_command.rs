@@ -4,7 +4,7 @@ use crate::options::{CacheOptions, Options, QueueOptions, SharedOptions};
 use crate::queue::{Queue, QueueStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, info, trace};
+use log::{info, trace};
 use std::path::PathBuf;
 
 /// Add a directory of `.torrent` files to the queue
