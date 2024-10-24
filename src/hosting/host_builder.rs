@@ -17,6 +17,7 @@ use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
 use crate::logging::Logger;
 use crate::options::config_command::ConfigCommand;
 use crate::options::*;
+use crate::queue::queue_summary_command::QueueSummaryCommand;
 use crate::queue::{Queue, QueueAddCommand, QueueListCommand};
 use crate::source::{IdProvider, SourceProvider};
 use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
@@ -73,6 +74,7 @@ impl HostBuilder {
             // Add queue services
             .add(QueueAddCommand::transient().as_mut())
             .add(QueueListCommand::transient().as_mut())
+            .add(QueueSummaryCommand::transient().as_mut())
             .add(singleton_as_self().from(|provider| {
                 let options = provider.get_required::<CacheOptions>();
                 let queue = Queue::from_options(options);

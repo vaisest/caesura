@@ -85,6 +85,13 @@ impl Queue {
         items.iter().map(|x| x.hash.clone()).collect()
     }
 
+    /// Get all items.
+    ///
+    /// Items are unsorted.
+    pub fn get_all(&mut self) -> Vec<&QueueItem> {
+        self.items.values().collect()
+    }
+
     /// Set the verify status of an item
     pub fn set_verify(&mut self, hash: String, status: VerifyStatus) {
         self.items

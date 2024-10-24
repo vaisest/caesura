@@ -111,4 +111,12 @@ pub enum QueueCommandArguments {
         #[command(flatten)]
         batch: BatchOptions,
     },
+
+    /// Summarize the sources in the queue
+    Summary {
+        #[command(flatten)]
+        shared: SharedOptions,
+        #[command(flatten)]
+        cache: CacheOptions,
+    },
 }

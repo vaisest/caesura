@@ -7,7 +7,7 @@ use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 
 use crate::cli::CommandArguments::{Batch, Queue, Spectrogram, Transcode, Upload, Verify};
-use crate::cli::QueueCommandArguments::{Add, List};
+use crate::cli::QueueCommandArguments::{Add, List, Summary};
 use crate::logging::{TimeFormat, Verbosity};
 use crate::options::{
     Changed, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
@@ -246,6 +246,7 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
             Some(Queue { command, .. }) => match command {
                 Add { shared, .. } => shared,
                 List { shared, .. } => shared,
+                Summary { shared, .. } => shared,
             },
             Some(Spectrogram { shared, .. }) => shared,
             Some(Transcode { shared, .. }) => shared,

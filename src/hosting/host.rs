@@ -3,10 +3,11 @@ use di::ServiceProvider;
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
-use crate::cli::QueueCommandArguments::{Add, List};
+use crate::cli::QueueCommandArguments::{Add, List, Summary};
 use crate::errors::AppError;
 use crate::logging::*;
 use crate::options::config_command::ConfigCommand;
+use crate::queue::queue_summary_command::QueueSummaryCommand;
 use crate::queue::{QueueAddCommand, QueueListCommand};
 use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
@@ -63,6 +64,14 @@ impl Host {
                 .get_required_mut::<QueueListCommand>()
                 .write()
                 .expect("QueueListCommand should be available to write")
+                .execute_cli(),
+            Queue {
+                command: Summary { .. },
+            } => self
+                .services
+                .get_required_mut::<QueueSummaryCommand>()
+                .write()
+                .expect("QueueSummaryCommand should be available to write")
                 .execute_cli(),
             Spectrogram { .. } => {
                 self.services
