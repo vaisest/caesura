@@ -54,14 +54,17 @@ impl Options for SourceArg {
 
     fn from_args() -> Option<Self> {
         match ArgumentsParser::get() {
-            Some(Spectrogram { source, .. }) => Some(source),
-            Some(Transcode { source, .. }) => Some(source),
-            Some(Verify { source, .. }) => Some(source),
-            Some(Upload { source, .. }) => Some(source),
+            Some(
+                Spectrogram { source, .. }
+                | Transcode { source, .. }
+                | Verify { source, .. }
+                | Upload { source, .. },
+            ) => Some(source),
             _ => None,
         }
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -72,6 +75,7 @@ impl Options for SourceArg {
 }
 
 impl Display for SourceArg {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

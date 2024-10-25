@@ -54,16 +54,8 @@ impl Logger {
 
     fn format_log(&self, verbosity: Verbosity, message: String) -> String {
         let prefix = self.format_prefix(verbosity);
-        let message = self.format_message(verbosity, message);
+        let message = format_message(verbosity, message);
         format!("{prefix} {message}")
-    }
-
-    fn format_message(&self, verbosity: Verbosity, message: String) -> String {
-        if verbosity.as_num() >= Debug.as_num() {
-            format!("{}", message.dimmed())
-        } else {
-            message
-        }
     }
 
     #[must_use]
@@ -111,4 +103,12 @@ impl Log for Logger {
     }
 
     fn flush(&self) {}
+}
+
+fn format_message(verbosity: Verbosity, message: String) -> String {
+    if verbosity.as_num() >= Debug.as_num() {
+        format!("{}", message.dimmed())
+    } else {
+        message
+    }
 }

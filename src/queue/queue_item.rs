@@ -58,6 +58,7 @@ impl QueueItem {
 }
 
 impl Display for QueueItem {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.name)
     }

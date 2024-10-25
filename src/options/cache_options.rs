@@ -77,18 +77,18 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
     #[must_use]
     #[allow(clippy::manual_let_else)]
     fn from_args() -> Option<Self> {
-        let options = match ArgumentsParser::get() {
-            Some(Batch { cache, .. }) => cache,
-            Some(Queue { command, .. }) => match command {
-                Add { cache, .. } => cache,
-                List { cache, .. } => cache,
-                Summary { cache, .. } => cache,
-            },
-            _ => return None,
-        };
-        Some(options)
+        match ArgumentsParser::get() {
+            Some(
+                Batch { cache, .. }
+                | Queue {
+                    command: Add { cache, .. } | List { cache, .. } | Summary { cache, .. },
+                },
+            ) => Some(cache),
+            _ => None,
+        }
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -99,6 +99,7 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
 }
 
 impl Display for CacheOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

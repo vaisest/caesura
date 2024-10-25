@@ -1,4 +1,5 @@
 use std::env::temp_dir;
+use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::time::SystemTime;
 
@@ -20,7 +21,7 @@ impl TempDirectory {
     #[must_use]
     pub fn create(sub_dir_name: &str) -> PathBuf {
         let dir = Self::get(sub_dir_name);
-        std::fs::create_dir_all(&dir).expect("Should be able to create temp dir");
+        create_dir_all(&dir).expect("Should be able to create temp dir");
         dir
     }
 }

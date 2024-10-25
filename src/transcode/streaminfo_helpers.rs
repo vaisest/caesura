@@ -22,7 +22,9 @@ pub fn get_resample_rate(info: &StreamInfo) -> Result<u32, AppError> {
 #[allow(
     clippy::cast_precision_loss,
     clippy::cast_lossless,
-    clippy::cast_sign_loss
+    clippy::cast_sign_loss,
+    clippy::as_conversions,
+    clippy::cast_possible_truncation
 )]
 pub fn get_average_bit_rate(info: &StreamInfo) -> Option<u32> {
     let total_samples = info.samples?;
@@ -36,7 +38,12 @@ pub fn get_average_bit_rate(info: &StreamInfo) -> Option<u32> {
 /// Get the duration in seconds.
 ///
 /// Returns `None` if StreamInfo.samples is None.
-#[allow(clippy::cast_precision_loss, clippy::cast_sign_loss)]
+#[allow(
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_truncation,
+    clippy::as_conversions
+)]
 pub fn get_duration(info: &StreamInfo) -> Option<u32> {
     let seconds = info.samples? as f64 / f64::from(info.sample_rate);
     Some(seconds.round() as u32)

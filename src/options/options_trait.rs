@@ -17,6 +17,7 @@ pub trait Options: Clone + Default + Display {
     fn from_args() -> Option<Self>;
 
     /// Deserialize [`Self`] from JSON
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error>;
 
     /// Deserialize [`Self`] from YAML

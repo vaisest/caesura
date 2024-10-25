@@ -69,6 +69,7 @@ impl Options for QueueAddArgs {
         }
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -79,6 +80,7 @@ impl Options for QueueAddArgs {
 }
 
 impl Display for QueueAddArgs {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

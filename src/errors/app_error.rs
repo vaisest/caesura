@@ -76,6 +76,7 @@ impl AppError {
     }
 
     #[allow(clippy::wildcard_enum_match_arm)]
+    #[allow(clippy::absolute_paths)]
     pub fn command<T>(error: std::io::Error, action: &str, program: &str) -> Result<T, AppError> {
         match error.kind() {
             std::io::ErrorKind::NotFound => {
@@ -85,6 +86,7 @@ impl AppError {
         }
     }
 
+    #[allow(clippy::absolute_paths)]
     pub fn io<T>(error: std::io::Error, action: &str) -> Result<T, AppError> {
         Self::external(action, "file system", format!("{error}"))
     }
@@ -147,12 +149,14 @@ impl AppError {
 }
 
 impl Debug for AppError {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.lines().join("\n"))
     }
 }
 
 impl Display for AppError {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.lines().join("\n"))
     }

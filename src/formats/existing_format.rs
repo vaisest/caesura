@@ -30,7 +30,6 @@ impl ExistingFormat {
         }
     }
 
-    #[allow(clippy::wildcard_enum_match_arm)]
     pub fn to_source(self) -> Option<SourceFormat> {
         match self {
             Flac24 => Some(SourceFormat::Flac24),
@@ -41,6 +40,7 @@ impl ExistingFormat {
 }
 
 impl Display for ExistingFormat {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.get_name())
     }
@@ -53,6 +53,7 @@ impl PartialOrd for ExistingFormat {
 }
 
 impl Ord for ExistingFormat {
+    #[allow(clippy::as_conversions)]
     fn cmp(&self, other: &Self) -> Ordering {
         let left = *self as isize;
         let right = *other as isize;

@@ -26,6 +26,7 @@ impl QueueSummaryCommand {
         println!("{yaml}");
         Ok(true)
     }
+
     pub async fn execute(&mut self) -> Result<QueueSummary, AppError> {
         let mut queue = self.queue.write().expect("Queue should be writeable");
         let items = queue.get_all().await?;

@@ -51,18 +51,17 @@ impl Options for VerifyOptions {
 
     #[must_use]
     fn from_args() -> Option<Self> {
-        let options = match ArgumentsParser::get() {
-            Some(Batch { verify, .. }) => verify,
-            Some(Verify { verify, .. }) => verify,
-            _ => return None,
+        let Some(Batch { verify, .. } | Verify { verify, .. }) = ArgumentsParser::get() else {
+            return None;
         };
-        let mut options = options;
+        let mut options = verify;
         if options.no_hash_check == Some(false) {
             options.no_hash_check = None;
         }
         Some(options)
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -73,6 +72,7 @@ impl Options for VerifyOptions {
 }
 
 impl Display for VerifyOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

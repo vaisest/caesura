@@ -108,7 +108,11 @@ impl VerifyCommand {
         issues
     }
 
-    #[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
+    #[allow(
+        clippy::cast_sign_loss,
+        clippy::cast_possible_wrap,
+        clippy::as_conversions
+    )]
     fn flac_checks(&self, source: &Source) -> Vec<SourceIssue> {
         if !source.directory.exists() || !source.directory.is_dir() {
             return vec![MissingDirectory {

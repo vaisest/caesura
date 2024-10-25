@@ -16,6 +16,7 @@ pub enum OptionRule {
 }
 
 impl Display for OptionRule {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = match self {
             Changed(name, value, details) => format!("{name} use has changed: {value}\n{details}"),

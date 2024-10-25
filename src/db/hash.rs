@@ -72,6 +72,7 @@ impl<'de, const N: usize> Deserialize<'de> for Hash<N> {
         D: Deserializer<'de>,
     {
         let hex_str = String::deserialize(deserializer)?;
+        #[allow(clippy::absolute_paths)]
         Hash::from_string(&hex_str).map_err(serde::de::Error::custom)
     }
 }

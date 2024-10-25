@@ -38,8 +38,7 @@ impl TargetFormat {
     pub fn get_file_extension(self) -> String {
         match self {
             Flac => "flac".to_owned(),
-            _320 => "mp3".to_owned(),
-            V0 => "mp3".to_owned(),
+            _320 | V0 => "mp3".to_owned(),
         }
     }
 
@@ -54,6 +53,7 @@ impl TargetFormat {
 }
 
 impl Display for TargetFormat {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.get_name())
     }
@@ -66,6 +66,7 @@ impl PartialOrd for TargetFormat {
 }
 
 impl Ord for TargetFormat {
+    #[allow(clippy::as_conversions)]
     fn cmp(&self, other: &Self) -> Ordering {
         let left = *self as isize;
         let right = *other as isize;

@@ -35,6 +35,7 @@ impl SourceFormat {
 }
 
 impl Display for SourceFormat {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.get_name())
     }

@@ -36,6 +36,7 @@ impl Options for RunnerOptions {
         }
     }
 
+    #[allow(clippy::as_conversions, clippy::cast_possible_truncation)]
     fn apply_defaults(&mut self) {
         if self.cpus.is_none() {
             self.cpus = Some(num_cpus::get() as u16);
@@ -49,13 +50,14 @@ impl Options for RunnerOptions {
 
     fn from_args() -> Option<Self> {
         match ArgumentsParser::get() {
-            Some(Batch { runner, .. }) => Some(runner),
-            Some(Spectrogram { runner, .. }) => Some(runner),
-            Some(Transcode { runner, .. }) => Some(runner),
+            Some(Batch { runner, .. } | Spectrogram { runner, .. } | Transcode { runner, .. }) => {
+                Some(runner)
+            }
             _ => None,
         }
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -66,6 +68,7 @@ impl Options for RunnerOptions {
 }
 
 impl Display for RunnerOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

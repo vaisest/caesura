@@ -1,8 +1,8 @@
-use std::fmt::{Display, Formatter};
-
 use clap::{ArgAction, Args};
 use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter};
+use std::time::Duration;
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
@@ -59,7 +59,7 @@ impl BatchOptions {
     }
 
     #[must_use]
-    pub fn get_wait_before_upload(&self) -> Option<std::time::Duration> {
+    pub fn get_wait_before_upload(&self) -> Option<Duration> {
         let wait_before_upload = self.wait_before_upload.clone()?;
         humantime::parse_duration(wait_before_upload.as_str()).ok()
     }
@@ -160,6 +160,7 @@ impl Options for BatchOptions {
         Some(options)
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -170,6 +171,7 @@ impl Options for BatchOptions {
 }
 
 impl Display for BatchOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

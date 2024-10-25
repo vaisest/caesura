@@ -117,12 +117,10 @@ impl Options for FileOptions {
 
     #[must_use]
     fn from_args() -> Option<Self> {
-        let options = match ArgumentsParser::get() {
-            Some(Batch { file, .. }) => file,
-            Some(Transcode { file, .. }) => file,
-            _ => return None,
+        let Some(Batch { file, .. } | Transcode { file, .. }) = ArgumentsParser::get() else {
+            return None;
         };
-        let mut options = options;
+        let mut options = file;
         if options.hard_link == Some(false) {
             options.hard_link = None;
         }
@@ -135,6 +133,7 @@ impl Options for FileOptions {
         Some(options)
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -145,6 +144,7 @@ impl Options for FileOptions {
 }
 
 impl Display for FileOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

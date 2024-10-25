@@ -1,6 +1,7 @@
 use crate::cli::command_arguments::CommandArguments;
 use clap::{CommandFactory, Parser};
 use log::debug;
+use std::process::exit;
 
 /// Command line argument parser.
 #[derive(Parser)]
@@ -23,7 +24,7 @@ impl ArgumentsParser {
                 ArgumentsParser::command()
                     .print_help()
                     .expect("Help should always print");
-                std::process::exit(1);
+                exit(1);
             }),
             Err(error) => error.exit(),
         }

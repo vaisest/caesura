@@ -32,6 +32,7 @@ impl Subscriber for DebugSubscriber {
     fn finish(&self, _scope_id: &str) {}
 
     /// Called when the status of a job changes.
+    #[allow(clippy::as_conversions, clippy::cast_possible_truncation)]
     fn update(&self, job_id: &str, status: Status) {
         let available = self.semaphore.available_permits();
         let in_use = self.cpus - available as u16;

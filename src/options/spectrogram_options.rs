@@ -57,11 +57,11 @@ impl Options for SpectrogramOptions {
     #[must_use]
     fn from_args() -> Option<SpectrogramOptions> {
         match ArgumentsParser::get() {
-            Some(Batch { spectrogram, .. }) => Some(spectrogram),
-            Some(Spectrogram { spectrogram, .. }) => Some(spectrogram),
+            Some(Batch { spectrogram, .. } | Spectrogram { spectrogram, .. }) => Some(spectrogram),
             _ => None,
         }
     }
+    #[allow(clippy::absolute_paths)]
 
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
@@ -73,6 +73,7 @@ impl Options for SpectrogramOptions {
 }
 
 impl Display for SpectrogramOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

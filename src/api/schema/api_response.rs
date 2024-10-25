@@ -12,6 +12,7 @@ pub struct ApiResponse<T> {
 }
 
 impl<T> Display for ApiResponse<T> {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let status = &self.status.clone();
         let response = if self.response.is_some() {

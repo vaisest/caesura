@@ -51,20 +51,16 @@ impl Shortener {
     }
 }
 
+#[allow(clippy::if_then_some_else_none)]
 fn remove_parenthetical_suffix(input: &str) -> Option<String> {
-    let result = Regex::new(r"^(.*)(\(.*\))$")
+    let captures = Regex::new(r"^(.*)(\(.*\))$")
         .expect("Regex should compile")
-        .captures(input);
-    match result {
-        None => None,
-        Some(captures) => {
-            let shortened = captures.get(1).expect("Should have captures").as_str();
-            let shortened = shortened.trim();
-            if shortened.len() > 4 {
-                Some(shortened.to_owned())
-            } else {
-                None
-            }
-        }
+        .captures(input)?;
+    let shortened = captures.get(1).expect("Should have captures").as_str();
+    let shortened = shortened.trim();
+    if shortened.len() > 4 {
+        Some(shortened.to_owned())
+    } else {
+        None
     }
 }

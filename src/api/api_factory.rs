@@ -53,20 +53,10 @@ impl ApiFactory {
 
     fn get_headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
-        headers.insert(header::USER_AGENT, self.get_user_agent());
+        headers.insert(header::USER_AGENT, get_user_agent());
         headers.insert(header::ACCEPT, HeaderValue::from_static("application/json"));
         headers.insert(header::AUTHORIZATION, self.get_authorization());
         headers
-    }
-
-    fn get_user_agent(&self) -> HeaderValue {
-        let user_agent = format!(
-            "{}/{} ({})",
-            built_info::PKG_NAME,
-            built_info::PKG_VERSION,
-            built_info::PKG_HOMEPAGE
-        );
-        HeaderValue::try_from(user_agent).expect("User agent header should not fail")
     }
 
     fn get_authorization(&self) -> HeaderValue {
@@ -75,4 +65,14 @@ impl ApiFactory {
         value.set_sensitive(true);
         value
     }
+}
+
+fn get_user_agent() -> HeaderValue {
+    let user_agent = format!(
+        "{}/{} ({})",
+        built_info::PKG_NAME,
+        built_info::PKG_VERSION,
+        built_info::PKG_HOMEPAGE
+    );
+    HeaderValue::try_from(user_agent).expect("User agent header should not fail")
 }

@@ -12,7 +12,11 @@ pub struct Metadata {
 }
 
 impl Metadata {
-    #[allow(clippy::cast_sign_loss)]
+    #[allow(
+        clippy::cast_sign_loss,
+        clippy::as_conversions,
+        clippy::cast_possible_truncation
+    )]
     #[must_use]
     pub fn new(group: &Group, torrent: &Torrent) -> Self {
         let artist = decode_html_entities(Self::get_artist(group)).to_string();

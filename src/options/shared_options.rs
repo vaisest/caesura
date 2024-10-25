@@ -245,22 +245,23 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
     }
 
     fn from_args() -> Option<Self> {
-        let options = match ArgumentsParser::get() {
-            Some(Batch { shared, .. }) => shared,
-            Some(Queue { command, .. }) => match command {
-                Add { shared, .. } => shared,
-                List { shared, .. } => shared,
-                Summary { shared, .. } => shared,
-            },
-            Some(Spectrogram { shared, .. }) => shared,
-            Some(Transcode { shared, .. }) => shared,
-            Some(Verify { shared, .. }) => shared,
-            Some(Upload { shared, .. }) => shared,
-            _ => return None,
-        };
-        Some(options)
+        match ArgumentsParser::get() {
+            Some(
+                Batch { shared, .. }
+                | Queue {
+                    command: Add { shared, .. } | List { shared, .. } | Summary { shared, .. },
+                    ..
+                }
+                | Spectrogram { shared, .. }
+                | Transcode { shared, .. }
+                | Verify { shared, .. }
+                | Upload { shared, .. },
+            ) => Some(shared),
+            _ => None,
+        }
     }
 
+    #[allow(clippy::absolute_paths)]
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
     }
@@ -271,6 +272,7 @@ https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
 }
 
 impl Display for SharedOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

@@ -55,6 +55,7 @@ impl UploadForm {
 }
 
 impl Display for UploadForm {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

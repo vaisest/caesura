@@ -37,6 +37,7 @@ impl Default for HostBuilder {
 
 impl HostBuilder {
     #[must_use]
+    #[allow(clippy::as_conversions)]
     pub fn new() -> HostBuilder {
         let mut this = HostBuilder {
             services: ServiceCollection::new(),

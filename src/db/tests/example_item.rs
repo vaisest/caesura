@@ -22,11 +22,7 @@ pub fn example_items() -> BTreeMap<Hash<20>, ExampleItem> {
                 ExampleItem {
                     hash,
                     success: ii % 2 == 0,
-                    optional: if ii % 3 == 0 {
-                        Some("Optional".to_owned())
-                    } else {
-                        None
-                    },
+                    optional: (ii % 3 == 0).then(||"Optional".to_owned()),
                 },
             );
         }

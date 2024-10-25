@@ -77,19 +77,22 @@ impl Options for TargetOptions {
 
     #[must_use]
     fn from_args() -> Option<Self> {
-        let options = match ArgumentsParser::get() {
-            Some(Batch { target, .. }) => target,
-            Some(Transcode { target, .. }) => target,
-            Some(Upload { target, .. }) => target,
-            Some(Verify { target, .. }) => target,
-            _ => return None,
+        let Some(
+            Batch { target, .. }
+            | Transcode { target, .. }
+            | Upload { target, .. }
+            | Verify { target, .. },
+        ) = ArgumentsParser::get()
+        else {
+            return None;
         };
-        let mut options = options;
+        let mut options = target;
         if options.allow_existing == Some(false) {
             options.allow_existing = None;
         }
         Some(options)
     }
+    #[allow(clippy::absolute_paths)]
 
     fn from_json(json: &str) -> Result<Self, serde_json::error::Error> {
         serde_json::from_str(json)
@@ -101,6 +104,7 @@ impl Options for TargetOptions {
 }
 
 impl Display for TargetOptions {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

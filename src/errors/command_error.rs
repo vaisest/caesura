@@ -10,6 +10,7 @@ pub struct CommandError {
 }
 
 impl Debug for CommandError {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         if !self.stderr.is_empty() {
             write!(formatter, "{}", self.stderr)
@@ -22,6 +23,7 @@ impl Debug for CommandError {
 }
 
 impl Display for CommandError {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         if !self.stderr.is_empty() {
             write!(formatter, "{}", self.stderr)

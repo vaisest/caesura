@@ -50,11 +50,9 @@ impl TranscodeJobFactory {
                 resample_rate: get_resample_rate(&info)?,
             })
         } else {
-            let resample_rate = if is_resample_required(&info) {
-                Some(get_resample_rate(&info)?)
-            } else {
-                None
-            };
+            let resample_rate = is_resample_required(&info)
+                .then(|| get_resample_rate(&info))
+                .transpose()?;
             Variant::Transcode(
                 Decode {
                     input: flac.path.clone(),

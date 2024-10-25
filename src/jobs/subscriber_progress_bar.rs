@@ -26,6 +26,7 @@ impl ProgressBarSubscriber {
 
 impl Subscriber for ProgressBarSubscriber {
     /// Called when a new scope is started.
+    #[allow(clippy::as_conversions)]
     fn start(&self, _scope_id: &str) {
         self.bar.reset();
         let total = self

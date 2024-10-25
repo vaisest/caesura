@@ -85,6 +85,7 @@ pub enum SourceIssue {
 }
 
 impl Display for SourceIssue {
+    #[allow(clippy::absolute_paths)]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let message = match self {
             IdError { details } => format!("Invalid source id: {details}"),
