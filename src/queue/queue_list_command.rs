@@ -45,25 +45,26 @@ impl QueueListCommand {
             info!("{} the `queue` command to add items", "Use".bold());
             return Ok(true);
         }
+        let found = items.len();
         info!(
-            "{} {} unprocessed sources in the queue for {}",
+            "{} {found} unprocessed sources in the queue for {}",
             "Found".bold(),
-            items.len(),
             indexer.to_uppercase()
         );
-        let mut count = 1;
+        let pad = found.to_string().len();
+        let mut index = 1;
         for hash in items {
             let Some(item) = queue.get(hash)? else {
                 error!("{} to retrieve {hash} from the queue", "Failed".bold());
                 continue;
             };
-            info!("{}: {item}", count.to_string().bold());
+            info!("{}: {item}", format!("{index:pad$}").bold());
             debug!("{}", item.path.display());
             debug!("{hash}");
             if let Some(id) = item.id {
                 debug!("{id}");
             }
-            count += 1;
+            index += 1;
         }
         Ok(true)
     }
