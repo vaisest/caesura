@@ -9,31 +9,33 @@ use di::{injectable, Ref};
 use serde::{Deserialize, Serialize};
 use QueueCommandArguments::Add;
 
-/// Options for the [`QueueCommand`]
+/// Options for the [`QueueAddCommand`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct QueueOptions {
-    /// Path to directory of `.torrent` files.
+pub struct QueueAddArgs {
+    /// A path to either:
+    /// - A directory of `.torrent` files
+    /// - A single YAML queue file
     ///
-    /// Examples: `./torrents`, `/path/to/torrents`
-    #[arg(value_name = "TORRENT_DIRECTORY")]
-    pub torrents: Option<PathBuf>,
+    /// Examples: `./torrents`, `/path/to/torrents`, `./queue.yml`
+    #[arg(value_name = "PATH")]
+    pub queue_add_path: Option<PathBuf>,
 }
 
 #[injectable]
-impl QueueOptions {
+impl QueueAddArgs {
     fn new(provider: Ref<OptionsProvider>) -> Self {
         provider.get()
     }
 }
 
-impl Options for QueueOptions {
+impl Options for QueueAddArgs {
     fn get_name() -> String {
-        "Shared Options".to_owned()
+        "Queue Arguments".to_owned()
     }
 
     fn merge(&mut self, alternative: &Self) {
-        if self.torrents.is_none() {
-            self.torrents.clone_from(&alternative.torrents);
+        if self.queue_add_path.is_none() {
+            self.queue_add_path.clone_from(&alternative.queue_add_path);
         }
     }
 
@@ -42,15 +44,15 @@ impl Options for QueueOptions {
     #[must_use]
     fn validate(&self) -> bool {
         let mut errors: Vec<OptionRule> = Vec::new();
-        if let Some(torrent_dir) = &self.torrents {
-            if !torrent_dir.exists() || !torrent_dir.is_dir() {
+        if let Some(path) = &self.queue_add_path {
+            if !path.exists() {
                 errors.push(DoesNotExist(
-                    "Torrent Directory".to_owned(),
-                    torrent_dir.to_string_lossy().to_string(),
+                    "Queue add path".to_owned(),
+                    path.to_string_lossy().to_string(),
                 ));
             }
         } else {
-            errors.push(NotSet("Torrent Directory".to_owned()));
+            errors.push(NotSet("Queue add path".to_owned()));
         }
         OptionRule::show(&errors);
         errors.is_empty()
@@ -60,9 +62,9 @@ impl Options for QueueOptions {
     fn from_args() -> Option<Self> {
         match ArgumentsParser::get() {
             Some(Queue {
-                command: Add { queue, .. },
+                command: Add { args, .. },
                 ..
-            }) => Some(queue),
+            }) => Some(args),
             _ => None,
         }
     }
@@ -76,7 +78,7 @@ impl Options for QueueOptions {
     }
 }
 
-impl Display for QueueOptions {
+impl Display for QueueAddArgs {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         let output = if let Ok(yaml) = serde_yaml::to_string(self) {
             yaml

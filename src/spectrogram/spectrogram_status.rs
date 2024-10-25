@@ -3,7 +3,7 @@ use crate::queue::TimeStamp;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct SpectrogramStatus {
     /// Did the spectrogram command succeed?
     pub success: bool,

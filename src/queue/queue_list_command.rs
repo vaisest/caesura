@@ -15,7 +15,7 @@ pub struct QueueListCommand {
 }
 
 impl QueueListCommand {
-    pub fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate()
             || !self.cache_options.validate()
             || !self.batch_options.validate()
@@ -23,7 +23,6 @@ impl QueueListCommand {
             return Ok(false);
         }
         let mut queue = self.queue.write().expect("Queue should be writeable");
-        queue.load()?;
         let transcode_enabled = self
             .batch_options
             .transcode
@@ -34,7 +33,9 @@ impl QueueListCommand {
             .indexer
             .clone()
             .expect("indexer should be set");
-        let items = queue.get_unprocessed(indexer.clone(), transcode_enabled, upload_enabled);
+        let items = queue
+            .get_unprocessed(indexer.clone(), transcode_enabled, upload_enabled)
+            .await?;
         if items.is_empty() {
             info!(
                 "{} items in the queue for {}",
@@ -52,7 +53,7 @@ impl QueueListCommand {
         );
         let mut count = 1;
         for hash in items {
-            let Some(item) = queue.get(&hash) else {
+            let Some(item) = queue.get(hash)? else {
                 error!("{} to retrieve {hash} from the queue", "Failed".bold());
                 continue;
             };

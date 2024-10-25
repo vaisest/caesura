@@ -47,12 +47,12 @@ impl HostBuilder {
             .add(BatchOptions::singleton())
             .add(CacheOptions::singleton())
             .add(FileOptions::singleton())
-            .add(QueueOptions::singleton())
             .add(RunnerOptions::singleton())
             .add(SharedOptions::singleton())
             .add(SourceArg::singleton())
             .add(SpectrogramOptions::singleton())
             .add(TargetOptions::singleton())
+            .add(QueueAddArgs::singleton())
             .add(UploadOptions::singleton())
             .add(VerifyOptions::singleton())
             // Add main services

@@ -1,3 +1,4 @@
+use crate::db::Hash;
 use crate::imdl::TorrentSummary;
 use crate::source::get_torrent_id_from_torrent_url_relaxed;
 use crate::spectrogram::SpectrogramStatus;
@@ -8,14 +9,14 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Clone, Deserialize, Serialize, Default)]
 pub struct QueueItem {
     /// Source name
     pub name: String,
     /// Torrent file path
     pub path: PathBuf,
     /// Source info hash
-    pub hash: String,
+    pub hash: Hash<20>,
     /// Source indexer
     pub indexer: String,
     /// Source id
@@ -48,7 +49,7 @@ impl QueueItem {
         Self {
             name: torrent.name,
             path,
-            hash: torrent.info_hash,
+            hash: Hash::from_string(&torrent.info_hash).expect("torrent hash should be valid"),
             indexer: torrent.source.unwrap_or_default().to_lowercase(),
             id,
             ..Self::default()

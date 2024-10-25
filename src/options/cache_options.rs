@@ -10,12 +10,14 @@ use crate::cli::CommandArguments::*;
 use crate::cli::QueueCommandArguments::{Add, List, Summary};
 use crate::options::{Changed, DoesNotExist, OptionRule, Options, OptionsProvider};
 
+const DEFAULT_CACHE_PATH: &str = "./cache";
+
 /// Options for [`Queue`]
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct CacheOptions {
-    /// Path to cache file.
+    /// Path to cache directory.
     ///
-    /// Default: `output/cache.yml`
+    /// Default: `./cache`
     #[arg(long)]
     pub cache: Option<PathBuf>,
 }
@@ -40,7 +42,7 @@ impl Options for CacheOptions {
 
     fn apply_defaults(&mut self) {
         if self.cache.is_none() {
-            self.cache = Some(PathBuf::from("output/cache.yml"));
+            self.cache = Some(PathBuf::from(DEFAULT_CACHE_PATH));
         }
     }
 
@@ -49,21 +51,21 @@ impl Options for CacheOptions {
         let mut errors: Vec<OptionRule> = Vec::new();
         if let Some(cache) = &self.cache {
             if cache.ends_with(".json")
-                || (cache.eq(&PathBuf::from("output/cache.yml")) && !cache.exists())
+                || (cache.eq(&PathBuf::from(DEFAULT_CACHE_PATH)) && !cache.is_dir())
             {
                 errors.push(Changed(
-                    "Cache File".to_owned(),
+                    "Cache Directory".to_owned(),
                     cache.to_string_lossy().to_string(),
-                    "In v0.19.0 the cache file format changed to YAML.
+                    "In v0.19.0 the cache format changed. A directory is now required.
 Please see the release notes for more details:
 https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
                         .to_owned(),
                 ));
             }
 
-            if !cache.exists() || !cache.is_file() {
+            if !cache.is_dir() {
                 errors.push(DoesNotExist(
-                    "Cache File".to_owned(),
+                    "Cache Directory".to_owned(),
                     cache.to_string_lossy().to_string(),
                 ));
             }

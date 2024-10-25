@@ -8,6 +8,4 @@ pub struct QueueStatus {
     pub added: usize,
     /// Total number of items not added to the queue
     pub excluded: usize,
-    /// Total number of items in the queue
-    pub total: usize,
 }

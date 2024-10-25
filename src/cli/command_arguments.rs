@@ -3,7 +3,7 @@ use clap::Subcommand;
 use crate::options::source_arg::SourceArg;
 use crate::options::verify_options::VerifyOptions;
 use crate::options::{
-    BatchOptions, CacheOptions, FileOptions, QueueOptions, RunnerOptions, SharedOptions,
+    BatchOptions, CacheOptions, FileOptions, QueueAddArgs, RunnerOptions, SharedOptions,
     SpectrogramOptions, TargetOptions, UploadOptions,
 };
 
@@ -99,7 +99,7 @@ pub enum QueueCommandArguments {
         #[command(flatten)]
         cache: CacheOptions,
         #[command(flatten)]
-        queue: QueueOptions,
+        args: QueueAddArgs,
     },
 
     /// List the sources in the queue

@@ -59,20 +59,24 @@ impl Host {
             }
             Queue {
                 command: List { .. },
-            } => self
-                .services
-                .get_required_mut::<QueueListCommand>()
-                .write()
-                .expect("QueueListCommand should be available to write")
-                .execute_cli(),
+            } => {
+                self.services
+                    .get_required_mut::<QueueListCommand>()
+                    .write()
+                    .expect("QueueListCommand should be available to write")
+                    .execute_cli()
+                    .await
+            }
             Queue {
                 command: Summary { .. },
-            } => self
-                .services
-                .get_required_mut::<QueueSummaryCommand>()
-                .write()
-                .expect("QueueSummaryCommand should be available to write")
-                .execute_cli(),
+            } => {
+                self.services
+                    .get_required_mut::<QueueSummaryCommand>()
+                    .write()
+                    .expect("QueueSummaryCommand should be available to write")
+                    .execute_cli()
+                    .await
+            }
             Spectrogram { .. } => {
                 self.services
                     .get_required::<SpectrogramCommand>()

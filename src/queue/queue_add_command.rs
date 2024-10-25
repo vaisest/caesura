@@ -1,10 +1,14 @@
+use crate::db::Hash;
 use crate::errors::AppError;
 use crate::fs::DirectoryReader;
-use crate::options::{CacheOptions, Options, QueueOptions, SharedOptions};
-use crate::queue::{Queue, QueueStatus};
+use crate::options::{CacheOptions, Options, QueueAddArgs, SharedOptions};
+use crate::queue::{Queue, QueueItem, QueueStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{info, trace};
+use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::BufReader;
 use std::path::PathBuf;
 
 /// Add a directory of `.torrent` files to the queue
@@ -12,7 +16,7 @@ use std::path::PathBuf;
 pub struct QueueAddCommand {
     shared_options: Ref<SharedOptions>,
     cache_options: Ref<CacheOptions>,
-    queue_options: Ref<QueueOptions>,
+    args: Ref<QueueAddArgs>,
     queue: RefMut<Queue>,
 }
 
@@ -20,35 +24,44 @@ impl QueueAddCommand {
     pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.shared_options.validate()
             || !self.cache_options.validate()
-            || !self.queue_options.validate()
+            || !self.args.validate()
         {
             return Ok(false);
         }
-        let torrent_dir = self
-            .queue_options
-            .torrents
+        let path = self
+            .args
+            .queue_add_path
             .clone()
             .expect("source should be set");
-        let status = self.execute(torrent_dir).await?;
+        let status = self.execute(path).await?;
         info!("{} {} items to the queue", "Added".bold(), status.added);
         trace!(
             "{} {} items already in the queue",
             "Excluded".bold(),
             status.excluded
         );
-        trace!("{} {} items in the queue", "Total".bold(), status.total);
         Ok(true)
     }
 
-    pub async fn execute(&mut self, torrent_dir: PathBuf) -> Result<QueueStatus, AppError> {
-        if !torrent_dir.is_dir() {
-            return AppError::explained("get torrent files", "path is not a directory".to_owned());
+    async fn execute(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+        if path.is_dir() {
+            self.execute_directory(path).await
+        } else if path.is_file() {
+            self.execute_file(path).await
+        } else {
+            AppError::explained(
+                "add to queue",
+                format!("Does not exist: {}", path.display()),
+            )
         }
-        trace!("Reading torrent directory: {}", torrent_dir.display());
+    }
+
+    async fn execute_directory(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+        trace!("Reading torrent directory: {}", path.display());
         let paths = DirectoryReader::new()
             .with_extension("torrent")
             .with_max_depth(0)
-            .read(&torrent_dir)
+            .read(&path)
             .or_else(|e| AppError::io(e, "read torrent directory"))?;
         let found = paths.len();
         info!("{} {} torrent files", "Found".bold(), found);
@@ -56,14 +69,31 @@ impl QueueAddCommand {
             info!("This may take a while");
         }
         let mut queue = self.queue.write().expect("queue should be writeable");
-        queue.load()?;
-        let added = queue.insert_new_torrent_files(paths).await;
-        queue.save()?;
+        let added = queue.insert_new_torrent_files(paths).await?;
         Ok(QueueStatus {
             success: true,
             added,
             excluded: found - added,
-            total: queue.len(),
+        })
+    }
+
+    async fn execute_file(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+        trace!("Reading queue file: {}", path.display());
+        let file = File::open(path).or_else(|e| AppError::io(e, "open chunk file"))?;
+        let reader = BufReader::new(file);
+        let items: BTreeMap<Hash<20>, QueueItem> =
+            serde_yaml::from_reader(reader).or_else(|e| AppError::yaml(e, "deserialize chunk"))?;
+        let found = items.len();
+        info!("{} {} items", "Found".bold(), found);
+        if found > 250 {
+            info!("This may take a while");
+        }
+        let queue = self.queue.write().expect("queue should be writeable");
+        let added = queue.set_many(items, true).await?;
+        Ok(QueueStatus {
+            success: true,
+            added,
+            excluded: found - added,
         })
     }
 }

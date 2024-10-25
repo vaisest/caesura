@@ -1,4 +1,5 @@
 use super::super::*;
+use crate::db::Hash;
 use crate::imdl::TorrentSummary;
 use std::path::PathBuf;
 
@@ -7,7 +8,7 @@ fn from_torrent_with_valid_data() {
     // Arrange
     let path = PathBuf::from("/path/to/file.torrent");
     let name = "Artist - Album (2018) [FLAC]".to_owned();
-    let info_hash = "abcdef1234567890".to_owned();
+    let info_hash = "abcdef1234567890abcdef1234567890abcdef12".to_owned();
     let source = "ABC".to_owned();
     let comment = "https://example.com/torrents.php?torrentid=12345".to_owned();
     let torrent = TorrentSummary {
@@ -23,7 +24,10 @@ fn from_torrent_with_valid_data() {
 
     // Assert
     assert_eq!(result.name, name);
-    assert_eq!(result.hash, info_hash);
+    assert_eq!(
+        result.hash,
+        Hash::from_string(&info_hash).expect("hash should be valid")
+    );
     assert_eq!(result.indexer, source.to_lowercase());
     assert_eq!(result.id, Some(12345));
 }
@@ -34,7 +38,7 @@ fn from_torrent_with_missing_source() {
     let path = PathBuf::from("/path/to/file.torrent");
     let torrent = TorrentSummary {
         name: "Example Torrent".to_owned(),
-        info_hash: "some_hash".to_owned(),
+        info_hash: "abcdef1234567890abcdef1234567890abcdef12".to_owned(),
         source: None,
         comment: Some("https://example.com/torrents.php?torrentid=12345".to_owned()),
         ..TorrentSummary::default()
@@ -53,7 +57,7 @@ fn from_torrent_with_missing_comment() {
     let path = PathBuf::from("/path/to/file.torrent");
     let torrent = TorrentSummary {
         name: "Example Torrent".to_owned(),
-        info_hash: "some_hash".to_owned(),
+        info_hash: "abcdef1234567890abcdef1234567890abcdef12".to_owned(),
         source: Some("ABC".to_owned()),
         comment: None,
         ..TorrentSummary::default()
@@ -72,7 +76,7 @@ fn from_torrent_with_invalid_comment() {
     let path = PathBuf::from("/path/to/file.torrent");
     let torrent = TorrentSummary {
         name: "Example Torrent".to_owned(),
-        info_hash: "some_hash".to_owned(),
+        info_hash: "abcdef1234567890abcdef1234567890abcdef12".to_owned(),
         source: Some("Indexer".to_owned()),
         comment: Some("invalid_url".to_owned()),
         ..TorrentSummary::default()

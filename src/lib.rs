@@ -1,6 +1,9 @@
 mod api;
 mod batch;
 pub mod cli;
+#[allow(dead_code)]
+#[allow(unused_imports)]
+mod db;
 mod dependencies;
 mod errors;
 mod formats;

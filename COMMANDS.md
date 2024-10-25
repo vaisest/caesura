@@ -168,9 +168,9 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    The duration is a string that can be parsed such as `500ms`, `5m`, `1h30m15s`.
 
    Default: `null`
-* `--cache <CACHE>` — Path to cache file.
+* `--cache <CACHE>` — Path to cache directory.
 
-   Default: `output/cache.yml`
+   Default: `./cache`
 
 
 
@@ -192,13 +192,13 @@ Add FLAC sources to the queue without transcoding
 
 Add a directory of `.torrent` files to the queue
 
-**Usage:** `caesura queue add [OPTIONS] [TORRENT_DIRECTORY]`
+**Usage:** `caesura queue add [OPTIONS] [PATH]`
 
 ###### **Arguments:**
 
-* `<TORRENT_DIRECTORY>` — Path to directory of `.torrent` files.
+* `<PATH>` — A path to either: - A directory of `.torrent` files - A single YAML queue file
 
-   Examples: `./torrents`, `/path/to/torrents`
+   Examples: `./torrents`, `/path/to/torrents`, `./queue.yml`
 
 ###### **Options:**
 
@@ -247,9 +247,9 @@ Add a directory of `.torrent` files to the queue
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
-* `--cache <CACHE>` — Path to cache file.
+* `--cache <CACHE>` — Path to cache directory.
 
-   Default: `output/cache.yml`
+   Default: `./cache`
 
 
 
@@ -306,9 +306,9 @@ List the sources in the queue
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
-* `--cache <CACHE>` — Path to cache file.
+* `--cache <CACHE>` — Path to cache directory.
 
-   Default: `output/cache.yml`
+   Default: `./cache`
 * `--spectrogram` — Should the spectrogram command be executed?
 
    Default: `false`
@@ -387,9 +387,9 @@ Summarize the sources in the queue
 * `--output <OUTPUT>` — Directory where transcodes and spectrograms will be written.
 
    Default: `./output`
-* `--cache <CACHE>` — Path to cache file.
+* `--cache <CACHE>` — Path to cache directory.
 
-   Default: `output/cache.yml`
+   Default: `./cache`
 
 
 

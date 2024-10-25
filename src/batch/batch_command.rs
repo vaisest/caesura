@@ -50,7 +50,6 @@ impl BatchCommand {
             return Ok(false);
         }
         let mut queue = self.queue.write().expect("Queue should be writeable");
-        queue.load()?;
         let mut source_provider = self
             .source_provider
             .write()
@@ -70,7 +69,9 @@ impl BatchCommand {
             .clone()
             .expect("indexer should be set");
         let limit = self.batch_options.get_limit();
-        let items = queue.get_unprocessed(indexer.clone(), transcode_enabled, upload_enabled);
+        let items = queue
+            .get_unprocessed(indexer.clone(), transcode_enabled, upload_enabled)
+            .await?;
         if items.is_empty() {
             info!(
                 "{} items in the queue for {}",
@@ -88,7 +89,7 @@ impl BatchCommand {
         );
         let mut count = 0;
         for hash in items {
-            let Some(item) = queue.get(&hash) else {
+            let Some(mut item) = queue.get(hash)? else {
                 error!("{} to retrieve {hash} from the queue", "Failed".bold());
                 continue;
             };
@@ -98,7 +99,8 @@ impl BatchCommand {
                 let status = VerifyStatus::from_issue(SourceIssue::IdError {
                     details: "missing id".to_owned(),
                 });
-                queue.set_verify(hash, status);
+                item.verify = Some(status);
+                queue.set(item).await?;
                 continue;
             };
             let source = match source_provider.get(id).await {
@@ -122,12 +124,14 @@ impl BatchCommand {
                         } else {
                             debug!("{} {item} due to {reason}", "Skipping".bold());
                             debug!("{error}");
-                            queue.set_verify(hash.clone(), VerifyStatus::from_issue(issue));
+                            item.verify = Some(VerifyStatus::from_issue(issue));
+                            queue.set(item).await?;
                         }
                     } else {
                         debug!("{} {item}", "Skipping".bold());
                         debug!("{issue}");
-                        queue.set_verify(hash.clone(), VerifyStatus::from_issue(issue));
+                        item.verify = Some(VerifyStatus::from_issue(issue));
+                        queue.set(item).await?;
                     }
                     continue;
                 }
@@ -140,7 +144,7 @@ impl BatchCommand {
                 .await;
             if status.verified {
                 debug!("{} {}", "Verified".bold(), source);
-                queue.set_verify(hash.clone(), status);
+                item.verify = Some(status);
             } else {
                 debug!("{} {source}", "Skipping".bold());
                 debug!("{} to verify {}", "Failed".bold(), source);
@@ -149,7 +153,8 @@ impl BatchCommand {
                         debug!("{issue}");
                     }
                 }
-                queue.set_verify(hash, status);
+                item.verify = Some(status);
+                queue.set(item).await?;
                 continue;
             }
             if spectrogram_enabled {
@@ -157,7 +162,7 @@ impl BatchCommand {
                 if let Some(error) = &status.error {
                     warn!("{error}");
                 }
-                queue.set_spectrogram(hash.clone(), status);
+                item.spectrogram = Some(status);
             }
             if transcode_enabled {
                 let status = self.transcode.execute(&source).await;
@@ -165,9 +170,10 @@ impl BatchCommand {
                     error!("{error}");
                 }
                 if status.success {
-                    queue.set_transcode(hash.clone(), status);
+                    item.transcode = Some(status);
                 } else {
-                    queue.set_transcode(hash, status);
+                    item.transcode = Some(status);
+                    queue.set(item).await?;
                     continue;
                 }
                 if upload_enabled {
@@ -182,10 +188,10 @@ impl BatchCommand {
                         .execute(&source)
                         .await;
                     // Errors were already logged in UploadCommand::Execute()
-                    queue.set_upload(hash, status);
+                    item.upload = Some(status);
                 }
             }
-            queue.save()?;
+            queue.set(item).await?;
             count += 1;
             if let Some(limit) = limit {
                 if count >= limit {
@@ -194,7 +200,6 @@ impl BatchCommand {
                 }
             }
         }
-        queue.save()?;
         info!("{} batch process of {count} items", "Completed".bold());
         Ok(true)
     }

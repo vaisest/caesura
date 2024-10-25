@@ -16,22 +16,21 @@ pub struct QueueSummaryCommand {
 }
 
 impl QueueSummaryCommand {
-    pub fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
         if !self.cache_options.validate() {
             return Ok(false);
         }
-        let summary = self.execute()?;
+        let summary = self.execute().await?;
         let yaml = serde_yaml::to_string(&summary)
             .or_else(|e| AppError::yaml(e, "serialize queue summary"))?;
         println!("{yaml}");
         Ok(true)
     }
-    pub fn execute(&mut self) -> Result<QueueSummary, AppError> {
+    pub async fn execute(&mut self) -> Result<QueueSummary, AppError> {
         let mut queue = self.queue.write().expect("Queue should be writeable");
-        queue.load()?;
-        let items = queue.get_all();
+        let items = queue.get_all().await?;
         let mut summary = QueueSummary::default();
-        for item in items {
+        for (_, item) in items {
             summary.total += 1;
             match summary.indexer.get_mut(&item.indexer) {
                 Some(count) => *count += 1,
@@ -59,7 +58,7 @@ impl QueueSummaryCommand {
                 None => summary.transcode_none += 1,
                 Some(TranscodeStatus { success: true, .. }) => summary.transcode_success_true += 1,
                 Some(TranscodeStatus { success: false, .. }) => {
-                    summary.transcode_success_false += 1
+                    summary.transcode_success_false += 1;
                 }
             };
             match item.upload {

@@ -157,8 +157,21 @@ impl Display for AppError {
         write!(formatter, "{}", self.lines().join("\n"))
     }
 }
-
 impl Error for AppError {}
+
+impl Clone for AppError {
+    fn clone(&self) -> Self {
+        Self {
+            action: self.action.clone(),
+            domain: self.domain.clone(),
+            message: self.message.clone(),
+            actual: self.actual.clone(),
+            expected: self.expected.clone(),
+            status_code: self.status_code,
+            backtrace: None,
+        }
+    }
+}
 
 #[allow(clippy::wildcard_enum_match_arm)]
 fn get_backtrace() -> Option<Backtrace> {

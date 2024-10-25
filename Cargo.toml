@@ -39,6 +39,8 @@ serde = { version = "^1.0", features = ["derive"] }
 humantime = "^2.1"
 chrono = "^0.4.38"
 serde_yaml = "0.9.34"
+tokio-stream = "0.1.16"
+futures = "0.3.31"
 
 [build-dependencies]
 built = "^0.7"
@@ -90,6 +92,7 @@ new_without_default = "allow"
 integer_division = "warn"
 separated_literal_suffix = "allow"
 unseparated_literal_suffix = "warn"
+wrong_self_convention="allow"
 # TODO COULD re-consider the following allows:
 result_large_err = "allow"
 clone_on_ref_ptr = "allow"

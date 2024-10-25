@@ -11,8 +11,12 @@ use crate::cli::QueueCommandArguments::{Add, List, Summary};
 use crate::logging::{TimeFormat, Verbosity};
 use crate::options::{
     Changed, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
-    UrlNotHttp, DEFAULT_CONFIG_PATH,
+    UrlNotHttp,
 };
+
+pub const DEFAULT_CONFIG_PATH: &str = "config.yml";
+const DEFAULT_CONTENT_PATH: &str = "./content";
+const DEFAULT_OUTPUT_PATH: &str = "./output";
 
 /// Options shared by all commands
 #[derive(Args, Clone, Debug, Default, Deserialize, Serialize)]
@@ -147,10 +151,10 @@ impl Options for SharedOptions {
             self.log_time = Some(TimeFormat::default());
         }
         if self.content.is_none() {
-            self.content = Some(vec![PathBuf::from("./content")]);
+            self.content = Some(vec![PathBuf::from(DEFAULT_CONTENT_PATH)]);
         }
         if self.output.is_none() {
-            self.output = Some(PathBuf::from("./output"));
+            self.output = Some(PathBuf::from(DEFAULT_OUTPUT_PATH));
         }
     }
 
@@ -159,18 +163,18 @@ impl Options for SharedOptions {
         let mut errors: Vec<OptionRule> = Vec::new();
         if let Some(config) = &self.config {
             if config.ends_with(".json")
-                || (config.eq(&PathBuf::from(DEFAULT_CONFIG_PATH)) && !config.exists())
+                || (config.eq(&PathBuf::from(DEFAULT_CONFIG_PATH)) && !config.is_file())
             {
                 errors.push(Changed(
                     "Config File".to_owned(),
                     config.to_string_lossy().to_string(),
-                    "In v0.19.0 the config file format changed to YAML.
+                    "In v0.19.0 the config file format changed. A YAML file is now required.
 Please see the release notes for more details:
 https://github.com/RogueOneEcho/caesura/releases/tag/v0.19.0"
                         .to_owned(),
                 ));
             }
-            if !config.exists() || !config.is_file() {
+            if !config.is_file() {
                 errors.push(DoesNotExist(
                     "Config File".to_owned(),
                     config.to_string_lossy().to_string(),

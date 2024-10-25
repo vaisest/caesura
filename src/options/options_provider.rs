@@ -8,8 +8,6 @@ use log::*;
 use crate::logging::Logger;
 use crate::options::*;
 
-pub const DEFAULT_CONFIG_PATH: &str = "config.yml";
-
 /// Retrieve options
 ///
 /// Options are retrieved from multiple sources, and merged in order of precedence:
