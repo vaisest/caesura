@@ -1,6 +1,8 @@
 use crate::errors::{AppError, OutputHandler};
 use crate::transcode::{Decode, Encode, Resample, Variant};
-use audiotags::{AudioTagWrite, Id3v2Tag};
+use lofty::config::WriteOptions;
+use lofty::prelude::TagExt;
+use lofty::tag::Tag;
 use log::{trace, warn};
 use std::fs::create_dir_all;
 use std::process::Stdio;
@@ -9,7 +11,7 @@ use tokio::join;
 pub struct TranscodeJob {
     pub id: String,
     pub variant: Variant,
-    pub tags: Option<Id3v2Tag>,
+    pub tags: Option<Tag>,
 }
 
 impl TranscodeJob {
@@ -27,9 +29,9 @@ impl TranscodeJob {
             Variant::Transcode(decode, encode) => execute_transcode(decode, encode).await?,
             Variant::Resample(resample) => execute_resample(resample).await?,
         };
-        if let Some(mut tags) = self.tags {
-            tags.write_to_path(output_path.to_string_lossy().as_ref())
-                .or_else(|e| AppError::tag(e, "write tags to file"))?;
+        if let Some(tags) = self.tags {
+            tags.save_to_path(&output_path, WriteOptions::default())
+                .or_else(|e| AppError::external("write tags", "lofty", e.to_string()))?;
         }
         Ok(())
     }

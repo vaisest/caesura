@@ -109,10 +109,6 @@ impl AppError {
         Self::explained(action, format!("Received a {status} response"))
     }
 
-    pub fn tag<T>(error: audiotags::Error, action: &str) -> Result<T, AppError> {
-        Self::external(action, "audio tag", format!("{error}"))
-    }
-
     pub fn task<T>(error: JoinError, action: &str) -> Result<T, AppError> {
         Self::external(action, "task", format!("{error}"))
     }

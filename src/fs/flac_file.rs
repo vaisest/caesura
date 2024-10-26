@@ -1,7 +1,5 @@
 use std::path::PathBuf;
 
-use crate::errors::AppError;
-use audiotags::{AudioTag, Tag};
 use claxon::metadata::StreamInfo;
 use claxon::FlacReader;
 
@@ -44,12 +42,6 @@ impl FlacFile {
     #[must_use]
     pub fn get_path_string(&self) -> String {
         self.path.to_string_lossy().into_owned()
-    }
-
-    pub fn get_tags(&self) -> Result<Box<dyn AudioTag + Send + Sync>, AppError> {
-        Tag::new()
-            .read_from_path(self.path.clone())
-            .or_else(|e| AppError::tag(e, "get tags"))
     }
 
     pub fn get_stream_info(&self) -> Result<StreamInfo, claxon::Error> {

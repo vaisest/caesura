@@ -1,9 +1,10 @@
-use audiotags::Id3v2Tag;
 use di::{injectable, Ref};
 
 use crate::errors::AppError;
 use crate::formats::target_format::TargetFormat;
-use crate::fs::{FlacFile, PathManager};
+use crate::fs::{
+    convert_to_id3v2, get_vorbis_tags, replace_vinyl_track_numbering, FlacFile, PathManager,
+};
 use crate::jobs::Job;
 use crate::source::Source;
 use crate::transcode::transcode_job::TranscodeJob;
@@ -64,9 +65,11 @@ impl TranscodeJobFactory {
                 },
             )
         };
-        let tags = if matches!(format, TargetFormat::_320) || matches!(format, TargetFormat::V0) {
-            let tags = flac.get_tags()?;
-            Some(Id3v2Tag::from(tags))
+        let tags = if matches!(format, TargetFormat::_320 | TargetFormat::V0) {
+            let mut tags = get_vorbis_tags(flac)?;
+            convert_to_id3v2(&mut tags);
+            let _ = replace_vinyl_track_numbering(&mut tags);
+            Some(tags)
         } else {
             None
         };
