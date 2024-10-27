@@ -6,6 +6,7 @@ use std::time::Duration;
 
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
+use crate::cli::QueueCommandArguments::List;
 use crate::options::{OptionRule, Options, OptionsProvider};
 
 /// Options for [`BatchCommand`]
@@ -144,7 +145,12 @@ impl Options for BatchOptions {
     #[allow(clippy::manual_let_else)]
     fn from_args() -> Option<Self> {
         let options = match ArgumentsParser::get() {
-            Some(Batch { batch, .. }) => batch,
+            Some(
+                Batch { batch, .. }
+                | Queue {
+                    command: List { batch, .. },
+                },
+            ) => batch,
             _ => return None,
         };
         let mut options = options;
