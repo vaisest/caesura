@@ -76,8 +76,10 @@ impl UploadCommand {
         };
         let mut errors = Vec::new();
         for target in targets {
-            let torrent_path = self.paths.get_torrent_path(source, target);
+            let torrent_path = self.paths.get_torrent_path(source, target, true);
             if !torrent_path.exists() {
+                warn!("In v0.19.0 the torrent file name format changed.");
+                warn!("Running the transcode command will update existing transcodes without re-transcoding.");
                 let error = AppError::else_explained(
                     "upload",
                     format!(
@@ -208,7 +210,7 @@ impl UploadCommand {
         target: &TargetFormat,
         target_dir: &Path,
     ) -> Result<(), AppError> {
-        let source_path = self.paths.get_torrent_path(source, *target);
+        let source_path = self.paths.get_torrent_path(source, *target, true);
         let source_file_name = source_path
             .file_name()
             .expect("torrent path should have a name");

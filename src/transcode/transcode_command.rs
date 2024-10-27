@@ -1,8 +1,3 @@
-use colored::Colorize;
-use di::{injectable, Ref, RefMut};
-use log::*;
-use std::collections::BTreeSet;
-
 use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::{Collector, PathManager};
@@ -16,6 +11,11 @@ use crate::source::*;
 use crate::transcode::{
     AdditionalJobFactory, TranscodeFormatStatus, TranscodeJobFactory, TranscodeStatus,
 };
+use colored::Colorize;
+use di::{injectable, Ref, RefMut};
+use log::*;
+use std::collections::BTreeSet;
+use tokio::fs::copy;
 
 /// Transcode each track of a FLAC source to the target formats.
 #[injectable]
@@ -88,7 +88,7 @@ impl TranscodeCommand {
             })
             .collect();
         status.formats = Some(formats);
-        let targets = self.skip_completed(source, &targets);
+        let targets = self.skip_completed(source, &targets).await;
         if targets.is_empty() {
             status.success = true;
             return status;
@@ -113,18 +113,22 @@ impl TranscodeCommand {
     }
 
     #[must_use]
-    fn skip_completed(
+    async fn skip_completed(
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
     ) -> BTreeSet<TargetFormat> {
         let mut out: BTreeSet<TargetFormat> = BTreeSet::new();
         for target in targets {
-            let path = self.paths.get_torrent_path(source, *target);
-            if path.exists() {
+            if let Ok(Some(path)) = self
+                .paths
+                .get_or_duplicate_existing_torrent_path(source, *target)
+                .await
+            {
                 debug!("{} existing {target} transcode", "Found".bold());
                 trace!("{}", path.display());
             } else {
+                // Errors are intentionally ignored
                 out.insert(*target);
             }
         }
@@ -182,7 +186,7 @@ impl TranscodeCommand {
         debug!("{} torrents {}", "Creating".bold(), source);
         for target in targets {
             let content_dir = self.paths.get_transcode_target_dir(source, *target);
-            let output_path = self.paths.get_torrent_path(source, *target);
+            let path_without_indexer = self.paths.get_torrent_path(source, *target, false);
             let announce_url = self
                 .shared_options
                 .announce_url
@@ -193,8 +197,21 @@ impl TranscodeCommand {
                 .indexer
                 .clone()
                 .expect("indexer should be set");
-            ImdlCommand::create(&content_dir, &output_path, announce_url, indexer).await?;
-            trace!("{} torrent {}", "Created".bold(), output_path.display());
+            ImdlCommand::create(&content_dir, &path_without_indexer, announce_url, indexer).await?;
+            trace!(
+                "{} torrent {}",
+                "Created".bold(),
+                path_without_indexer.display()
+            );
+            let path_with_indexer = self.paths.get_torrent_path(source, *target, true);
+            copy(&path_without_indexer, &path_with_indexer)
+                .await
+                .or_else(|e| AppError::io(e, "copy torrent file"))?;
+            trace!(
+                "{} torrent {}",
+                "Created".bold(),
+                path_with_indexer.display()
+            );
         }
         debug!("{} torrents {}", "Created".bold(), source);
         Ok(())

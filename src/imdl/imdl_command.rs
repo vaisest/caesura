@@ -2,6 +2,9 @@ use std::path::{Path, PathBuf};
 use std::process::{Output, Stdio};
 
 use bytes::Buf;
+use colored::Colorize;
+use log::trace;
+use tokio::fs::copy;
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 
@@ -61,8 +64,8 @@ impl ImdlCommand {
 
     /// Verify files match the torrent metadata.
     pub async fn verify(
-        torrent_file: &PathBuf,
-        directory: &PathBuf,
+        torrent_file: &Path,
+        directory: &Path,
     ) -> Result<Option<SourceIssue>, AppError> {
         let output = Command::new(IMDL)
             .arg("torrent")
@@ -116,5 +119,50 @@ impl ImdlCommand {
             let details = String::from_utf8(output.stderr).unwrap_or_default();
             Ok(vec![Imdl { details }])
         }
+    }
+
+    /// Duplicate a .torrent file
+    ///
+    /// Copy if the source and announce are the same.
+    ///
+    /// Otherwise, verify content is unchanged and re-create with new source.
+    pub async fn duplicate_torrent(
+        from: &Path,
+        to: &Path,
+        content_dir: &Path,
+        announce_url: String,
+        source: String,
+    ) -> Result<bool, AppError> {
+        let torrent = ImdlCommand::show(from).await?;
+        let torrent_announce = torrent.announce_list.first().and_then(|x| x.first());
+        if torrent.is_source_equal(&source) && torrent_announce == Some(&announce_url) {
+            trace!(
+                "{} {:?} to {:?}",
+                "Copying".bold(),
+                from.file_name(),
+                to.file_name()
+            );
+            copy(&from, &to)
+                .await
+                .or_else(|e| AppError::io(e, "duplicate torrent"))?;
+            return Ok(true);
+        }
+        if !content_dir.is_dir() {
+            trace!(
+                "Torrent content directory does not exist: {}",
+                content_dir.display()
+            );
+            return Ok(false);
+        }
+        let verify_issues = ImdlCommand::verify(from, content_dir).await?;
+        if verify_issues.is_some() {
+            trace!(
+                "Torrent content failed verification: {:?}",
+                from.file_name()
+            );
+            return Ok(false);
+        }
+        ImdlCommand::create(content_dir, to, announce_url, source).await?;
+        Ok(true)
     }
 }
