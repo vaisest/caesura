@@ -57,6 +57,18 @@ impl QueueAddCommand {
     }
 
     async fn execute_directory(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+        let mut queue = self.queue.write().expect("queue should be writeable");
+        let existing_paths: Vec<PathBuf> = queue
+            .get_all()
+            .await?
+            .values()
+            .map(|x| x.path.clone())
+            .collect();
+        trace!(
+            "{} {} existing paths",
+            "Skipping".bold(),
+            existing_paths.len()
+        );
         trace!("Reading torrent directory: {}", path.display());
         let paths = DirectoryReader::new()
             .with_extension("torrent")
@@ -64,11 +76,16 @@ impl QueueAddCommand {
             .read(&path)
             .or_else(|e| AppError::io(e, "read torrent directory"))?;
         let found = paths.len();
-        info!("{} {} torrent files", "Found".bold(), found);
-        if found > 250 {
+        trace!("{} {} torrent files", "Found".bold(), found);
+        let paths: Vec<PathBuf> = paths
+            .into_iter()
+            .filter(|x| !existing_paths.contains(x))
+            .collect();
+        let remaining = paths.len();
+        info!("{} {} new torrent files", "Found".bold(), remaining);
+        if remaining > 250 {
             info!("This may take a while");
         }
-        let mut queue = self.queue.write().expect("queue should be writeable");
         let added = queue.insert_new_torrent_files(paths).await?;
         Ok(QueueStatus {
             success: true,
