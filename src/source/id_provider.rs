@@ -52,13 +52,8 @@ impl IdProvider {
 
     async fn get_by_file(&self, path: &Path) -> Result<i64, AppError> {
         let summary = ImdlCommand::show(path).await?;
-        let tracker_id = self
-            .options
-            .indexer
-            .clone()
-            .expect("indexer should be set")
-            .to_uppercase();
-        if summary.source == Some(tracker_id.clone()) {
+        let tracker_id = self.options.indexer.clone().expect("indexer should be set");
+        if summary.is_source_equal(&tracker_id) {
             let url = summary.comment.unwrap_or_default();
             self.get_by_url(&url)
         } else {

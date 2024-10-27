@@ -25,3 +25,12 @@ pub struct TorrentSummary {
     pub file_count: usize,
     pub files: Vec<String>,
 }
+
+impl TorrentSummary {
+    pub fn is_source_equal(&self, source: &str) -> bool {
+        match self.source.clone() {
+            None => false,
+            Some(other) => source.eq_ignore_ascii_case(&other),
+        }
+    }
+}
