@@ -83,32 +83,52 @@ docker run ghcr.io/rogueoneecho/caesura --help
 
 ### 2. Create a configuration file
 
-Run the `config` command to print the default configuration and redirect it to `config.json`.
+Create a `config.yml` file with the following content:
 
-```bash
-docker run ghcr.io/rogueoneecho/caesura config > config.yml
-```
-
-> [!NOTE]
-> You can ignore the "Failed to read config file" warning.
-
-Edit `config.json` in your preferred text editor. Set the following fields for your indexer:
 - `announce_url` Your personal announce URL. Find it on upload page.
 - `api_key` Create an API key with `Torrents` permission `Settings > Access Settings > Create an API Key`
-- `content` the directory containing torrent content. Typically this is set as the download directory in your torrent client. Defaults to `./content`.
-- `output` the directory where transcodes, spectrograms and .torrent files will be written. Defaults to `./output`.
+
+Refer to [COMMANDS.md](COMMANDS.md) for full documentation of options.
+
+```yaml
+announce_url: https://flacsfor.me/YOUR_ANNOUNCE_KEY/announce
+api_key: "YOUR_API_KEY"
+```
+
+You can then run the `config` command to see how the full configuration including default values the application will use:
+
+```bash
+docker run ghcr.io/rogueoneecho/caesura config
+```
 
 > [!TIP]
 > The following fields are optional, if not set they're set based on the `announce_url`:
 > - `indexer` the id of the indexer: `red`, `pth`, `ops`.
 > - `indexer_url` the URL of the indexer: `https://redacted.ch`, `https://orpheus.network`.
 
-### 3. Verify a source
+### 3. Create storage directories
+
+Create a directory for the application to output files to:
+
+```bash
+mkdir ./output
+```
+
+Create a directory for the application to cache files to:
+
+```bash
+mkdir ./output
+```
+
+> [!TIP]
+> Refer to the [directory structure](#directory-structure) section for documentation on the purpose and structure of these directories.
+
+### 4. Verify a source
 
 Run the `verify` command with the source as an argument.
 
 > [!NOTE]
-> Because the application is running in a Docker container, you need to mount the config file, content directory and output directory.
+> Because the application is running in a Docker container, you need to mount the config file, content directory, output directory and cache directory.
 
 > [!TIP]
 > For the source you can use a permalink, the numeric torrent id or a path to a torrent file:
@@ -117,16 +137,17 @@ Run the `verify` command with the source as an argument.
 
 ```bash
 docker run \
--v ./config.json:/config.json \
+-v ./config.yml:/config.yml \
 -v /path/to/your/content:/content \
 -v ./output:/output \
+-v ./cache:/cache \
 ghcr.io/rogueoneecho/caesura \
 verify https://redacted.ch/torrents.php?id=80518&torrentid=142659#torrent142659
 ```
 
 If it looks good you can proceed to the next step, otherwise try another source.
 
-### 4. Use Docker Compose
+### 5. Use Docker Compose
 
 Docker is great but specifying the volumes everytime is tedious and prone to error.
 
@@ -140,15 +161,18 @@ services:
     container_name: caesura
     image: ghcr.io/rogueoneecho/caesura
     volumes:
-    - ./config.json:/config.json:ro
+    - ./config.yml:/config.yml:ro
     - /path/to/your/content:/content:ro
     - ./output:/output
+    - ./cache:/cache
 ```
 
 > [!NOTE]
 > The `:ro` suffix makes the volume read-only which is a good security practice.
 >
 > If you intend to use the `--copy-transcode-to-content-dir` option then you must remove the `:ro` suffix from the content volume.
+>
+> If you intend to use the `--hard-link` option then the `content` and `output` paths must be inside the same volume and you will need to update the `config.yml` accordingly.
 
 Now run the verify command again but this time using Docker Compose:
 
@@ -156,7 +180,7 @@ Now run the verify command again but this time using Docker Compose:
 docker compose run --rm caesura verify 142659
 ```
 
-### 5. Generate spectrograms of a source
+### 6. Generate spectrograms of a source
 
 Run the `spectrogram` command with the source as an argument.
 
@@ -166,7 +190,7 @@ docker compose run --rm caesura spectrogram 142659
 
 Inspect the spectrograms in the output directory.
 
-### 6. Transcode a source
+### 7. Transcode a source
 
 Run the `transcode` command with the source as an argument.
 
@@ -184,7 +208,7 @@ Inspect the transcodes in the output directory.
 > - Audio quality
 > - Image size and compression quality
 
-### 7. Upload transcodes
+### 8. Upload transcodes
 
 > [!WARNING]
 > You are responsible for everything you upload.
@@ -205,7 +229,7 @@ docker compose run --rm caesura upload https://redacted.ch/torrents.php?id=80518
 
 Go to your indexer and check your uploads to make sure everything has gone to plan.
 
-### 8. Batch processing
+### 9. Batch processing
 
 > [!WARNING]
 > You are responsible for everything you upload.
@@ -214,14 +238,14 @@ Go to your indexer and check your uploads to make sure everything has gone to pl
 
 Now that you have the hang of the application we can speed things up with the `queue` and `batch` commands.
 
-The `batch` command handles `verify`, `spectrogram`, `transcode` and `upload` in a single command. It can also be pointed at a directory containing torrent files to automatically sort through and pick out suitable sources.
+The `batch` command handles `verify`, `spectrogram`, `transcode` and `upload` in a single command.
 
 Run the `queue add` command to search through a directory of torrents and queue them for batch processing:
 
 > [!NOTE]
-> The `batch` and `queue` commands use a cache file to store progress helping speed up subsequent runs.
+> The `batch` and `queue` commands use the cache directory to store progress helping speed up subsequent runs.
 >
-> Make sure the cache file is in a mounted volume so it's not deleted between runs.
+> Make sure the cache directory is in a mounted volume so it's not deleted between runs.
 
 ```bash
 docker compose run --rm caesura queue add /path/to/your/torrents
@@ -235,11 +259,6 @@ docker compose run --rm caesura queue list
 
 By default the `batch` command will limit to processing just `3` transcodes and it won't create spectrograms or upload unless explicitly instructed. These safeguards are in place to prevent mistakenly uploading a bunch of sources that you haven't checked.
 
-> [!NOTE]
-> The batch command uses a cache file to store progress helping speed up subsequent runs.
->
-> Make sure the cache file is in a mounted volume so it's not deleted between runs.
-
 Run the command to batch verify and transcode the three sources in the queue:
 
 ```bash
@@ -251,25 +270,16 @@ docker compose run --rm caesura batch --transcode
 
 If everything goes to plan three sources should have transcoded to your output directory.
 
-You can filter the cache file with `yq` to see what has been transcoded:
+Use the `queue summary` command to see the progress:
 
 ```bash
-cat ./output/cache.yml | yq 'map(select(.transcode != null))'
+docker compose run --rm caesura queue summary
 ```
 
-Or to see what has been skipped and why:
+> [!TIP]
+> Refer to the [analyzing the queue](#analyzing-the-queue) section to inspect the queue in greater detail.
 
-```bash
-cat ./output/cache.yml | yq 'map(select(.verify.verified == false))'
-```
-
-If you're working with a lot of files then `less` can be helpful:
-
-```bash
-cat ./output/cache.yml | yq --colors  'map(select(.verify.verified == false)) | less -R
-```
-
-Nothing was uploaded in the first run giving you a chance to check the transcodes and spectrograms. Once you're satisfied run the command again but with the `--upload` flag (or set `upload: true` in the config file).
+Nothing was uploaded in the previous run of the `batch` command giving you a chance to check the transcodes and spectrograms. Once you're satisfied run again but with the `--upload` flag.
 
 ```bash
 docker compose run --rm caesura batch --transcode --upload
@@ -295,6 +305,53 @@ docker compose run --rm caesura batch --upload --limit 10 --wait-before-upload 3
 > If you are going to do so then you should definitely use a long wait interval:
 > `--upload --no-limit --wait-before-upload 2m`
 
+## Directory Structure
+
+The application requires two writable directories.
+
+### Cache Directory
+
+The `verify` command will download `.torrent` files for each source to `{CACHE}/torrents/{ID}.{INDEXER}.torrent`
+
+> [!TIP]
+> You can delete the cached `.torrent` files at any time. The application will just download them again if required.
+
+The `queue` and `batch` commands will read and write the source statues to `{CACHE}/queue/{FIRST_BYTE_OF_HASH}.yml`
+
+> [!WARNING]
+> In theory you can delete the `cache/queue` files as they can be re-created using `queue add` however:
+> - subsequent `batch` will be slow as it will need to re-process everything from scratch making an unnecessary number of I/O and API calls
+> - `queue summary` will no longer include your uploads. Instead `verify` will just see them as all formats being transcoded already.
+    > It's therefore recommended to leave these files alone.
+
+> [!TIP]
+> The `cache/queue` can be checked into version control. It uses a flat file format so changes can easily be tracked, backed up, and even reverted using `git`.
+
+### Output Directory
+
+The `spectrogram` command will generate spectrograms inside to
+`{OUTPUT}/{ARTIST} - {ALBUM} [{YEAR}] [{MEDIA} SPECTROGRAMS]/`
+
+> [!TIP]
+> Once you've reviewed the spectrograms you can freely delete each sectrograms directory (it can always be re-generated).
+
+The `transcode` command will transcode to
+`{OUTPUT}/{ARTIST} - {ALBUM} [{YEAR}] [{MEDIA} {FORMAT}]/`
+
+> [!TIP]
+> You can delete each transcode directory if you:
+> - Store the transcode elsewhere for seeding
+> - Don't intend to produce transcodes or cross seed to another indexer.
+
+Then `transcode` will create two `.torrent` files:
+- `{OUTPUT}/{ARTIST} - {ALBUM} [{YEAR}] [{MEDIA} {FORMAT}].{INDEXER}.torrent`
+- `{OUTPUT}/{ARTIST} - {ALBUM} [{YEAR}] [{MEDIA} {FORMAT}].torrent`
+
+> [!TIP]
+> You can delete the `.torrent` files if you:
+> - Have already uploaded to the indexer
+> - Don't intend to produce transcodes or cross seed to another indexer.
+
 ## Commands and Configuration
 
 > [!TIP]
@@ -302,7 +359,7 @@ docker compose run --rm caesura batch --upload --limit 10 --wait-before-upload 3
 
 Configuration options are sourced first from the command line arguments, then from a configuration file.
 
-By default the application loads `config.json` from the current working directory, but this can be overridden with the `--config <CONFIG_PATH>` cli argument.
+By default the application loads `config.yml` from the current working directory, but this can be overridden with the `--config <CONFIG_PATH>` cli argument.
 
 Most options have sensible defaults so the minimum required configuration is:
 
@@ -341,7 +398,7 @@ verbosity: debug
 - `user: "1000:1001"` ensures files have the same ownership as the host user (use the `id` command to find your user and group id).
 - Only `/srv/shared` has write permissions, the other directories are read-only.
 - `command: batch` runs the batch command by default.
-- `/` is the working directory of the container so mounting the config to `/config.json` means it's read by default.
+- `/` is the working directory of the container so mounting the config to `/config.yml` means it's read by default.
 
 ```yaml
 services:
@@ -351,9 +408,31 @@ services:
     image: ghcr.io/rogueoneecho/caesura
     user: "1000:1001"
     volumes:
-    - /srv/caesura/config.json:/config.json:ro
+    - /srv/caesura/config.yml:/config.yml:ro
     - /srv/deluge/state:/srv/deluge/state:ro
     - /srv/shared:/srv/shared
+```
+
+## Analyzing the queue
+
+The `cache/queue` uses a YAML file format that can be analyzed with `yq`.
+
+Filter` to see what has been transcoded:
+
+```bash
+cat ./cache/queue/*.yml | yq 'map(select(.transcode != null))'
+```
+
+Or to see what has been skipped and why:
+
+```bash
+cat ./cache/queue/*.yml | yq 'map(select(.verify.verified == false))'
+```
+
+If you're working with a lot of files then `less` can be helpful:
+
+```bash
+cat ./cache/queue/*.yml | yq --colors  'map(select(.verify.verified == false)) | less -R
 ```
 
 ## Troubleshooting
