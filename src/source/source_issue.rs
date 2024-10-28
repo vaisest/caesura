@@ -33,6 +33,7 @@ pub enum SourceIssue {
     LossyMaster,
     LossyWeb,
     Trumpable,
+    Unconfirmed,
     Existing {
         formats: BTreeSet<ExistingFormat>,
     },
@@ -108,6 +109,7 @@ impl Display for SourceIssue {
             LossyMaster => "Lossy master releases need approval".to_owned(),
             LossyWeb => "Lossy web releases need approval".to_owned(),
             Trumpable => "Source is trumpable".to_owned(),
+            Unconfirmed => "Unconfirmed Release need to be confirmed".to_owned(),
             Existing { formats } => {
                 format!(
                     "All allowed formats have been transcoded to already: {}",

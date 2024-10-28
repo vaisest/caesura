@@ -99,6 +99,9 @@ impl VerifyCommand {
         if source.torrent.trumpable == Some(true) {
             issues.push(Trumpable);
         }
+        if !source.torrent.remastered {
+            issues.push(Unconfirmed);
+        }
         let target_formats = self.targets.get(source.format, &source.existing);
         if target_formats.is_empty() {
             issues.push(Existing {
