@@ -30,7 +30,7 @@ RUN cargo build --release
 
 # Build final image with minimal dependencies
 FROM alpine:latest
-RUN apk add --no-cache flac lame sox imagemagick imagemagick-jpeg
+RUN apk add --no-cache flac lame sox imagemagick imagemagick-jpeg eyed3
 COPY --from=imdl /bin/imdl /bin/imdl
 COPY --from=builder /app/target/release/caesura /bin/caesura
 WORKDIR /

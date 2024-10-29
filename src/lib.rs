@@ -6,6 +6,7 @@ pub mod cli;
 mod db;
 mod dependencies;
 mod errors;
+mod eyed3;
 mod formats;
 mod fs;
 pub mod hosting;

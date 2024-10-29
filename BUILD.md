@@ -46,7 +46,7 @@ curl "https://github.com/casey/intermodal/releases/download/v0.1.14/imdl-v0.1.14
 With Homebrew:
 
 ```bash
-brew install flac lame sox imagemagick
+brew install flac lame sox imagemagick eye-d3
 ```
 
 Or, from your package manager:
@@ -114,7 +114,7 @@ docker compose run --rm caesura verify "123456"
 Or, start up the services and follow the logs:
 
 ```bash
-docker compose up -d caesura 
+docker compose up -d caesura
 docker logs -f caesura
 ```
 

@@ -9,6 +9,7 @@ use tokio::fs::{copy, hard_link};
 use crate::api::{Api, UploadForm};
 use crate::built_info::*;
 use crate::errors::AppError;
+use crate::eyed3::EyeD3Command;
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::{copy_dir, Collector, PathManager};
 use crate::imdl::ImdlCommand;
@@ -137,7 +138,7 @@ impl UploadCommand {
                 format: target.get_file_extension().to_uppercase(),
                 bitrate: target.get_bitrate().to_owned(),
                 media: source.torrent.media.clone(),
-                release_desc: self.create_description(source, target),
+                release_desc: self.create_description(source, target).await,
                 group_id: source.group.id,
             };
             if self.upload_options.dry_run.expect("dry_run should be set") {
@@ -241,7 +242,7 @@ impl UploadCommand {
     }
 
     #[allow(clippy::uninlined_format_args)]
-    fn create_description(&self, source: &Source, target: TargetFormat) -> String {
+    async fn create_description(&self, source: &Source, target: TargetFormat) -> String {
         let base = &self
             .shared_options
             .indexer_url
@@ -253,6 +254,13 @@ impl UploadCommand {
             warn!("Failed to get transcode command: {error}");
             String::new()
         });
+        let details = self
+            .get_details(source, target)
+            .await
+            .unwrap_or_else(|error| {
+                warn!("Failed to get transcode details: {error}");
+                String::new()
+            });
         let lines: Vec<String> = [
             format!(
                 "Transcoded and uploaded with [url={}][b]{}[/b] v{}[/url]",
@@ -260,6 +268,7 @@ impl UploadCommand {
             ),
             format!("[pad=0|10|0|20]Source[/pad] [url={source_url}]{source_title}[/url]"),
             format!("[pad=0|10|0|0]Command[/pad] [code]{transcode_command}[/code]"),
+            format!("[pad=0|10|0|19]Details[/pad] [hide][pre]{details}[/pre][/hide]"),
             format!(
                 "[url={}]Learn how easy it is to create and upload transcodes yourself![/url]",
                 PKG_REPOSITORY
@@ -311,5 +320,9 @@ impl UploadCommand {
             }
         };
         Ok(command)
+    }
+    async fn get_details(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
+        let path = self.paths.get_transcode_target_dir(source, target);
+        EyeD3Command::display(&path).await
     }
 }
