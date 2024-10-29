@@ -25,6 +25,6 @@ pub struct UploadStatus {
 pub struct UploadFormatStatus {
     /// Transcode format
     pub format: TargetFormat,
-    /// URL of the upload
-    pub url: String,
+    /// ID of the upload
+    pub id: i64,
 }

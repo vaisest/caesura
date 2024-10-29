@@ -1,3 +1,4 @@
+use std::ops::Not;
 use std::path::{Path, PathBuf};
 
 use colored::Colorize;
@@ -16,7 +17,7 @@ use crate::options::{Options, SharedOptions, SourceArg, UploadOptions};
 use crate::queue::TimeStamp;
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{TranscodeJobFactory, Variant};
-use crate::upload::UploadStatus;
+use crate::upload::{UploadFormatStatus, UploadStatus};
 
 const MUSIC_CATEGORY_ID: u8 = 0;
 
@@ -75,6 +76,7 @@ impl UploadCommand {
             errors: None,
         };
         let mut errors = Vec::new();
+        let mut formats = Vec::new();
         for target in targets {
             let torrent_path = self.paths.get_torrent_path(source, target, true);
             if !torrent_path.exists() {
@@ -152,9 +154,10 @@ impl UploadCommand {
                         .indexer_url
                         .clone()
                         .expect("indexer_url should be set");
-                    let link =
-                        get_permalink(base, response.get_group_id(), response.get_torrent_id());
+                    let id = response.get_torrent_id();
+                    let link = get_permalink(base, response.get_group_id(), id);
                     info!("{link}");
+                    formats.push(UploadFormatStatus { format: target, id });
                 }
                 Err(error) => {
                     error!("{error}");
@@ -164,11 +167,8 @@ impl UploadCommand {
                 }
             }
         }
-        status.errors = if errors.is_empty() {
-            None
-        } else {
-            Some(errors)
-        };
+        status.errors = errors.is_empty().not().then_some(errors);
+        status.formats = formats.is_empty().not().then_some(formats);
         status
     }
 
