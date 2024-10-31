@@ -250,35 +250,37 @@ impl UploadCommand {
             .expect("indexer_url should be set");
         let source_url = get_permalink(base, source.group.id, source.torrent.id);
         let source_title = source.format.get_title();
-        let transcode_command = self.get_command(source, target).unwrap_or_else(|error| {
-            warn!("Failed to get transcode command: {error}");
-            String::new()
-        });
-        let details = self
-            .get_details(source, target)
-            .await
-            .unwrap_or_else(|error| {
-                warn!("Failed to get transcode details: {error}");
-                String::new()
-            });
-        let lines: Vec<String> = [
+        let mut lines: Vec<String> = vec![
             format!(
                 "Transcoded and uploaded with [url={}][b]{}[/b] v{}[/url]",
                 PKG_REPOSITORY, PKG_NAME, PKG_VERSION
             ),
             format!("[pad=0|10|0|20]Source[/pad] [url={source_url}]{source_title}[/url]"),
-            format!("[pad=0|10|0|0]Command[/pad] [code]{transcode_command}[/code]"),
-            format!("[pad=0|10|0|19]Details[/pad] [hide][pre]{details}[/pre][/hide]"),
-            format!(
-                "[url={}]Learn how easy it is to create and upload transcodes yourself![/url]",
-                PKG_REPOSITORY
-            ),
-        ]
-        .iter()
-        .map(|line| format!("[quote]{line}[/quote]"))
-        .collect();
-
-        lines.join("")
+        ];
+        match self.get_command(source, target) {
+            Ok(transcode_command) => lines.push(format!(
+                "[pad=0|10|0|0]Transcode[/pad] [code]{transcode_command}[/code]"
+            )),
+            Err(error) => warn!("Failed to get transcode command: {error}"),
+        }
+        match self.get_details(source, target).await {
+            Ok(details) => {
+                lines.push(format!(
+                    "[pad=0|10|0|19]Details[/pad] [hide][pre]{details}[/pre][/hide]"
+                ));
+            }
+            Err(error) => warn!("Failed to get transcode details: {error}"),
+        }
+        lines.push(format!(
+            "[url={}]Learn how easy it is to create and upload transcodes yourself![/url]",
+            PKG_REPOSITORY
+        ));
+        lines.into_iter().fold(String::new(), |mut output, line| {
+            output.push_str("[quote]");
+            output.push_str(&line);
+            output.push_str("[/quote]");
+            output
+        })
     }
 
     pub fn get_command(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
