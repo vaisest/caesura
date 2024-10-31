@@ -11,10 +11,6 @@ pub struct TranscodeStatus {
     /// Transcode formats
     #[serde(skip_serializing_if = "Option::is_none")]
     pub formats: Option<Vec<TranscodeFormatStatus>>,
-    /// Additional files
-    #[allow(dead_code)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub additional: Option<Vec<AdditionalStatus>>,
     /// Time the transcode completed
     pub completed: TimeStamp,
     /// Error message if the transcode failed
@@ -28,15 +24,4 @@ pub struct TranscodeFormatStatus {
     pub format: TargetFormat,
     /// Path to the transcode directory
     pub path: PathBuf,
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-pub struct AdditionalStatus {
-    /// Relative path of the additional file within the transcode directory
-    pub path: PathBuf,
-    /// File size in bytes
-    pub size: u64,
-    /// Size of the additional file before resizing in bytes
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub source_size: Option<u64>,
 }

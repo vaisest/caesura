@@ -10,15 +10,14 @@ use crate::options::{FileOptions, Options, SharedOptions, SourceArg, TargetOptio
 use crate::queue::TimeStamp;
 use crate::source::*;
 use crate::transcode::{
-    AdditionalJob, AdditionalJobFactory, AdditionalStatus, TranscodeFormatStatus,
-    TranscodeJobFactory, TranscodeStatus,
+    AdditionalJob, AdditionalJobFactory, TranscodeFormatStatus, TranscodeJobFactory,
+    TranscodeStatus,
 };
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
 use std::collections::BTreeSet;
-use std::os::unix::prelude::MetadataExt;
-use tokio::fs::{copy, hard_link, metadata};
+use tokio::fs::{copy, hard_link};
 
 /// Transcode each track of a FLAC source to the target formats.
 #[injectable]
@@ -74,7 +73,6 @@ impl TranscodeCommand {
         let mut status = TranscodeStatus {
             success: false,
             formats: None,
-            additional: None,
             completed: TimeStamp::now(),
             error: None,
         };
@@ -174,35 +172,13 @@ impl TranscodeCommand {
             files.len().to_string().gray()
         );
         let first_target = targets.first().expect("should be at least one target");
-        let mut statuses = Vec::new();
         let jobs = self
             .additional_job_factory
             .create(&files, source, *first_target)
             .await?;
         let from_prefix = self.paths.get_transcode_target_dir(source, *first_target);
-        for job in &jobs {
-            if let Additional(AdditionalJob { resize, .. }) = job {
-                let path = resize
-                    .output
-                    .strip_prefix(&from_prefix)
-                    .expect("should have prefix")
-                    .to_path_buf();
-                statuses.push(AdditionalStatus {
-                    path,
-                    source_size: Some(resize.original_size),
-                    size: 0,
-                });
-            }
-        }
         self.runner.add_without_publish(jobs);
         self.runner.execute_without_publish().await?;
-        for mut status in statuses {
-            let path = from_prefix.join(status.path);
-            status.size = metadata(path)
-                .await
-                .or_else(|e| AppError::io(e, "open file"))?
-                .size();
-        }
         let hard_link_option = self
             .file_options
             .hard_link

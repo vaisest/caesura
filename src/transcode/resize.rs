@@ -12,8 +12,6 @@ pub struct Resize {
     pub max_pixel_size: u32,
     /// Quality percentage to apply for jpg compression.
     pub quality: u8,
-    /// Original file size
-    pub original_size: u64,
 }
 
 impl Resize {

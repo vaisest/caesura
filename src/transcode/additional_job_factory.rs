@@ -120,7 +120,6 @@ impl AdditionalJobFactory {
                 output: output_path,
                 max_pixel_size,
                 quality,
-                original_size: size,
             },
         });
         Ok(Some(job))

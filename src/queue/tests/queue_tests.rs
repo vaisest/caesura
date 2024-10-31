@@ -59,7 +59,6 @@ async fn queue_get_unprocessed() -> Result<(), AppError> {
                 success: true,
                 completed: TimeStamp::now(),
                 formats: None,
-                additional: None,
                 error: None,
             }),
             ..QueueItem::default()
@@ -75,7 +74,6 @@ async fn queue_get_unprocessed() -> Result<(), AppError> {
                 success: false,
                 completed: TimeStamp::now(),
                 formats: None,
-                additional: None,
                 error: None,
             }),
             ..QueueItem::default()
@@ -91,7 +89,6 @@ async fn queue_get_unprocessed() -> Result<(), AppError> {
                 success: true,
                 completed: TimeStamp::now(),
                 formats: None,
-                additional: None,
                 error: None,
             }),
             upload: Some(UploadStatus {
@@ -113,7 +110,6 @@ async fn queue_get_unprocessed() -> Result<(), AppError> {
                 success: true,
                 completed: TimeStamp::now(),
                 formats: None,
-                additional: None,
                 error: None,
             }),
             upload: Some(UploadStatus {
