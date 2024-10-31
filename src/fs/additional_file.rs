@@ -1,4 +1,7 @@
+use crate::errors::AppError;
+use std::os::unix::prelude::MetadataExt;
 use std::path::PathBuf;
+use tokio::fs::File;
 
 pub struct AdditionalFile {
     /// Path to the file
@@ -31,5 +34,16 @@ impl AdditionalFile {
             file_name,
             sub_dir,
         }
+    }
+
+    pub async fn get_size(&self) -> Result<u64, AppError> {
+        let file = File::open(&self.path)
+            .await
+            .or_else(|e| AppError::io(e, "open additional file"))?;
+        let metadata = file
+            .metadata()
+            .await
+            .or_else(|e| AppError::io(e, "read metadata of additional file"))?;
+        Ok(metadata.size())
     }
 }

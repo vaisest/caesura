@@ -1,11 +1,15 @@
-use di::{injectable, Ref};
-
+use crate::errors::AppError;
 use crate::formats::target_format::TargetFormat;
 use crate::fs::{AdditionalFile, PathManager};
 use crate::jobs::Job;
 use crate::options::FileOptions;
 use crate::source::Source;
+use crate::transcode::resize::Resize;
 use crate::transcode::AdditionalJob;
+use colored::Colorize;
+use di::{injectable, Ref};
+use log::{trace, warn};
+use tokio::fs::{copy, create_dir_all, hard_link};
 
 #[injectable]
 pub struct AdditionalJobFactory {
@@ -15,74 +19,110 @@ pub struct AdditionalJobFactory {
 
 impl AdditionalJobFactory {
     /// Create a [`AdditionalJob`] for each [`FlacFile`] in the [`Vec<FlacFile>`].
-    #[must_use]
-    pub fn create(
+    pub async fn create(
         &self,
         files: &[AdditionalFile],
         source: &Source,
         target: TargetFormat,
-    ) -> Vec<Job> {
+    ) -> Result<Vec<Job>, AppError> {
         let mut jobs = Vec::new();
         for (index, file) in files.iter().enumerate() {
-            jobs.push(self.create_single(index, file, source, target));
+            if let Some(job) = self.create_single(index, file, source, target).await? {
+                jobs.push(job);
+            };
         }
-        jobs
+        Ok(jobs)
     }
 
     /// Create a single [`AdditionalJob`] from a `flac_file`.
-    fn create_single(
+    #[allow(clippy::integer_division)]
+    async fn create_single(
         &self,
         index: usize,
         file: &AdditionalFile,
         source: &Source,
         target: TargetFormat,
-    ) -> Job {
-        let id = format!("Additional {target:<7?}{index:>3}");
+    ) -> Result<Option<Job>, AppError> {
         let source_path = file.path.clone();
         let output_dir = self
             .paths
             .get_transcode_target_dir(source, target)
             .join(&file.sub_dir);
-        let output_path = output_dir
-            .join(&file.file_name)
-            .to_string_lossy()
-            .into_owned();
-        let output_dir = output_dir.to_string_lossy().into_owned();
+        let mut output_path = output_dir.join(&file.file_name);
+        let size = file.get_size().await?;
+        let max_file_size = self
+            .options
+            .max_file_size
+            .expect("max_file_size should be set");
+        let is_large = size > max_file_size;
+        let no_image_compression = self
+            .options
+            .no_image_compression
+            .expect("no_image_compression should be set");
+        create_dir_all(&output_dir)
+            .await
+            .or_else(|e| AppError::io(e, "create directories for additional file"))?;
         let extension = source_path
             .extension()
             .expect("Source has extension")
             .to_string_lossy()
             .into_owned();
-        let no_image_compression = self
+        if no_image_compression || !is_large {
+            warn!(
+                "Including large {} ({} KB): {}",
+                extension,
+                size / 1_000,
+                source_path.display()
+            );
+            let hard_link_option = self.options.hard_link.expect("hard_link should be set");
+            let verb = if hard_link_option {
+                hard_link(&source_path, &output_path)
+                    .await
+                    .or_else(|e| AppError::io(e, "hard link additional file"))?;
+                "Hard Linked"
+            } else {
+                copy(&source_path, &output_path)
+                    .await
+                    .or_else(|e| AppError::io(e, "copy additional file"))?;
+                "Copied"
+            };
+            trace!(
+                "{} {} to {}",
+                verb.bold(),
+                &source_path.display(),
+                &output_path.display()
+            );
+            return Ok(None);
+        }
+        let no_png_to_jpg = self
             .options
-            .no_image_compression
-            .expect("no_image_compression should be set");
-        let max_file_size = self
-            .options
-            .max_file_size
-            .expect("max_file_size should be set");
+            .no_png_to_jpg
+            .expect("no_png_to_jpg should be set");
+        if !no_png_to_jpg && extension == "png" {
+            let mut temp_source = source_path.clone();
+            temp_source.set_extension("jpg");
+            if temp_source.exists() {
+                output_path.set_extension("png.jpg");
+            } else {
+                output_path.set_extension("jpg");
+            }
+        }
+        let id = format!("Additional {target:<7?}{index:>3}");
         let max_pixel_size = self
             .options
             .max_pixel_size
             .expect("max_pixel_size should be set");
         let quality = self.options.jpg_quality.expect("jpg_quality should be set");
-        let no_png_to_jpg = self
-            .options
-            .no_png_to_jpg
-            .expect("no_png_to_jpg should be set");
-        let hard_link = self.options.hard_link.expect("hard_link should be set");
-        Job::Additional(AdditionalJob {
+        let job = Job::Additional(AdditionalJob {
             id,
-            source_path,
-            output_dir,
-            output_path,
-            hard_link,
-            no_image_compression,
-            max_file_size,
-            max_pixel_size,
-            quality,
-            no_png_to_jpg,
-            extension,
-        })
+            resize: Resize {
+                input: source_path,
+                output: output_path,
+                max_pixel_size,
+                quality,
+                original_size: size,
+            },
+        });
+        Ok(Some(job))
     }
 }

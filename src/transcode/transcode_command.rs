@@ -2,20 +2,23 @@ use crate::errors::AppError;
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
+use crate::jobs::Job::Additional;
 use crate::jobs::JobRunner;
 use crate::logging::Colors;
 use crate::naming::join_humanized;
-use crate::options::{Options, SharedOptions, SourceArg, TargetOptions};
+use crate::options::{FileOptions, Options, SharedOptions, SourceArg, TargetOptions};
 use crate::queue::TimeStamp;
 use crate::source::*;
 use crate::transcode::{
-    AdditionalJobFactory, TranscodeFormatStatus, TranscodeJobFactory, TranscodeStatus,
+    AdditionalJob, AdditionalJobFactory, AdditionalStatus, TranscodeFormatStatus,
+    TranscodeJobFactory, TranscodeStatus,
 };
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
 use std::collections::BTreeSet;
-use tokio::fs::copy;
+use std::os::unix::prelude::MetadataExt;
+use tokio::fs::{copy, hard_link, metadata};
 
 /// Transcode each track of a FLAC source to the target formats.
 #[injectable]
@@ -24,6 +27,7 @@ pub struct TranscodeCommand {
     shared_options: Ref<SharedOptions>,
     target_options: Ref<TargetOptions>,
     source_provider: RefMut<SourceProvider>,
+    file_options: Ref<FileOptions>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
     transcode_job_factory: Ref<TranscodeJobFactory>,
@@ -41,6 +45,7 @@ impl TranscodeCommand {
         if !self.arg.validate()
             || !self.shared_options.validate()
             || !self.target_options.validate()
+            || !self.file_options.validate()
         {
             return Ok(false);
         }
@@ -168,11 +173,74 @@ impl TranscodeCommand {
             "Adding".bold(),
             files.len().to_string().gray()
         );
-        for target in targets {
-            let jobs = self.additional_job_factory.create(&files, source, *target);
-            self.runner.add_without_publish(jobs);
+        let first_target = targets.first().expect("should be at least one target");
+        let mut statuses = Vec::new();
+        let jobs = self
+            .additional_job_factory
+            .create(&files, source, *first_target)
+            .await?;
+        let from_prefix = self.paths.get_transcode_target_dir(source, *first_target);
+        for job in &jobs {
+            if let Additional(AdditionalJob { resize, .. }) = job {
+                let path = resize
+                    .output
+                    .strip_prefix(&from_prefix)
+                    .expect("should have prefix")
+                    .to_path_buf();
+                statuses.push(AdditionalStatus {
+                    path,
+                    source_size: Some(resize.original_size),
+                    size: 0,
+                });
+            }
         }
+        self.runner.add_without_publish(jobs);
         self.runner.execute_without_publish().await?;
+        for mut status in statuses {
+            let path = from_prefix.join(status.path);
+            status.size = metadata(path)
+                .await
+                .or_else(|e| AppError::io(e, "open file"))?
+                .size();
+        }
+        let hard_link_option = self
+            .file_options
+            .hard_link
+            .expect("hard_link should be set");
+        for target in targets.iter().skip(1) {
+            let jobs = self
+                .additional_job_factory
+                .create(&files, source, *target)
+                .await?;
+            let output = self.paths.get_transcode_target_dir(source, *target);
+            for job in jobs {
+                if let Additional(AdditionalJob { resize, .. }) = job {
+                    let from = from_prefix.clone().join(
+                        resize
+                            .output
+                            .strip_prefix(&output)
+                            .expect("should have prefix"),
+                    );
+                    let verb = if hard_link_option {
+                        hard_link(&from, &resize.output)
+                            .await
+                            .or_else(|e| AppError::io(e, "hard link additional file"))?;
+                        "Hard Linked"
+                    } else {
+                        copy(&from, &resize.output)
+                            .await
+                            .or_else(|e| AppError::io(e, "copy additional file"))?;
+                        "Copied"
+                    };
+                    trace!(
+                        "{} {} to {}",
+                        verb.bold(),
+                        from.display(),
+                        resize.output.display()
+                    );
+                }
+            }
+        }
         debug!("{} additional files {}", "Added".bold(), source);
 
         Ok(())

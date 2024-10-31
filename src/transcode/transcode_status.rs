@@ -36,13 +36,7 @@ pub struct AdditionalStatus {
     pub path: PathBuf,
     /// File size in bytes
     pub size: u64,
-    /// Was the file resized?
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub resized: Option<bool>,
     /// Size of the additional file before resizing in bytes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_size: Option<u64>,
-    /// Resize command
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub resize_command: Option<String>,
 }

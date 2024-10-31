@@ -17,6 +17,7 @@ pub(crate) mod command_info;
 pub(crate) mod decode;
 pub(crate) mod encode;
 pub(crate) mod resample;
+mod resize;
 mod streaminfo_helpers;
 #[cfg(test)]
 mod tests;

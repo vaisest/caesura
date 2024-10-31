@@ -1,30 +1,42 @@
 use crate::errors::AppError;
+use crate::formats::TargetFormat::{Flac, V0, _320};
 use crate::formats::TargetFormatProvider;
 use crate::fs::DirectoryReader;
 use crate::hosting::HostBuilder;
 use crate::logging::Logger;
-use crate::options::{SharedOptions, TargetOptions};
+use crate::options::{FileOptions, SharedOptions, SourceArg, TargetOptions};
 use crate::source::SourceProvider;
 use crate::testing::options::TestOptionsFactory;
 use crate::testing::*;
 use crate::transcode::TranscodeCommand;
+use std::fs::metadata;
+use std::os::unix::prelude::MetadataExt;
 
 #[tokio::test]
 async fn transcode_command() -> Result<(), AppError> {
     // Arrange
     Logger::force_init();
+    let source_options = TestOptionsFactory::from(SourceArg {
+        source: Some("206675".to_owned()),
+    });
     let shared_options = TestOptionsFactory::from(SharedOptions {
         output: Some(TempDirectory::create("caesura")),
         ..SharedOptions::default()
     });
     let target_options = TestOptionsFactory::from(TargetOptions {
         allow_existing: Some(true),
-        ..TargetOptions::default()
+        target: Some(vec![Flac, _320, V0]),
+    });
+    let file_options = TestOptionsFactory::from(FileOptions {
+        hard_link: Some(true),
+        ..FileOptions::default()
     });
     let output_dir = shared_options.output.clone().expect("output should be set");
     let host = HostBuilder::new()
+        .with_options(source_options)
         .with_options(shared_options.clone())
         .with_options(target_options)
+        .with_options(file_options)
         .build();
     let provider = host.services.get_required_mut::<SourceProvider>();
     let transcoder = host.services.get_required::<TranscodeCommand>();
@@ -52,5 +64,15 @@ async fn transcode_command() -> Result<(), AppError> {
         .len()
         * target_count;
     assert_eq!(generated_files.len(), expected_file_count);
+    let generated_files = DirectoryReader::new()
+        .with_extension("jpg")
+        .read(&output_dir)
+        .expect("Should be able to read dir");
+    assert_eq!(generated_files.len(), target_count);
+    let cover = generated_files.first().expect("should be at least one");
+    let hard_links = metadata(cover)
+        .expect("should be able to get metadata")
+        .nlink();
+    assert_eq!(hard_links, 2);
     Ok(())
 }
