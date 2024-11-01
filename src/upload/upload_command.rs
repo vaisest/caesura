@@ -263,13 +263,15 @@ impl UploadCommand {
             )),
             Err(error) => warn!("Failed to get transcode command: {error}"),
         }
-        match self.get_details(source, target).await {
-            Ok(details) => {
-                lines.push(format!(
-                    "[pad=0|10|0|19]Details[/pad] [hide][pre]{details}[/pre][/hide]"
-                ));
+        if matches!(target, TargetFormat::_320 | TargetFormat::V0) {
+            match self.get_details(source, target).await {
+                Ok(details) => {
+                    lines.push(format!(
+                        "[pad=0|10|0|19]Details[/pad] [hide][pre]{details}[/pre][/hide]"
+                    ));
+                }
+                Err(error) => warn!("Failed to get transcode details: {error}"),
             }
-            Err(error) => warn!("Failed to get transcode details: {error}"),
         }
         lines.push(format!(
             "[url={}]Learn how easy it is to create and upload transcodes yourself![/url]",
