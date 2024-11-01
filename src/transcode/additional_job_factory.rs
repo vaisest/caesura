@@ -68,12 +68,14 @@ impl AdditionalJobFactory {
             .to_string_lossy()
             .into_owned();
         if no_image_compression || !is_large {
-            warn!(
-                "Including large {} ({} KB): {}",
-                extension,
-                size / 1_000,
-                source_path.display()
-            );
+            if is_large {
+                warn!(
+                    "Including large {} ({} KB): {}",
+                    extension,
+                    size / 1_000,
+                    source_path.display()
+                );
+            }
             let hard_link_option = self.options.hard_link.expect("hard_link should be set");
             let verb = if hard_link_option {
                 hard_link(&source_path, &output_path)
