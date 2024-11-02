@@ -4,7 +4,6 @@ use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
 use crate::jobs::Job::Additional;
 use crate::jobs::JobRunner;
-use crate::logging::Colors;
 use crate::naming::join_humanized;
 use crate::options::{FileOptions, Options, SharedOptions, SourceArg, TargetOptions};
 use crate::queue::TimeStamp;
@@ -16,6 +15,7 @@ use crate::transcode::{
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
+use logging::Colors;
 use std::collections::BTreeSet;
 use tokio::fs::{copy, hard_link};
 

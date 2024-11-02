@@ -1,42 +1,22 @@
+use std::sync::Arc;
 use chrono::{Local, Utc};
 use colored::control::SHOULD_COLORIZE;
 use colored::{ColoredString, Colorize};
-use di::{injectable, Ref};
 use log::*;
 use std::time::SystemTime;
 
-use crate::built_info;
-use crate::logging::*;
-use crate::options::SharedOptions;
+use crate::*;
 
 pub struct Logger {
     pub enabled_threshold: Verbosity,
     pub time_format: TimeFormat,
     pub start: SystemTime,
+    pub package_name: String
 }
 
-#[injectable]
 impl Logger {
-    #[must_use]
-    pub fn new(options: Ref<SharedOptions>) -> Self {
-        Self {
-            enabled_threshold: options.verbosity.unwrap_or_default(),
-            time_format: options.log_time.unwrap_or_default(),
-            start: SystemTime::now(),
-        }
-    }
-
-    #[must_use]
-    pub fn with(verbosity: Verbosity, log_time: TimeFormat) -> Self {
-        Self {
-            enabled_threshold: verbosity,
-            time_format: log_time,
-            start: SystemTime::now(),
-        }
-    }
-
     //noinspection RsExperimentalTraitObligations
-    pub fn init(logger: Ref<Self>) {
+    pub fn init(logger: Arc<Self>) {
         SHOULD_COLORIZE.set_override(true);
         let filter = logger.enabled_threshold.to_level_filter();
         let logger = Box::new(logger);
@@ -45,11 +25,15 @@ impl Logger {
         }
     }
 
-    /// [`SharedOptions`] are read before [`Logger`] is initialized so if an error occurs
-    /// it will be lost to the void unless we force inititialization.
-    pub fn force_init() {
-        let logger = Logger::with(Trace, TimeFormat::Local);
-        Logger::init(Ref::new(logger));
+    /// Force init the logger so logs aren't lost to the void prior to builder initialization.
+    pub fn force_init(package_name: String) {
+        let logger = Logger {
+            enabled_threshold: Trace,
+            time_format: TimeFormat::Local,
+            start: SystemTime::now(),
+            package_name
+        };
+        Logger::init(Arc::new(logger));
     }
 
     fn format_log(&self, verbosity: Verbosity, message: String) -> String {
@@ -86,7 +70,7 @@ impl Logger {
 
 impl Log for Logger {
     fn enabled(&self, metadata: &Metadata) -> bool {
-        if !metadata.target().starts_with(built_info::PKG_NAME) {
+        if !metadata.target().starts_with(&self.package_name) {
             return false;
         }
         self.is_enabled(Verbosity::from_level(metadata.level()))

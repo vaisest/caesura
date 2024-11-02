@@ -3,7 +3,7 @@ use colored::{ColoredString, Colorize};
 use log::{Level, LevelFilter};
 use serde::{Deserialize, Serialize};
 
-use crate::logging::*;
+use crate::*;
 
 /// Log level
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize, ValueEnum)]
@@ -34,7 +34,7 @@ impl Verbosity {
 
     /// Get the colorized, uppercase, four letter id.
     #[must_use]
-    pub fn get_id(self) -> ColoredString {
+    pub(crate) fn get_id(self) -> ColoredString {
         match self {
             Silent => "NONE".dark_gray(),
             Error => "ERRO".red(),
@@ -47,7 +47,7 @@ impl Verbosity {
 
     /// Get the colorized, single character icon.
     #[must_use]
-    pub fn get_icon(self) -> ColoredString {
+    pub(crate) fn get_icon(self) -> ColoredString {
         match self {
             Silent => " ".dark_gray(),
             Error => "!".red(),
@@ -59,7 +59,7 @@ impl Verbosity {
     }
 
     #[must_use]
-    pub fn from_level(level: Level) -> Self {
+    pub(crate) fn from_level(level: Level) -> Self {
         match level {
             Level::Error => Error,
             Level::Warn => Warn,
@@ -70,7 +70,7 @@ impl Verbosity {
     }
 
     #[must_use]
-    pub fn to_level(self) -> Option<Level> {
+    pub(crate) fn to_level(self) -> Option<Level> {
         match self {
             Silent => None,
             Error => Some(Level::Error),
@@ -82,7 +82,7 @@ impl Verbosity {
     }
 
     #[must_use]
-    pub fn to_level_filter(self) -> LevelFilter {
+    pub(crate) fn to_level_filter(self) -> LevelFilter {
         match self {
             Silent => LevelFilter::Off,
             Error => LevelFilter::Error,

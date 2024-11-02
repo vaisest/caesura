@@ -5,8 +5,9 @@ use colored::Colorize;
 use di::injectable;
 use log::*;
 
-use crate::logging::Logger;
+use crate::built_info::PKG_NAME;
 use crate::options::*;
+use logging::Logger;
 
 /// Retrieve options
 ///
@@ -39,7 +40,7 @@ impl OptionsProvider {
                         options.merge(&file_options);
                     }
                     Err(error) => {
-                        Logger::force_init();
+                        Logger::force_init(PKG_NAME.to_owned());
                         error!("{} to deserialize config file: {}", "Failed".bold(), error);
                     }
                 }
@@ -59,7 +60,7 @@ fn read_config_file(options: &SharedOptions) -> String {
         .clone()
         .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
     read_to_string(path).unwrap_or_else(|error| {
-        Logger::force_init();
+        Logger::force_init(PKG_NAME.to_owned());
         warn!("{} to read config file: {}", "Failed".bold(), error);
         "{}".to_owned()
     })

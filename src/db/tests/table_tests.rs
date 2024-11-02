@@ -1,15 +1,16 @@
+use crate::built_info::PKG_NAME;
 use crate::db::tests::example_item::{example_items, ExampleItem};
 use crate::db::{Hash, Table};
 use crate::errors::AppError;
-use crate::logging::Logger;
 use crate::testing::TempDirectory;
+use logging::Logger;
 use std::collections::BTreeMap;
 use std::marker::PhantomData;
 
 #[tokio::test]
 async fn table_end_to_end() -> Result<(), AppError> {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let table = Table::<20, 1, ExampleItem> {
         directory: TempDirectory::create("table"),
         phantom: PhantomData,

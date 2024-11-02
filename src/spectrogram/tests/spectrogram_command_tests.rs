@@ -4,17 +4,18 @@ use std::path::PathBuf;
 use crate::fs::DirectoryReader;
 use crate::hosting::HostBuilder;
 
-use crate::logging::Logger;
+use crate::built_info::PKG_NAME;
 use crate::options::SharedOptions;
 use crate::source::SourceProvider;
 use crate::spectrogram::*;
 use crate::testing::options::TestOptionsFactory;
 use crate::testing::*;
+use logging::Logger;
 
 #[tokio::test]
 async fn spectrogram_command() -> Result<(), AppError> {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let shared_options = TestOptionsFactory::from(SharedOptions {
         output: Some(TempDirectory::create("caesura")),
         ..SharedOptions::default()

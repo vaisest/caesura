@@ -8,11 +8,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::CommandArguments::{Batch, Queue, Spectrogram, Transcode, Upload, Verify};
 use crate::cli::QueueCommandArguments::{Add, List, Summary};
-use crate::logging::{TimeFormat, Verbosity};
 use crate::options::{
     Changed, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
     UrlNotHttp,
 };
+use logging::{TimeFormat, Verbosity};
 
 pub const DEFAULT_CONFIG_PATH: &str = "config.yml";
 const DEFAULT_CONTENT_PATH: &str = "./content";

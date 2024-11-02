@@ -6,8 +6,8 @@ use log::trace;
 use tokio::sync::Semaphore;
 
 use crate::jobs::{Status, Subscriber};
-use crate::logging::Colors;
 use crate::options::RunnerOptions;
+use logging::Colors;
 
 /// Log all [Command] status updates to the console by subscribing to
 /// [`CommandRunner`] as a [Subscriber].

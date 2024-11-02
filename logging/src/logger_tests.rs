@@ -1,12 +1,18 @@
-use crate::logging::{Logger, TimeFormat, Trace};
-use di::Ref;
+use crate::*;
 use log::*;
+use std::sync::Arc;
+use std::time::SystemTime;
 
 #[test]
 fn log_time_local() {
     // Arrange
-    let logger = Logger::with(Trace, TimeFormat::Local);
-    Logger::init(Ref::new(logger));
+    let logger = Logger {
+        enabled_threshold: Trace,
+        time_format: TimeFormat::Local,
+        start: SystemTime::now(),
+        package_name: "coda".to_owned(),
+    };
+    Logger::init(Arc::new(logger));
 
     // Act
     error!("This is an error message");
@@ -19,8 +25,13 @@ fn log_time_local() {
 #[test]
 fn log_time_utc() {
     // Arrange
-    let logger = Logger::with(Trace, TimeFormat::Utc);
-    Logger::init(Ref::new(logger));
+    let logger = Logger {
+        enabled_threshold: Trace,
+        time_format: TimeFormat::Utc,
+        start: SystemTime::now(),
+        package_name: "coda".to_owned(),
+    };
+    Logger::init(Arc::new(logger));
 
     // Act
     error!("This is an error message");
@@ -33,8 +44,13 @@ fn log_time_utc() {
 #[test]
 fn log_time_elapsed() {
     // Arrange
-    let logger = Logger::with(Trace, TimeFormat::Elapsed);
-    Logger::init(Ref::new(logger));
+    let logger = Logger {
+        enabled_threshold: Trace,
+        time_format: TimeFormat::Elapsed,
+        start: SystemTime::now(),
+        package_name: "coda".to_owned(),
+    };
+    Logger::init(Arc::new(logger));
 
     // Act
     error!("This is an error message");
@@ -47,8 +63,13 @@ fn log_time_elapsed() {
 #[test]
 fn log_time_none() {
     // Arrange
-    let logger = Logger::with(Trace, TimeFormat::None);
-    Logger::init(Ref::new(logger));
+    let logger = Logger {
+        enabled_threshold: Trace,
+        time_format: TimeFormat::None,
+        start: SystemTime::now(),
+        package_name: "coda".to_owned(),
+    };
+    Logger::init(Arc::new(logger));
 
     // Act
     error!("This is an error message");

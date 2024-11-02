@@ -1,9 +1,9 @@
 use crate::fs::FlacFile;
-use crate::logging::Colors;
 use crate::naming::{SourceName, TrackName};
 use crate::source::{Metadata, Source};
 use colored::Colorize;
 use log::info;
+use logging::Colors;
 use regex::Regex;
 
 pub struct Shortener;

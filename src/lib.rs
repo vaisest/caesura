@@ -12,7 +12,6 @@ mod fs;
 pub mod hosting;
 mod imdl;
 mod jobs;
-mod logging;
 mod naming;
 mod options;
 mod queue;

@@ -1,9 +1,10 @@
 use crate::errors::AppError;
 use crate::jobs::*;
-use crate::logging::*;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
+use logging::Verbosity::Info;
+use logging::*;
 use tokio::task::JoinSet;
 
 /// A [Subscriber] that updates a progress bar in the console

@@ -1,6 +1,7 @@
 use colored::{ColoredString, Colorize, CustomColor};
 
 struct Palette;
+
 impl Palette {
     pub fn gray() -> CustomColor {
         const VALUE: u8 = 168;

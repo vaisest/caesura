@@ -7,9 +7,9 @@ use colored::Colorize;
 use crate::api::{Group, Torrent};
 use crate::formats::existing_format::ExistingFormat;
 use crate::formats::SourceFormat;
-use crate::logging::Colors;
 use crate::naming::SourceName;
 use crate::source::metadata::Metadata;
+use logging::Colors;
 
 /// Source to be transcoded
 #[derive(Debug)]

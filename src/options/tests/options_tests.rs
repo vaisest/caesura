@@ -1,10 +1,11 @@
-use crate::logging::Logger;
+use crate::built_info::PKG_NAME;
 use crate::options::*;
+use logging::Logger;
 
 #[tokio::test]
 async fn batch_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -17,7 +18,7 @@ async fn batch_options_validate() {
 #[tokio::test]
 async fn file_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -30,7 +31,7 @@ async fn file_options_validate() {
 #[tokio::test]
 async fn runner_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -43,7 +44,7 @@ async fn runner_options_validate() {
 #[tokio::test]
 async fn spectrogram_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -56,7 +57,7 @@ async fn spectrogram_options_validate() {
 #[tokio::test]
 async fn target_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -69,7 +70,7 @@ async fn target_options_validate() {
 #[tokio::test]
 async fn upload_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -82,7 +83,7 @@ async fn upload_options_validate() {
 #[tokio::test]
 async fn verify_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act
@@ -95,7 +96,7 @@ async fn verify_options_validate() {
 #[tokio::test]
 async fn shared_options_validate() {
     // Arrange
-    Logger::force_init();
+    Logger::force_init(PKG_NAME.to_owned());
     let provider = OptionsProvider::new();
 
     // Act

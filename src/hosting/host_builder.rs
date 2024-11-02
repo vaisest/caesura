@@ -1,20 +1,20 @@
-use std::process::exit;
-use std::sync::Arc;
-
 use colored::Colorize;
 use di::{singleton_as_self, Injectable, Mut, Ref, RefMut, ServiceCollection};
 use log::error;
+use std::process::exit;
+use std::sync::Arc;
+use std::time::SystemTime;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 
 use crate::api::{Api, ApiFactory};
 use crate::batch::BatchCommand;
+use crate::built_info::PKG_NAME;
 use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
 use crate::hosting::Host;
 use crate::jobs::{DebugSubscriber, JobRunner, ProgressBarSubscriber, Publisher};
-use crate::logging::Logger;
 use crate::options::config_command::ConfigCommand;
 use crate::options::*;
 use crate::queue::queue_summary_command::QueueSummaryCommand;
@@ -24,6 +24,7 @@ use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
+use logging::Logger;
 
 pub struct HostBuilder {
     pub services: ServiceCollection,
@@ -57,7 +58,16 @@ impl HostBuilder {
             .add(UploadOptions::singleton())
             .add(VerifyOptions::singleton())
             // Add main services
-            .add(Logger::singleton())
+            .add(singleton_as_self().from(|provider| {
+                let options = provider.get_required::<SharedOptions>();
+                let logger = Logger {
+                    enabled_threshold: options.verbosity.expect("verbosity should be set"),
+                    time_format: options.log_time.expect("verbosity should be set"),
+                    start: SystemTime::now(),
+                    package_name: PKG_NAME.to_owned(),
+                };
+                Ref::new(logger)
+            }))
             .add(PathManager::transient())
             .add(IdProvider::transient())
             .add(SourceProvider::transient().as_mut())
@@ -116,7 +126,7 @@ impl HostBuilder {
         match self.services.build_provider() {
             Ok(services) => Host::new(services),
             Err(error) => {
-                Logger::force_init();
+                Logger::force_init(PKG_NAME.to_owned());
                 error!("{} to build the application:", "Failed".bold());
                 error!("{error}");
                 exit(1)

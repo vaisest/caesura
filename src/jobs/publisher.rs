@@ -1,7 +1,7 @@
 use crate::jobs::*;
-use crate::logging::Verbosity;
 use crate::options::SharedOptions;
 use di::{injectable, Ref};
+use logging::Verbosity;
 
 /// A publisher notifies subscribers when the status of a [Job] changes.
 ///
