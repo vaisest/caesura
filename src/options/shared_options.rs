@@ -12,7 +12,7 @@ use crate::options::{
     Changed, DoesNotExist, NotSet, OptionRule, Options, OptionsProvider, UrlInvalidSuffix,
     UrlNotHttp,
 };
-use logging::{TimeFormat, Verbosity};
+use rogue_logging::{TimeFormat, Verbosity};
 
 pub const DEFAULT_CONFIG_PATH: &str = "config.yml";
 const DEFAULT_CONTENT_PATH: &str = "./content";

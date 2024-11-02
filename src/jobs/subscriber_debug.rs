@@ -7,7 +7,7 @@ use tokio::sync::Semaphore;
 
 use crate::jobs::{Status, Subscriber};
 use crate::options::RunnerOptions;
-use logging::Colors;
+use rogue_logging::Colors;
 
 /// Log all [Command] status updates to the console by subscribing to
 /// [`CommandRunner`] as a [Subscriber].

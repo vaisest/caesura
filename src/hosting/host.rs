@@ -12,7 +12,7 @@ use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
-use logging::*;
+use rogue_logging::*;
 
 /// Application host, responsible for executing the application
 ///

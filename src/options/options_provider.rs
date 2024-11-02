@@ -7,7 +7,7 @@ use log::*;
 
 use crate::built_info::PKG_NAME;
 use crate::options::*;
-use logging::Logger;
+use rogue_logging::Logger;
 
 /// Retrieve options
 ///

@@ -3,7 +3,7 @@ use crate::db::tests::example_item::{example_items, ExampleItem};
 use crate::db::{Hash, Table};
 use crate::errors::AppError;
 use crate::testing::TempDirectory;
-use logging::Logger;
+use rogue_logging::Logger;
 use std::collections::BTreeMap;
 use std::marker::PhantomData;
 

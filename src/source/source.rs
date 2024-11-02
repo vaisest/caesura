@@ -9,7 +9,7 @@ use crate::formats::existing_format::ExistingFormat;
 use crate::formats::SourceFormat;
 use crate::naming::SourceName;
 use crate::source::metadata::Metadata;
-use logging::Colors;
+use rogue_logging::Colors;
 
 /// Source to be transcoded
 #[derive(Debug)]

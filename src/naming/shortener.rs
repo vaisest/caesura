@@ -3,8 +3,8 @@ use crate::naming::{SourceName, TrackName};
 use crate::source::{Metadata, Source};
 use colored::Colorize;
 use log::info;
-use logging::Colors;
 use regex::Regex;
+use rogue_logging::Colors;
 
 pub struct Shortener;
 

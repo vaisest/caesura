@@ -9,7 +9,7 @@ use crate::source::SourceProvider;
 use crate::testing::options::TestOptionsFactory;
 use crate::testing::*;
 use crate::transcode::TranscodeCommand;
-use logging::Logger;
+use rogue_logging::Logger;
 use std::fs::metadata;
 use std::os::unix::prelude::MetadataExt;
 

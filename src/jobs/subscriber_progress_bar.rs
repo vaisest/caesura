@@ -3,8 +3,8 @@ use crate::jobs::*;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
-use logging::Verbosity::Info;
-use logging::*;
+use rogue_logging::Verbosity::Info;
+use rogue_logging::*;
 use tokio::task::JoinSet;
 
 /// A [Subscriber] that updates a progress bar in the console

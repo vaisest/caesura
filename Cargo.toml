@@ -20,7 +20,6 @@ version = "0.0.0"
 publish = true
 
 [dependencies]
-logging = { path = "logging" }
 bytes = "^1.7"
 chrono = "^0.4.38"
 clap = { version = "^4.5", features = ["derive"] }
@@ -36,6 +35,7 @@ more-di = { version = "^3.1", features = ["async", "builder"] }
 num_cpus = "^1.16"
 regex = "^1"
 reqwest = { version = "^0.12", features = ["rustls-tls", "json", "multipart", "stream"], default-features = false }
+rogue_logging = "^0.1"
 serde = { version = "^1.0", features = ["derive"] }
 serde_json = "^1"
 serde_yaml = "0.9.34"

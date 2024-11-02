@@ -5,7 +5,7 @@ use crate::hosting::HostBuilder;
 use crate::options::TargetOptions;
 use crate::source::*;
 use crate::testing::options::TestOptionsFactory;
-use logging::Logger;
+use rogue_logging::Logger;
 
 #[tokio::test]
 async fn source_provider() -> Result<(), AppError> {

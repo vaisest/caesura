@@ -24,7 +24,7 @@ use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
-use logging::Logger;
+use rogue_logging::Logger;
 
 pub struct HostBuilder {
     pub services: ServiceCollection,

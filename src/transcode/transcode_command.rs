@@ -15,7 +15,7 @@ use crate::transcode::{
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
-use logging::Colors;
+use rogue_logging::Colors;
 use std::collections::BTreeSet;
 use tokio::fs::{copy, hard_link};
 

@@ -1,6 +1,6 @@
 use crate::built_info::PKG_NAME;
 use crate::options::*;
-use logging::Logger;
+use rogue_logging::Logger;
 
 #[tokio::test]
 async fn batch_options_validate() {

@@ -10,7 +10,7 @@ use crate::source::SourceProvider;
 use crate::spectrogram::*;
 use crate::testing::options::TestOptionsFactory;
 use crate::testing::*;
-use logging::Logger;
+use rogue_logging::Logger;
 
 #[tokio::test]
 async fn spectrogram_command() -> Result<(), AppError> {
