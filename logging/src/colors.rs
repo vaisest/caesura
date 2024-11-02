@@ -1,18 +1,7 @@
 use colored::{ColoredString, Colorize, CustomColor};
 
-struct Palette;
-
-impl Palette {
-    pub fn gray() -> CustomColor {
-        const VALUE: u8 = 168;
-        CustomColor::new(VALUE, VALUE, VALUE)
-    }
-
-    pub fn dark_gray() -> CustomColor {
-        const VALUE: u8 = 112;
-        CustomColor::new(VALUE, VALUE, VALUE)
-    }
-}
+const GRAY: u8 = 168;
+const DARK_GRAY: u8 = 112;
 
 pub trait Colors {
     type Error;
@@ -26,11 +15,11 @@ impl Colors for &str {
     type Error = ();
 
     fn gray(&self) -> ColoredString {
-        self.custom_color(Palette::gray())
+        self.custom_color(CustomColor::new(GRAY, GRAY, GRAY))
     }
 
     fn dark_gray(&self) -> ColoredString {
-        self.custom_color(Palette::dark_gray())
+        self.custom_color(CustomColor::new(DARK_GRAY, DARK_GRAY, DARK_GRAY))
     }
 }
 
@@ -38,11 +27,11 @@ impl Colors for String {
     type Error = ();
 
     fn gray(&self) -> ColoredString {
-        self.custom_color(Palette::gray())
+        self.custom_color(CustomColor::new(GRAY, GRAY, GRAY))
     }
 
     fn dark_gray(&self) -> ColoredString {
-        self.custom_color(Palette::dark_gray())
+        self.custom_color(CustomColor::new(DARK_GRAY, DARK_GRAY, DARK_GRAY))
     }
 }
 
@@ -50,10 +39,12 @@ impl Colors for ColoredString {
     type Error = ();
 
     fn gray(&self) -> ColoredString {
-        self.clone().custom_color(Palette::gray())
+        self.clone()
+            .custom_color(CustomColor::new(GRAY, GRAY, GRAY))
     }
 
     fn dark_gray(&self) -> ColoredString {
-        self.clone().custom_color(Palette::dark_gray())
+        self.clone()
+            .custom_color(CustomColor::new(DARK_GRAY, DARK_GRAY, DARK_GRAY))
     }
 }
