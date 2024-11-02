@@ -18,8 +18,8 @@ pub enum SourceIssue {
         details: String,
     },
     GroupMismatch {
-        actual: i64,
-        expected: i64,
+        actual: u32,
+        expected: u32,
     },
     ApiResponse {
         action: String,

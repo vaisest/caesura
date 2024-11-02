@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
-use crate::api::Torrent;
 use crate::formats::ExistingFormat;
+use gazelle_api::Torrent;
 
 pub struct ExistingFormatProvider;
 
@@ -10,7 +10,7 @@ impl ExistingFormatProvider {
         group_torrents
             .iter()
             .filter(|&other_torrent| is_alternative_format(source_torrent, other_torrent))
-            .filter_map(Torrent::get_format)
+            .filter_map(ExistingFormat::from_torrent)
             .collect()
     }
 }

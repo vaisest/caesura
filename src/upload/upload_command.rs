@@ -6,7 +6,6 @@ use di::{injectable, Ref, RefMut};
 use log::{info, trace, warn};
 use tokio::fs::{copy, hard_link};
 
-use crate::api::{Api, UploadForm};
 use crate::built_info::*;
 use crate::errors::{error, io_error};
 use crate::eyed3::EyeD3Command;
@@ -19,6 +18,7 @@ use crate::queue::TimeStamp;
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{TranscodeJobFactory, Variant};
 use crate::upload::{UploadFormatStatus, UploadStatus};
+use gazelle_api::{GazelleClient, UploadForm};
 use rogue_logging::Error;
 
 const MUSIC_CATEGORY_ID: u8 = 0;
@@ -30,7 +30,7 @@ pub struct UploadCommand {
     shared_options: Ref<SharedOptions>,
     upload_options: Ref<UploadOptions>,
     source_provider: RefMut<SourceProvider>,
-    api: RefMut<Api>,
+    api: RefMut<GazelleClient>,
     paths: Ref<PathManager>,
     targets: Ref<TargetFormatProvider>,
     transcode_job_factory: Ref<TranscodeJobFactory>,

@@ -1,7 +1,7 @@
-use crate::api::Torrent;
 use crate::formats::SourceFormat;
 use clap::ValueEnum;
 use colored::Colorize;
+use gazelle_api::Torrent;
 use log::trace;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -20,6 +20,22 @@ pub enum ExistingFormat {
 }
 
 impl ExistingFormat {
+    pub fn from_torrent(torrent: &Torrent) -> Option<ExistingFormat> {
+        match (torrent.format.as_str(), torrent.encoding.as_str()) {
+            ("FLAC", "Lossless") => Some(Flac),
+            ("FLAC", "24bit Lossless") => Some(Flac24),
+            ("MP3", "320") => Some(_320),
+            ("MP3", "V0 (VBR)") => Some(V0),
+            (format, encoding) => {
+                trace!(
+                    "{} to determine ExistingFormat of `{format}` with encoding `{encoding}`",
+                    "Failed".bold()
+                );
+                None
+            }
+        }
+    }
+
     #[must_use]
     pub fn get_name(&self) -> &str {
         match self {
@@ -58,23 +74,5 @@ impl Ord for ExistingFormat {
         let left = *self as isize;
         let right = *other as isize;
         left.cmp(&right)
-    }
-}
-
-impl Torrent {
-    pub fn get_format(&self) -> Option<ExistingFormat> {
-        match (self.format.as_str(), self.encoding.as_str()) {
-            ("FLAC", "Lossless") => Some(Flac),
-            ("FLAC", "24bit Lossless") => Some(Flac24),
-            ("MP3", "320") => Some(_320),
-            ("MP3", "V0 (VBR)") => Some(V0),
-            (format, encoding) => {
-                trace!(
-                    "{} to determine ExistingFormat of `{format}` with encoding `{encoding}`",
-                    "Failed".bold()
-                );
-                None
-            }
-        }
     }
 }

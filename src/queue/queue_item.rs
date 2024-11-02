@@ -21,7 +21,7 @@ pub struct QueueItem {
     pub indexer: String,
     /// Source id
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<u32>,
     /// Verification status
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verify: Option<VerifyStatus>,

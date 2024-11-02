@@ -158,6 +158,7 @@ dependencies = [
  "claxon",
  "colored",
  "futures",
+ "gazelle_api",
  "html-escape",
  "humantime",
  "indicatif",
@@ -173,7 +174,6 @@ dependencies = [
  "serde_yaml",
  "tokio",
  "tokio-stream",
- "tower",
 ]
 
 [[package]]
@@ -431,6 +431,31 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
+]
+
+[[package]]
+name = "gazelle_api"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ce8261d39c186c4a95ec6282127693d484d4d3626d2cbf11f2db1b8cecc21f8"
+dependencies = [
+ "bytes",
+ "chrono",
+ "clap",
+ "claxon",
+ "colored",
+ "futures",
+ "html-escape",
+ "log",
+ "regex",
+ "reqwest",
+ "rogue_logging",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "tokio",
+ "tokio-stream",
+ "tower",
 ]
 
 [[package]]

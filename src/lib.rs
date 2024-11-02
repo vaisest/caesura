@@ -1,4 +1,3 @@
-mod api;
 mod batch;
 pub mod cli;
 #[allow(dead_code)]

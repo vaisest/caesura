@@ -1,10 +1,10 @@
-use crate::api::{Api, Torrent};
 use crate::formats::{ExistingFormat, ExistingFormatProvider};
 use crate::options::SharedOptions;
 use crate::source::SourceIssue;
 use crate::source::*;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
+use gazelle_api::{GazelleClient, Torrent};
 use html_escape::decode_html_entities;
 use log::{trace, warn};
 use std::path::PathBuf;
@@ -12,13 +12,13 @@ use std::path::PathBuf;
 /// Retrieve [Source] from the [Api] via a [provider design pattern](https://en.wikipedia.org/wiki/Provider_model)
 #[injectable]
 pub struct SourceProvider {
-    api: RefMut<Api>,
+    api: RefMut<GazelleClient>,
     options: Ref<SharedOptions>,
     id_provider: Ref<IdProvider>,
 }
 
 impl SourceProvider {
-    pub async fn get(&mut self, id: i64) -> Result<Source, SourceIssue> {
+    pub async fn get(&mut self, id: u32) -> Result<Source, SourceIssue> {
         let mut api = self.api.write().expect("API should be available to read");
         let response = match api.get_torrent(id).await {
             Ok(response) => response,
@@ -45,7 +45,9 @@ impl SourceProvider {
             });
         }
         let group_torrents = response.torrents;
-        let Some(format) = torrent.get_format().and_then(ExistingFormat::to_source) else {
+        let Some(format) =
+            ExistingFormat::from_torrent(&torrent).and_then(ExistingFormat::to_source)
+        else {
             return Err(SourceIssue::MissingDirectory {
                 path: PathBuf::new(),
             });

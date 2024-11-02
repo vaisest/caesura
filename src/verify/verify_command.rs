@@ -2,7 +2,6 @@ use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
 
-use crate::api::Api;
 use crate::formats::TargetFormatProvider;
 use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
@@ -14,6 +13,7 @@ use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::verify_status::VerifyStatus;
 use crate::verify::*;
+use gazelle_api::GazelleClient;
 use rogue_logging::Error;
 
 /// Verify a FLAC source is suitable for transcoding.
@@ -23,7 +23,7 @@ pub struct VerifyCommand {
     shared_options: Ref<SharedOptions>,
     verify_options: Ref<VerifyOptions>,
     source_provider: RefMut<SourceProvider>,
-    api: RefMut<Api>,
+    api: RefMut<GazelleClient>,
     targets: Ref<TargetFormatProvider>,
     paths: Ref<PathManager>,
 }

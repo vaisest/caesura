@@ -1,6 +1,6 @@
 use html_escape::decode_html_entities;
 
-use crate::api::{Group, Torrent};
+use gazelle_api::{Group, Torrent};
 
 #[derive(Clone, Debug)]
 pub struct Metadata {
@@ -23,9 +23,9 @@ impl Metadata {
         let album = decode_html_entities(&group.name).to_string();
         let remaster_title = decode_html_entities(&torrent.remaster_title).to_string();
         let year = if torrent.remaster_year.is_none() || torrent.remaster_year == Some(0) {
-            group.year as u16
+            group.year
         } else {
-            torrent.remaster_year.expect("Remaster year should be set") as u16
+            torrent.remaster_year.expect("Remaster year should be set")
         };
         let media = torrent.media.clone();
         Metadata {

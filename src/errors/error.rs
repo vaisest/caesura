@@ -1,4 +1,3 @@
-use reqwest::StatusCode;
 use rogue_logging::Error;
 use tokio::task::JoinError;
 
@@ -50,31 +49,6 @@ pub fn output_error(error: CommandError, action: &str, domain: &str) -> Error {
         action: action.to_owned(),
         message: error.to_string(),
         domain: Some(domain.to_owned()),
-        ..Error::default()
-    }
-}
-
-pub fn request_error(error: reqwest::Error, action: &str) -> Error {
-    let domain = if let Some(code) = error.status() {
-        code.canonical_reason().unwrap_or("API")
-    } else {
-        "API"
-    };
-    Error {
-        action: action.to_owned(),
-        message: error.to_string(),
-        domain: Some(domain.to_owned()),
-        ..Error::default()
-    }
-}
-
-pub fn response_error(status_code: StatusCode, action: &str) -> Error {
-    let status = status_code.canonical_reason().unwrap_or("unknown");
-    Error {
-        action: action.to_owned(),
-        status_code: Some(status_code.as_u16()),
-        message: format!("Received a {status} response"),
-        domain: Some("API".to_owned()),
         ..Error::default()
     }
 }

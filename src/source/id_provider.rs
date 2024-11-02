@@ -16,13 +16,13 @@ pub struct IdProvider {
 }
 
 impl IdProvider {
-    pub async fn get_by_options(&self) -> Result<i64, Error> {
+    pub async fn get_by_options(&self) -> Result<u32, Error> {
         let source_input = self.arg.source.clone().unwrap_or_default();
         self.get_by_string(&source_input).await
     }
 
-    pub async fn get_by_string(&self, input: &String) -> Result<i64, Error> {
-        if let Ok(id) = input.parse::<i64>() {
+    pub async fn get_by_string(&self, input: &String) -> Result<u32, Error> {
+        if let Ok(id) = input.parse::<u32>() {
             Ok(id)
         } else if input.starts_with("http") {
             self.get_by_url(input)
@@ -41,7 +41,7 @@ impl IdProvider {
         }
     }
 
-    fn get_by_url(&self, url: &str) -> Result<i64, Error> {
+    fn get_by_url(&self, url: &str) -> Result<u32, Error> {
         let base = &self
             .options
             .indexer_url
@@ -50,7 +50,7 @@ impl IdProvider {
         get_torrent_id_from_url(url, base)
     }
 
-    async fn get_by_file(&self, path: &Path) -> Result<i64, Error> {
+    async fn get_by_file(&self, path: &Path) -> Result<u32, Error> {
         let summary = ImdlCommand::show(path).await?;
         let tracker_id = self.options.indexer.clone().expect("indexer should be set");
         if summary.is_source_equal(&tracker_id) {

@@ -7,9 +7,8 @@ use std::time::SystemTime;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 
-use crate::api::{Api, ApiFactory};
 use crate::batch::BatchCommand;
-use crate::built_info::PKG_NAME;
+use crate::built_info::{PKG_HOMEPAGE, PKG_NAME, PKG_VERSION};
 use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
 use crate::hosting::Host;
@@ -23,6 +22,7 @@ use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
+use gazelle_api::GazelleClientFactory;
 use rogue_logging::Error;
 use rogue_logging::Logger;
 
@@ -71,8 +71,19 @@ impl HostBuilder {
             .add(PathManager::transient())
             .add(IdProvider::transient())
             .add(SourceProvider::transient().as_mut())
-            .add(ApiFactory::transient())
-            .add(Api::singleton().as_mut())
+            .add(singleton_as_self().from(|provider| {
+                let options = provider.get_required::<SharedOptions>();
+                let factory = GazelleClientFactory {
+                    url: options
+                        .indexer_url
+                        .clone()
+                        .expect("indexer_url should be set"),
+                    key: options.api_key.clone().expect("api_key should be set"),
+                    user_agent: format!("{PKG_NAME}/{PKG_VERSION} ({PKG_HOMEPAGE})"),
+                };
+                let api = factory.create();
+                RefMut::new(Mut::new(api))
+            }))
             .add(JobRunner::transient())
             .add(Publisher::transient())
             .add(DebugSubscriber::transient())

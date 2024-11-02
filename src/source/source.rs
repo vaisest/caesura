@@ -4,11 +4,11 @@ use std::path::PathBuf;
 
 use colored::Colorize;
 
-use crate::api::{Group, Torrent};
 use crate::formats::existing_format::ExistingFormat;
 use crate::formats::SourceFormat;
 use crate::naming::SourceName;
 use crate::source::metadata::Metadata;
+use gazelle_api::{Group, Torrent};
 use rogue_logging::Colors;
 
 /// Source to be transcoded
