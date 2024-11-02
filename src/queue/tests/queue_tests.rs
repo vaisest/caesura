@@ -1,16 +1,16 @@
 use super::super::Queue;
 use crate::db::Hash;
-use crate::errors::AppError;
 use crate::queue::{QueueItem, TimeStamp};
 use crate::source::SourceIssue;
 use crate::testing::TempDirectory;
 use crate::transcode::TranscodeStatus;
 use crate::upload::UploadStatus;
 use crate::verify::VerifyStatus;
+use rogue_logging::Error;
 use std::path::PathBuf;
 
 #[tokio::test]
-async fn queue_get_unprocessed() -> Result<(), AppError> {
+async fn queue_get_unprocessed() -> Result<(), Error> {
     // Arrange
     let new = Hash::<20>::from_string("1100000000000000000000000000000000000000")?;
     let verified = Hash::<20>::from_string("2200000000000000000000000000000000000000")?;

@@ -1,14 +1,15 @@
-use crate::errors::AppError;
+use crate::errors::io_error;
 use crate::fs::{copy_dir, DirectoryReader};
 use crate::testing::TempDirectory;
+use rogue_logging::Error;
 use std::fs::read_dir;
 use std::path::PathBuf;
 
 #[tokio::test]
-async fn test_copy_dir() -> Result<(), AppError> {
+async fn test_copy_dir() -> Result<(), Error> {
     // Arrange
     let source_dir = read_dir(PathBuf::from("./content"))
-        .or_else(|e| AppError::io(e, "read source dir"))?
+        .map_err(|e| io_error(e, "read source dir"))?
         .filter_map(Result::ok) // Filter out errors
         .find(|entry| entry.path().is_dir())
         .map(|entry| entry.path())

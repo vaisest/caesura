@@ -1,9 +1,10 @@
-use crate::errors::{AppError, OutputHandler};
+use crate::errors::{command_error, error, io_error, OutputHandler};
 use crate::transcode::{Decode, Encode, Resample, Variant};
 use lofty::config::WriteOptions;
 use lofty::prelude::TagExt;
 use lofty::tag::Tag;
 use log::{trace, warn};
+use rogue_logging::Error;
 use std::fs::create_dir_all;
 use std::process::Stdio;
 use tokio::join;
@@ -15,7 +16,7 @@ pub struct TranscodeJob {
 }
 
 impl TranscodeJob {
-    pub async fn execute(self) -> Result<(), AppError> {
+    pub async fn execute(self) -> Result<(), Error> {
         let output_path = match &self.variant {
             Variant::Transcode(_, encode) => encode.output.clone(),
             Variant::Resample(resample) => resample.output.clone(),
@@ -23,21 +24,20 @@ impl TranscodeJob {
         let output_dir = output_path
             .parent()
             .expect("output path should have a parent");
-        create_dir_all(output_dir)
-            .or_else(|e| AppError::io(e, "create transcode output directory"))?;
+        create_dir_all(output_dir).map_err(|e| io_error(e, "create transcode output directory"))?;
         match self.variant {
             Variant::Transcode(decode, encode) => execute_transcode(decode, encode).await?,
             Variant::Resample(resample) => execute_resample(resample).await?,
         };
         if let Some(tags) = self.tags {
             tags.save_to_path(&output_path, WriteOptions::default())
-                .or_else(|e| AppError::external("write tags", "lofty", e.to_string()))?;
+                .map_err(|e| error("write tags", e.to_string()))?;
         }
         Ok(())
     }
 }
 
-async fn execute_transcode(decode: Decode, encode: Encode) -> Result<(), AppError> {
+async fn execute_transcode(decode: Decode, encode: Encode) -> Result<(), Error> {
     let decode_info = decode.to_info();
     let encode_info = encode.to_info();
     trace!("Executing transcode: {decode_info} | {encode_info}");
@@ -47,7 +47,7 @@ async fn execute_transcode(decode: Decode, encode: Encode) -> Result<(), AppErro
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .spawn()
-        .or_else(|e| AppError::command(e, "spawn decode", &decode_program))?;
+        .map_err(|e| command_error(e, "spawn decode", &decode_program))?;
     let pipe: Stdio = decode_command
         .stdout
         .take()
@@ -61,11 +61,11 @@ async fn execute_transcode(decode: Decode, encode: Encode) -> Result<(), AppErro
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
-        .or_else(|e| AppError::command(e, "spawn decode", &encode_program))?;
+        .map_err(|e| command_error(e, "spawn decode", &encode_program))?;
     let (decode_result, encode_output) =
         join!(decode_command.wait(), encode_command.wait_with_output());
-    let decode_exit = decode_result.or_else(|e| AppError::io(e, "wait for decode"))?;
-    let encode_output = encode_output.or_else(|e| AppError::io(e, "wait for encode"))?;
+    let decode_exit = decode_result.map_err(|e| io_error(e, "wait for decode"))?;
+    let encode_output = encode_output.map_err(|e| io_error(e, "wait for encode"))?;
     if !decode_exit.success() {
         warn!("Decode was not successful: {decode_exit}");
     }
@@ -73,7 +73,7 @@ async fn execute_transcode(decode: Decode, encode: Encode) -> Result<(), AppErro
     Ok(())
 }
 
-async fn execute_resample(resample: Resample) -> Result<(), AppError> {
+async fn execute_resample(resample: Resample) -> Result<(), Error> {
     let info = resample.to_info();
     trace!("Executing resample: {info}");
     let program = info.program.clone();
@@ -81,7 +81,7 @@ async fn execute_resample(resample: Resample) -> Result<(), AppError> {
         .to_command()
         .output()
         .await
-        .or_else(|e| AppError::command(e, "execute resample job", &program))?;
+        .map_err(|e| command_error(e, "execute resample job", &program))?;
     OutputHandler::execute(output, "execute resample job", "transcode")?;
     Ok(())
 }

@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use crate::errors::AppError;
+use crate::errors::task_error;
+use crate::jobs::*;
 use di::{injectable, Ref, RefMut};
+use rogue_logging::Error;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
-
-use crate::jobs::*;
 
 /// Execute a [Job] in parallel across a restricted number of threads.
 ///
@@ -16,7 +16,7 @@ use crate::jobs::*;
 /// of a [Job] changes.
 pub struct JobRunner {
     pub semaphore: Arc<Semaphore>,
-    pub set: RefMut<JoinSet<Result<(), AppError>>>,
+    pub set: RefMut<JoinSet<Result<(), Error>>>,
     pub publisher: Ref<Publisher>,
 }
 
@@ -25,7 +25,7 @@ impl JobRunner {
     /// Create a new [`JobRunner`].
     pub fn new(
         semaphore: Arc<Semaphore>,
-        set: RefMut<JoinSet<Result<(), AppError>>>,
+        set: RefMut<JoinSet<Result<(), Error>>>,
         publisher: Ref<Publisher>,
     ) -> Self {
         Self {
@@ -73,20 +73,20 @@ impl JobRunner {
         }
     }
 
-    pub async fn execute(&self) -> Result<(), AppError> {
+    pub async fn execute(&self) -> Result<(), Error> {
         self.publisher.start("");
         let mut set = self.set.write().expect("join set to be writeable");
         while let Some(result) = set.join_next().await {
-            result.or_else(|e| AppError::task(e, "executing task"))??;
+            result.map_err(|e| task_error(e, "executing task"))??;
         }
         self.publisher.finish("");
         Ok(())
     }
 
-    pub async fn execute_without_publish(&self) -> Result<(), AppError> {
+    pub async fn execute_without_publish(&self) -> Result<(), Error> {
         let mut set = self.set.write().expect("join set to be writeable");
         while let Some(result) = set.join_next().await {
-            result.or_else(|e| AppError::task(e, "executing task"))??;
+            result.map_err(|e| task_error(e, "executing task"))??;
         }
         Ok(())
     }

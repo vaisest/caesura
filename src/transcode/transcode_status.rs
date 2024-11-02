@@ -1,6 +1,6 @@
-use crate::errors::AppError;
 use crate::formats::TargetFormat;
 use crate::queue::TimeStamp;
+use rogue_logging::Error;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -15,7 +15,7 @@ pub struct TranscodeStatus {
     pub completed: TimeStamp,
     /// Error message if the transcode failed
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<AppError>,
+    pub error: Option<Error>,
 }
 
 #[derive(Clone, Deserialize, Serialize)]

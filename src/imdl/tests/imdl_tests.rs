@@ -1,4 +1,4 @@
-use crate::errors::AppError;
+use rogue_logging::Error;
 use std::path::PathBuf;
 
 use crate::fs::DirectoryReader;
@@ -7,7 +7,7 @@ use crate::testing::TORRENTS_SAMPLES_DIR;
 
 #[tokio::test]
 #[ignore]
-async fn show() -> Result<(), AppError> {
+async fn show() -> Result<(), Error> {
     // Arrange
     let paths = DirectoryReader::new()
         .with_extension("torrent")

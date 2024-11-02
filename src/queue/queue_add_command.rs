@@ -1,11 +1,12 @@
 use crate::db::Hash;
-use crate::errors::AppError;
+use crate::errors::{error, io_error, yaml_error};
 use crate::fs::DirectoryReader;
 use crate::options::{CacheOptions, Options, QueueAddArgs, SharedOptions};
 use crate::queue::{Queue, QueueItem, QueueStatus};
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{info, trace};
+use rogue_logging::Error;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::BufReader;
@@ -21,7 +22,7 @@ pub struct QueueAddCommand {
 }
 
 impl QueueAddCommand {
-    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, Error> {
         if !self.shared_options.validate()
             || !self.cache_options.validate()
             || !self.args.validate()
@@ -43,20 +44,20 @@ impl QueueAddCommand {
         Ok(true)
     }
 
-    async fn execute(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+    async fn execute(&mut self, path: PathBuf) -> Result<QueueStatus, Error> {
         if path.is_dir() {
             self.execute_directory(path).await
         } else if path.is_file() {
             self.execute_file(path).await
         } else {
-            AppError::explained(
+            Err(error(
                 "add to queue",
                 format!("Does not exist: {}", path.display()),
-            )
+            ))
         }
     }
 
-    async fn execute_directory(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+    async fn execute_directory(&mut self, path: PathBuf) -> Result<QueueStatus, Error> {
         let mut queue = self.queue.write().expect("queue should be writeable");
         let existing_paths: Vec<PathBuf> = queue
             .get_all()
@@ -74,7 +75,7 @@ impl QueueAddCommand {
             .with_extension("torrent")
             .with_max_depth(0)
             .read(&path)
-            .or_else(|e| AppError::io(e, "read torrent directory"))?;
+            .map_err(|e| io_error(e, "read torrent directory"))?;
         let found = paths.len();
         trace!("{} {} torrent files", "Found".bold(), found);
         let paths: Vec<PathBuf> = paths
@@ -94,12 +95,12 @@ impl QueueAddCommand {
         })
     }
 
-    async fn execute_file(&mut self, path: PathBuf) -> Result<QueueStatus, AppError> {
+    async fn execute_file(&mut self, path: PathBuf) -> Result<QueueStatus, Error> {
         trace!("Reading queue file: {}", path.display());
-        let file = File::open(path).or_else(|e| AppError::io(e, "open chunk file"))?;
+        let file = File::open(path).map_err(|e| io_error(e, "open chunk file"))?;
         let reader = BufReader::new(file);
         let items: BTreeMap<Hash<20>, QueueItem> =
-            serde_yaml::from_reader(reader).or_else(|e| AppError::yaml(e, "deserialize chunk"))?;
+            serde_yaml::from_reader(reader).map_err(|e| yaml_error(e, "deserialize chunk"))?;
         let found = items.len();
         info!("{} {} items", "Found".bold(), found);
         if found > 250 {

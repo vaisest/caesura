@@ -1,14 +1,14 @@
 use crate::built_info::PKG_NAME;
-use crate::errors::AppError;
 use crate::fs::DirectoryReader;
 use crate::hosting::HostBuilder;
 use crate::options::TargetOptions;
 use crate::source::*;
 use crate::testing::options::TestOptionsFactory;
+use rogue_logging::Error;
 use rogue_logging::Logger;
 
 #[tokio::test]
-async fn source_provider() -> Result<(), AppError> {
+async fn source_provider() -> Result<(), Error> {
     // Arrange
     Logger::force_init(PKG_NAME.to_owned());
     let target_options = TestOptionsFactory::from(TargetOptions {

@@ -1,4 +1,4 @@
-use crate::errors::AppError;
+use crate::errors::io_error;
 use crate::formats::target_format::TargetFormat;
 use crate::fs::{AdditionalFile, PathManager};
 use crate::jobs::Job;
@@ -9,6 +9,7 @@ use crate::transcode::AdditionalJob;
 use colored::Colorize;
 use di::{injectable, Ref};
 use log::{trace, warn};
+use rogue_logging::Error;
 use tokio::fs::{copy, create_dir_all, hard_link};
 
 #[injectable]
@@ -24,7 +25,7 @@ impl AdditionalJobFactory {
         files: &[AdditionalFile],
         source: &Source,
         target: TargetFormat,
-    ) -> Result<Vec<Job>, AppError> {
+    ) -> Result<Vec<Job>, Error> {
         let mut jobs = Vec::new();
         for (index, file) in files.iter().enumerate() {
             if let Some(job) = self.create_single(index, file, source, target).await? {
@@ -42,7 +43,7 @@ impl AdditionalJobFactory {
         file: &AdditionalFile,
         source: &Source,
         target: TargetFormat,
-    ) -> Result<Option<Job>, AppError> {
+    ) -> Result<Option<Job>, Error> {
         let source_path = file.path.clone();
         let output_dir = self
             .paths
@@ -61,7 +62,7 @@ impl AdditionalJobFactory {
             .expect("no_image_compression should be set");
         create_dir_all(&output_dir)
             .await
-            .or_else(|e| AppError::io(e, "create directories for additional file"))?;
+            .map_err(|e| io_error(e, "create directories for additional file"))?;
         let extension = source_path
             .extension()
             .expect("Source has extension")
@@ -80,12 +81,12 @@ impl AdditionalJobFactory {
             let verb = if hard_link_option {
                 hard_link(&source_path, &output_path)
                     .await
-                    .or_else(|e| AppError::io(e, "hard link additional file"))?;
+                    .map_err(|e| io_error(e, "hard link additional file"))?;
                 "Hard Linked"
             } else {
                 copy(&source_path, &output_path)
                     .await
-                    .or_else(|e| AppError::io(e, "copy additional file"))?;
+                    .map_err(|e| io_error(e, "copy additional file"))?;
                 "Copied"
             };
             trace!(

@@ -1,18 +1,19 @@
-use crate::errors::AppError;
+use crate::errors::error;
 use claxon::metadata::StreamInfo;
+use rogue_logging::Error;
 
 #[must_use]
 pub fn is_resample_required(info: &StreamInfo) -> bool {
     info.sample_rate > 48000 || info.bits_per_sample > 16
 }
 
-pub fn get_resample_rate(info: &StreamInfo) -> Result<u32, AppError> {
+pub fn get_resample_rate(info: &StreamInfo) -> Result<u32, Error> {
     if info.sample_rate % 44100 == 0 {
         Ok(44100)
     } else if info.sample_rate % 48000 == 0 {
         Ok(48000)
     } else {
-        AppError::explained("get sample rate", "invalid sample rate".to_owned())
+        Err(error("get sample rate", "invalid sample rate".to_owned()))
     }
 }
 

@@ -1,5 +1,5 @@
-use crate::errors::AppError;
 use crate::queue::TimeStamp;
+use rogue_logging::Error;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -14,5 +14,5 @@ pub struct SpectrogramStatus {
     /// Time the spectrogram completed
     pub completed: TimeStamp,
     /// Error message if the spectrogram failed
-    pub error: Option<AppError>,
+    pub error: Option<Error>,
 }

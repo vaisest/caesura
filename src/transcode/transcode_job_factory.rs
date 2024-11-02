@@ -1,6 +1,6 @@
 use di::{injectable, Ref};
 
-use crate::errors::AppError;
+use crate::errors::claxon_error;
 use crate::formats::target_format::TargetFormat;
 use crate::fs::{
     convert_to_id3v2, get_vorbis_tags, replace_vinyl_track_numbering, FlacFile, PathManager,
@@ -9,6 +9,7 @@ use crate::jobs::Job;
 use crate::source::Source;
 use crate::transcode::transcode_job::TranscodeJob;
 use crate::transcode::*;
+use rogue_logging::Error;
 
 /// Create a [`TranscodeJob`] for each [`FlacFile`] in the [`Vec<FlacFile>`].
 #[injectable]
@@ -23,7 +24,7 @@ impl TranscodeJobFactory {
         flacs: &[FlacFile],
         source: &Source,
         format: TargetFormat,
-    ) -> Result<Vec<Job>, AppError> {
+    ) -> Result<Vec<Job>, Error> {
         let mut jobs = Vec::new();
         for (index, flac) in flacs.iter().enumerate() {
             jobs.push(self.create_single(index, flac, source, format)?);
@@ -38,10 +39,10 @@ impl TranscodeJobFactory {
         flac: &FlacFile,
         source: &Source,
         format: TargetFormat,
-    ) -> Result<Job, AppError> {
+    ) -> Result<Job, Error> {
         let info = flac
             .get_stream_info()
-            .or_else(|e| AppError::claxon(e, "read FLAC"))?;
+            .map_err(|e| claxon_error(e, "read FLAC"))?;
         let id = format!("Transcode {:<4}{index:>3}", format.to_string());
         let output_path = self.paths.get_transcode_path(source, format, flac);
         let variant = if matches!(format, TargetFormat::Flac) && is_resample_required(&info) {

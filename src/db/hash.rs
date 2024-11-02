@@ -1,4 +1,4 @@
-use crate::errors::AppError;
+use rogue_logging::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -18,7 +18,7 @@ impl<const N: usize> Hash<N> {
     }
 
     /// Creates a hash from a hexadecimal string.
-    pub fn from_string(hex: &str) -> Result<Self, AppError> {
+    pub fn from_string(hex: &str) -> Result<Self, Error> {
         let bytes = to_bytes(hex)?;
         Ok(Hash::new(bytes))
     }
@@ -80,13 +80,14 @@ impl<'de, const N: usize> Deserialize<'de> for Hash<N> {
 /// Convert a hexadecimal string to a 20-byte array.
 #[allow(clippy::needless_range_loop)]
 #[allow(clippy::indexing_slicing)]
-fn to_bytes<const N: usize>(hex: &str) -> Result<[u8; N], AppError> {
+fn to_bytes<const N: usize>(hex: &str) -> Result<[u8; N], Error> {
     let length = hex.len();
     if length != N * 2 {
-        return AppError::explained(
-            "convert hash",
-            format!("Length was not {}: {length}", N * 2),
-        );
+        return Err(Error {
+            action: "convert hash".to_owned(),
+            message: format!("Length was not {}: {length}", N * 2),
+            ..Error::default()
+        });
     }
     let mut bytes = [0_u8; N];
     for i in 0..N {
@@ -98,8 +99,10 @@ fn to_bytes<const N: usize>(hex: &str) -> Result<[u8; N], AppError> {
 }
 
 /// Convert a 2-character hexadecimal string to a byte.
-fn to_byte(hex: &str) -> Result<u8, AppError> {
-    u8::from_str_radix(hex, HEXADECIMAL_RADIX).map_err(|_| {
-        AppError::else_explained("convert hash", format!("Invalid hex character: {hex}"))
+fn to_byte(hex: &str) -> Result<u8, Error> {
+    u8::from_str_radix(hex, HEXADECIMAL_RADIX).map_err(|_| Error {
+        action: "convert hash".to_owned(),
+        message: format!("Invalid hex character: {hex}"),
+        ..Error::default()
     })
 }

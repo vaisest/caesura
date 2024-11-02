@@ -1,4 +1,4 @@
-use crate::errors::AppError;
+use crate::errors::yaml_error;
 use crate::options::{CacheOptions, Options};
 use crate::queue::Queue;
 use crate::queue::QueueSummary;
@@ -7,6 +7,7 @@ use crate::transcode::TranscodeStatus;
 use crate::upload::UploadStatus;
 use crate::verify::VerifyStatus;
 use di::{injectable, Ref, RefMut};
+use rogue_logging::Error;
 
 /// List the sources in the queue
 #[injectable]
@@ -16,18 +17,18 @@ pub struct QueueSummaryCommand {
 }
 
 impl QueueSummaryCommand {
-    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, Error> {
         if !self.cache_options.validate() {
             return Ok(false);
         }
         let summary = self.execute().await?;
         let yaml = serde_yaml::to_string(&summary)
-            .or_else(|e| AppError::yaml(e, "serialize queue summary"))?;
+            .map_err(|e| yaml_error(e, "serialize queue summary"))?;
         println!("{yaml}");
         Ok(true)
     }
 
-    pub async fn execute(&mut self) -> Result<QueueSummary, AppError> {
+    pub async fn execute(&mut self) -> Result<QueueSummary, Error> {
         let mut queue = self.queue.write().expect("Queue should be writeable");
         let items = queue.get_all().await?;
         let mut summary = QueueSummary::default();

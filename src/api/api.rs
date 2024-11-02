@@ -9,7 +9,8 @@ use tower::ServiceExt;
 
 use crate::api::{ApiFactory, UploadForm, UploadResponse};
 use crate::api::{ApiResponse, GroupResponse, TorrentResponse};
-use crate::errors::AppError;
+use crate::errors::{json_error, request_error, response_error};
+use rogue_logging::Error;
 
 /// API client
 ///
@@ -32,7 +33,7 @@ impl Api {
     ///
     /// # See Also
     /// - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#torrent>
-    pub async fn get_torrent(&mut self, id: i64) -> Result<TorrentResponse, AppError> {
+    pub async fn get_torrent(&mut self, id: i64) -> Result<TorrentResponse, Error> {
         let url = format!("{}/ajax.php?action=torrent&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent").await?;
         self.deserialize(response, "get torrent response").await
@@ -45,7 +46,7 @@ impl Api {
     ///
     /// # See Also
     /// - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#torrent-group>
-    pub async fn get_torrent_group(&mut self, id: i64) -> Result<GroupResponse, AppError> {
+    pub async fn get_torrent_group(&mut self, id: i64) -> Result<GroupResponse, Error> {
         let url = format!("{}/ajax.php?action=torrentgroup&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent group").await?;
         self.deserialize(response, "get torrent group response")
@@ -56,7 +57,7 @@ impl Api {
     ///
     /// # See Also
     /// - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#download>
-    pub async fn get_torrent_file_as_buffer(&mut self, id: i64) -> Result<Vec<u8>, AppError> {
+    pub async fn get_torrent_file_as_buffer(&mut self, id: i64) -> Result<Vec<u8>, Error> {
         let url = format!("{}/ajax.php?action=download&id={}", self.api_url, id);
         let response = self.get(&url, "get torrent file").await?;
         let status_code = response.status();
@@ -68,7 +69,7 @@ impl Api {
             let buffer = bytes.to_vec();
             Ok(buffer)
         } else {
-            AppError::response(status_code, "get torrent file")
+            Err(response_error(status_code, "get torrent file"))
         }
     }
 
@@ -76,17 +77,17 @@ impl Api {
     ///
     /// # See Also
     ///  - <https://github.com/OPSnet/Gazelle/blob/master/docs/07-API.md#upload>
-    pub async fn upload_torrent(&mut self, upload: UploadForm) -> Result<UploadResponse, AppError> {
+    pub async fn upload_torrent(&mut self, upload: UploadForm) -> Result<UploadResponse, Error> {
         let url = format!("{}/ajax.php?action=upload", self.api_url);
         let form = upload.to_form()?;
         let client = self.wait_for_client().await;
         let result = client.post(&url).multipart(form).send().await;
         trace!("{} POST request: {}", "Sent".bold(), &url);
-        let response = result.or_else(|e| AppError::request(e, "post upload"))?;
+        let response = result.map_err(|e| request_error(e, "post upload"))?;
         self.deserialize(response, "upload torrent response").await
     }
 
-    async fn get(&mut self, url: &String, action: &str) -> Result<Response, AppError> {
+    async fn get(&mut self, url: &String, action: &str) -> Result<Response, Error> {
         trace!("{} request GET {}", "Sending".bold(), &url);
         let client = self.wait_for_client().await;
         let start = SystemTime::now();
@@ -96,24 +97,28 @@ impl Api {
             .expect("elapsed should not fail")
             .as_secs_f64();
         trace!("{} response after {elapsed:.3}", "Received".bold());
-        result.or_else(|e| AppError::request(e, action))
+        result.map_err(|e| request_error(e, action))
     }
 
     async fn deserialize<T: DeserializeOwned>(
         &mut self,
         response: Response,
         action: &str,
-    ) -> Result<T, AppError> {
+    ) -> Result<T, Error> {
         let status_code = response.status();
         let json = response.text().await.unwrap_or_default();
         let deserialized = serde_json::from_str::<ApiResponse<T>>(json.as_str())
-            .or_else(|e| AppError::json(e, format!("deserialize {action}").as_str()));
+            .map_err(|e| json_error(e, format!("deserialize {action}").as_str()));
         if status_code.is_success() {
             let deserialized = deserialized?;
             if deserialized.status == "success" {
                 Ok(deserialized.response.expect("response should be set"))
             } else {
-                AppError::explained(action, format!("{deserialized}"))
+                Err(Error {
+                    action: action.to_owned(),
+                    message: deserialized.to_string(),
+                    ..Error::default()
+                })
             }
         } else {
             let message = if let Ok(response) = deserialized {
@@ -121,11 +126,11 @@ impl Api {
             } else {
                 json
             };
-            Err(AppError {
+            Err(Error {
                 action: action.to_owned(),
                 message,
                 status_code: Some(status_code.as_u16()),
-                ..AppError::default()
+                ..Error::default()
             })
         }
     }

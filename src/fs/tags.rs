@@ -1,24 +1,24 @@
-use crate::errors::AppError;
+use crate::errors::error;
 use crate::fs::FlacFile;
 use lofty::file::TaggedFileExt;
 use lofty::probe::Probe;
 use lofty::tag::ItemKey::TrackNumber;
 use lofty::tag::{Accessor, Tag, TagType};
 use log::trace;
+use rogue_logging::Error;
 
-pub(crate) fn get_vorbis_tags(flac: &FlacFile) -> Result<Tag, AppError> {
+pub(crate) fn get_vorbis_tags(flac: &FlacFile) -> Result<Tag, Error> {
     let file = Probe::open(flac.path.clone())
-        .or_else(|e| AppError::external("get tags", "lofty", e.to_string()))?
+        .map_err(|e| error("get tags", e.to_string()))?
         .read()
-        .or_else(|e| AppError::external("get tags", "lofty", e.to_string()))?;
+        .map_err(|e| error("get tags", e.to_string()))?;
     if let Some(vorbis) = file.tag(TagType::VorbisComments) {
         Ok(vorbis.clone())
     } else {
-        AppError::external(
+        Err(error(
             "get tags",
-            "lofty",
             format!("No Vobis comments: {}", flac.path.display()),
-        )
+        ))
     }
 }
 
@@ -26,15 +26,15 @@ pub(crate) fn convert_to_id3v2(tags: &mut Tag) {
     tags.re_map(TagType::Id3v2);
 }
 
-pub(crate) fn replace_vinyl_track_numbering(tags: &mut Tag) -> Result<(), AppError> {
+pub(crate) fn replace_vinyl_track_numbering(tags: &mut Tag) -> Result<(), Error> {
     let track = tags.get_string(&TrackNumber).ok_or_else(|| {
-        AppError::else_explained(
+        error(
             "replace vinyl track numbering",
             "No track number string".to_owned(),
         )
     })?;
     let (disc_number, track_number) = get_numeric_from_vinyl_format(track).ok_or_else(|| {
-        AppError::else_explained(
+        error(
             "replace vinyl track numbering",
             "Not vinyl format".to_owned(),
         )

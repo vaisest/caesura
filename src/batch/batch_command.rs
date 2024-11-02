@@ -1,4 +1,3 @@
-use crate::errors::AppError;
 use crate::options::{
     BatchOptions, CacheOptions, FileOptions, Options, SharedOptions, SpectrogramOptions,
     TargetOptions, VerifyOptions,
@@ -13,6 +12,7 @@ use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{debug, error, info, trace, warn};
 use reqwest::StatusCode;
+use rogue_logging::Error;
 use tokio::time::sleep;
 
 /// Batch a FLAC source is suitable for transcoding.
@@ -38,7 +38,7 @@ impl BatchCommand {
     ///
     /// Returns `true` if the batch process succeeds.
     #[allow(clippy::too_many_lines)]
-    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, Error> {
         if !self.cache_options.validate()
             || !self.shared_options.validate()
             || !self.verify_options.validate()
@@ -167,7 +167,7 @@ impl BatchCommand {
             if transcode_enabled {
                 let status = self.transcode.execute(&source).await;
                 if let Some(error) = &status.error {
-                    error!("{error}");
+                    error.log();
                 }
                 if status.success {
                     item.transcode = Some(status);

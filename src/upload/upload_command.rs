@@ -3,12 +3,12 @@ use std::path::{Path, PathBuf};
 
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{error, info, trace, warn};
+use log::{info, trace, warn};
 use tokio::fs::{copy, hard_link};
 
 use crate::api::{Api, UploadForm};
 use crate::built_info::*;
-use crate::errors::AppError;
+use crate::errors::{error, io_error};
 use crate::eyed3::EyeD3Command;
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::{copy_dir, Collector, PathManager};
@@ -19,6 +19,7 @@ use crate::queue::TimeStamp;
 use crate::source::{get_permalink, Source, SourceProvider};
 use crate::transcode::{TranscodeJobFactory, Variant};
 use crate::upload::{UploadFormatStatus, UploadStatus};
+use rogue_logging::Error;
 
 const MUSIC_CATEGORY_ID: u8 = 0;
 
@@ -41,7 +42,7 @@ impl UploadCommand {
     /// [`Source`] is retrieved from the CLI arguments.
     ///
     /// Returns `true` if all the uploads succeed.
-    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, Error> {
         if !self.arg.validate()
             || !self.shared_options.validate()
             || !self.upload_options.validate()
@@ -54,7 +55,7 @@ impl UploadCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await
-            .map_err(|e| AppError::else_explained("get source from options", e.to_string()))?;
+            .map_err(|e| error("get source from options", e.to_string()))?;
         let status = self.execute(&source).await;
         // Errors were already printed as they occurred
         Ok(status.success)
@@ -83,24 +84,24 @@ impl UploadCommand {
             if !torrent_path.exists() {
                 warn!("In v0.19.0 the torrent file name format changed.");
                 warn!("Running the transcode command will update existing transcodes without re-transcoding.");
-                let error = AppError::else_explained(
+                let error = error(
                     "upload",
                     format!(
                         "The torrent file does not exist: {}",
                         torrent_path.display()
                     ),
                 );
-                error!("{error}");
+                error.log();
                 errors.push(error);
                 status.success = false;
                 continue;
             }
             let target_dir = self.paths.get_transcode_target_dir(source, target);
             trace!("{} content of {}", "Verifying".bold(), target_dir.display());
-            if let Err(error) = ImdlCommand::verify(&torrent_path, &target_dir).await {
-                let error =
-                    AppError::else_external("verify torrent content", "IMDL", format!("{error}"));
-                error!("{error}");
+            if let Err(e) = ImdlCommand::verify(&torrent_path, &target_dir).await {
+                let error = error("verify torrent content", e.to_string());
+                error.log();
+                error.log();
                 errors.push(error);
                 status.success = false;
                 continue;
@@ -161,7 +162,7 @@ impl UploadCommand {
                     formats.push(UploadFormatStatus { format: target, id });
                 }
                 Err(error) => {
-                    error!("{error}");
+                    error.log();
                     errors.push(error);
                     status.success = false;
                     continue;
@@ -173,7 +174,7 @@ impl UploadCommand {
         status
     }
 
-    async fn copy_transcode(&self, source: &Source, target: &TargetFormat) -> Result<(), AppError> {
+    async fn copy_transcode(&self, source: &Source, target: &TargetFormat) -> Result<(), Error> {
         let source_dir = self.paths.get_transcode_target_dir(source, *target);
         let source_dir_name = source_dir
             .file_name()
@@ -211,7 +212,7 @@ impl UploadCommand {
         source: &Source,
         target: &TargetFormat,
         target_dir: &Path,
-    ) -> Result<(), AppError> {
+    ) -> Result<(), Error> {
         let source_path = self.paths.get_torrent_path(source, *target, true);
         let source_file_name = source_path
             .file_name()
@@ -224,12 +225,12 @@ impl UploadCommand {
         {
             hard_link(&source_path, &target_path)
                 .await
-                .or_else(|e| AppError::io(e, "hard link torrent file"))?;
+                .map_err(|e| io_error(e, "hard link torrent file"))?;
             "Hard Linked"
         } else {
             copy(&source_path, &target_path)
                 .await
-                .or_else(|e| AppError::io(e, "copy torrent file"))?;
+                .map_err(|e| io_error(e, "copy torrent file"))?;
             "Copied"
         };
         trace!(
@@ -285,17 +286,17 @@ impl UploadCommand {
         })
     }
 
-    pub fn get_command(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
+    pub fn get_command(&self, source: &Source, target: TargetFormat) -> Result<String, Error> {
         let flacs = Collector::get_flacs(&source.directory);
         let flac = flacs.first().expect("Should be at least one FLAC");
         let job = self
             .transcode_job_factory
             .create_single(0, flac, source, target)?;
         let Job::Transcode(job) = job else {
-            return AppError::explained(
+            return Err(error(
                 "get transcode command",
                 "expected a transcode job".to_owned(),
-            );
+            ));
         };
         let command = match job.variant {
             Variant::Transcode(mut decode, mut encode) => {
@@ -325,7 +326,7 @@ impl UploadCommand {
         };
         Ok(command)
     }
-    async fn get_details(&self, source: &Source, target: TargetFormat) -> Result<String, AppError> {
+    async fn get_details(&self, source: &Source, target: TargetFormat) -> Result<String, Error> {
         let path = self.paths.get_transcode_target_dir(source, target);
         EyeD3Command::display(&path).await
     }

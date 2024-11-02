@@ -1,4 +1,5 @@
-use crate::errors::AppError;
+use crate::errors::io_error;
+use rogue_logging::Error;
 use std::os::unix::prelude::MetadataExt;
 use std::path::PathBuf;
 use tokio::fs::File;
@@ -36,14 +37,14 @@ impl AdditionalFile {
         }
     }
 
-    pub async fn get_size(&self) -> Result<u64, AppError> {
+    pub async fn get_size(&self) -> Result<u64, Error> {
         let file = File::open(&self.path)
             .await
-            .or_else(|e| AppError::io(e, "open additional file"))?;
+            .map_err(|e| io_error(e, "open additional file"))?;
         let metadata = file
             .metadata()
             .await
-            .or_else(|e| AppError::io(e, "read metadata of additional file"))?;
+            .map_err(|e| io_error(e, "read metadata of additional file"))?;
         Ok(metadata.size())
     }
 }

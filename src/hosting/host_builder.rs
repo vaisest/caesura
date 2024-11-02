@@ -10,7 +10,6 @@ use tokio::task::JoinSet;
 use crate::api::{Api, ApiFactory};
 use crate::batch::BatchCommand;
 use crate::built_info::PKG_NAME;
-use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::PathManager;
 use crate::hosting::Host;
@@ -24,6 +23,7 @@ use crate::spectrogram::{SpectrogramCommand, SpectrogramJobFactory};
 use crate::transcode::{AdditionalJobFactory, TranscodeCommand, TranscodeJobFactory};
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
+use rogue_logging::Error;
 use rogue_logging::Logger;
 
 pub struct HostBuilder {
@@ -100,7 +100,7 @@ impl HostBuilder {
                 Arc::new(Semaphore::new(cpus))
             }))
             .add(singleton_as_self().from(|_| {
-                let set: JoinSet<Result<(), AppError>> = JoinSet::new();
+                let set: JoinSet<Result<(), Error>> = JoinSet::new();
                 RefMut::new(Mut::new(set))
             }))
             // Add transcode services

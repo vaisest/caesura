@@ -1,4 +1,4 @@
-use crate::errors::AppError;
+use crate::errors::{error, io_error};
 use crate::formats::{TargetFormat, TargetFormatProvider};
 use crate::fs::{Collector, PathManager};
 use crate::imdl::ImdlCommand;
@@ -16,6 +16,7 @@ use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::*;
 use rogue_logging::Colors;
+use rogue_logging::Error;
 use std::collections::BTreeSet;
 use tokio::fs::{copy, hard_link};
 
@@ -40,7 +41,7 @@ impl TranscodeCommand {
     /// [`Source`] is retrieved from the CLI arguments.
     ///
     /// Returns `true` if all the transcodes succeeds.
-    pub async fn execute_cli(&self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&self) -> Result<bool, Error> {
         if !self.arg.validate()
             || !self.shared_options.validate()
             || !self.target_options.validate()
@@ -54,10 +55,10 @@ impl TranscodeCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await
-            .map_err(|e| AppError::else_explained("get source from options", e.to_string()))?;
+            .map_err(|e| error("get source from options", e.to_string()))?;
         let status = self.execute(&source).await;
         if let Some(error) = &status.error {
-            error!("{error}");
+            error.log();
         }
         Ok(status.success)
     }
@@ -77,10 +78,7 @@ impl TranscodeCommand {
             error: None,
         };
         if targets.is_empty() {
-            status.error = Some(AppError::else_explained(
-                "transcode",
-                "No transcodes to perform".to_owned(),
-            ));
+            status.error = Some(error("transcode", "No transcodes to perform".to_owned()));
             return status;
         }
         let formats: Vec<TranscodeFormatStatus> = targets
@@ -142,7 +140,7 @@ impl TranscodeCommand {
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
-    ) -> Result<(), AppError> {
+    ) -> Result<(), Error> {
         let flacs = Collector::get_flacs(&source.directory);
         info!(
             "{} to {} for {} FLACs in {}",
@@ -164,7 +162,7 @@ impl TranscodeCommand {
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
-    ) -> Result<(), AppError> {
+    ) -> Result<(), Error> {
         let files = Collector::get_additional(&source.directory);
         debug!(
             "{} {} additional files",
@@ -200,12 +198,12 @@ impl TranscodeCommand {
                     let verb = if hard_link_option {
                         hard_link(&from, &resize.output)
                             .await
-                            .or_else(|e| AppError::io(e, "hard link additional file"))?;
+                            .map_err(|e| io_error(e, "hard link additional file"))?;
                         "Hard Linked"
                     } else {
                         copy(&from, &resize.output)
                             .await
-                            .or_else(|e| AppError::io(e, "copy additional file"))?;
+                            .map_err(|e| io_error(e, "copy additional file"))?;
                         "Copied"
                     };
                     trace!(
@@ -226,7 +224,7 @@ impl TranscodeCommand {
         &self,
         source: &Source,
         targets: &BTreeSet<TargetFormat>,
-    ) -> Result<(), AppError> {
+    ) -> Result<(), Error> {
         debug!("{} torrents {}", "Creating".bold(), source);
         for target in targets {
             let content_dir = self.paths.get_transcode_target_dir(source, *target);
@@ -250,7 +248,7 @@ impl TranscodeCommand {
             let path_with_indexer = self.paths.get_torrent_path(source, *target, true);
             copy(&path_without_indexer, &path_with_indexer)
                 .await
-                .or_else(|e| AppError::io(e, "copy torrent file"))?;
+                .map_err(|e| io_error(e, "copy torrent file"))?;
             trace!(
                 "{} torrent {}",
                 "Created".bold(),

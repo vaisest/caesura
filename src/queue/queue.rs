@@ -3,13 +3,13 @@ use std::fs::create_dir;
 use std::path::PathBuf;
 
 use crate::db::{Hash, Table};
-use crate::errors::AppError;
 use crate::imdl::ImdlCommand;
 use crate::options::CacheOptions;
 use crate::queue::QueueItem;
 use di::{inject, injectable, Ref};
 use futures::stream::{iter, StreamExt};
 use log::error;
+use rogue_logging::Error;
 
 /// Queue of FLAC sources and their statuses.
 ///
@@ -55,7 +55,7 @@ impl Queue {
     }
 
     /// Get an item from the queue
-    pub fn get(&self, hash: Hash<20>) -> Result<Option<QueueItem>, AppError> {
+    pub fn get(&self, hash: Hash<20>) -> Result<Option<QueueItem>, Error> {
         self.table.get(hash)
     }
 
@@ -75,7 +75,7 @@ impl Queue {
         indexer: String,
         transcode_enabled: bool,
         upload_enabled: bool,
-    ) -> Result<Vec<Hash<20>>, AppError> {
+    ) -> Result<Vec<Hash<20>>, Error> {
         let items = self.table.get_all().await?;
         let mut items: Vec<&QueueItem> = items
             .values()
@@ -96,12 +96,12 @@ impl Queue {
     /// Get all items.
     ///
     /// Items are unsorted.
-    pub async fn get_all(&mut self) -> Result<BTreeMap<Hash<20>, QueueItem>, AppError> {
+    pub async fn get_all(&mut self) -> Result<BTreeMap<Hash<20>, QueueItem>, Error> {
         self.table.get_all().await
     }
 
     /// Update an item into the queue
-    pub async fn set(&mut self, item: QueueItem) -> Result<(), AppError> {
+    pub async fn set(&mut self, item: QueueItem) -> Result<(), Error> {
         self.table.set(item.hash, item).await
     }
 
@@ -116,16 +116,13 @@ impl Queue {
         &self,
         items: BTreeMap<Hash<20>, QueueItem>,
         replace: bool,
-    ) -> Result<usize, AppError> {
+    ) -> Result<usize, Error> {
         self.table.set_many(items, replace).await
     }
 
     /// Insert torrent files into the queue if they are not already present
     /// Returns the number of items added
-    pub async fn insert_new_torrent_files(
-        &mut self,
-        paths: Vec<PathBuf>,
-    ) -> Result<usize, AppError> {
+    pub async fn insert_new_torrent_files(&mut self, paths: Vec<PathBuf>) -> Result<usize, Error> {
         let stream = iter(paths.into_iter());
         let items: BTreeMap<_, _> = stream
             .filter_map(|path| async {

@@ -1,14 +1,14 @@
 use crate::built_info::PKG_NAME;
 use crate::db::tests::example_item::{example_items, ExampleItem};
 use crate::db::{Hash, Table};
-use crate::errors::AppError;
 use crate::testing::TempDirectory;
+use rogue_logging::Error;
 use rogue_logging::Logger;
 use std::collections::BTreeMap;
 use std::marker::PhantomData;
 
 #[tokio::test]
-async fn table_end_to_end() -> Result<(), AppError> {
+async fn table_end_to_end() -> Result<(), Error> {
     // Arrange
     Logger::force_init(PKG_NAME.to_owned());
     let table = Table::<20, 1, ExampleItem> {

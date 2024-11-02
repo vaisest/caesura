@@ -1,11 +1,11 @@
 use super::super::*;
-use crate::errors::AppError;
 use crate::fs::DirectoryReader;
+use rogue_logging::Error;
 use std::path::PathBuf;
 
 #[tokio::test]
 #[ignore]
-async fn show() -> Result<(), AppError> {
+async fn show() -> Result<(), Error> {
     // Arrange
     let paths = DirectoryReader::new()
         .with_extension("mp3")

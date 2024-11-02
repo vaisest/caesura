@@ -1,9 +1,9 @@
+use crate::dependencies::CONVERT;
+use crate::errors::{command_error, OutputHandler};
+use crate::transcode::resize::Resize;
 use colored::Colorize;
 use log::trace;
-
-use crate::dependencies::CONVERT;
-use crate::errors::{AppError, OutputHandler};
-use crate::transcode::resize::Resize;
+use rogue_logging::Error;
 
 pub struct AdditionalJob {
     pub id: String,
@@ -12,7 +12,7 @@ pub struct AdditionalJob {
 
 impl AdditionalJob {
     #[allow(clippy::integer_division)]
-    pub async fn execute(self) -> Result<(), AppError> {
+    pub async fn execute(self) -> Result<(), Error> {
         trace!(
             "{} image to maximum {} px and {}% quality: {}",
             "Resizing".bold(),
@@ -26,7 +26,7 @@ impl AdditionalJob {
             .to_command()
             .output()
             .await
-            .or_else(|e| AppError::command(e, "execute resize image", CONVERT))?;
+            .map_err(|e| command_error(e, "execute resize image", CONVERT))?;
         OutputHandler::execute(output, "resize image", "convert")?;
         Ok(())
     }

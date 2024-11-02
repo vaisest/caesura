@@ -1,14 +1,15 @@
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
-use log::{debug, error, info};
+use log::{debug, info};
 
-use crate::errors::AppError;
+use crate::errors::error;
 use crate::fs::*;
 use crate::jobs::JobRunner;
 use crate::options::{Options, SharedOptions, SourceArg, SpectrogramOptions};
 use crate::queue::TimeStamp;
 use crate::source::{Source, SourceProvider};
 use crate::spectrogram::*;
+use rogue_logging::Error;
 
 /// Generate spectrograms for each track of a FLAC source.
 #[injectable]
@@ -28,7 +29,7 @@ impl SpectrogramCommand {
     /// [`Source`] is retrieved from the CLI arguments.
     ///
     /// Returns `true` if the spectrogram generation succeeds.
-    pub async fn execute_cli(&self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&self) -> Result<bool, Error> {
         if !self.arg.validate()
             || !self.shared_options.validate()
             || !self.spectrogram_options.validate()
@@ -41,10 +42,10 @@ impl SpectrogramCommand {
             .expect("Source provider should be writeable")
             .get_from_options()
             .await
-            .map_err(|e| AppError::else_explained("get source from options", e.to_string()))?;
+            .map_err(|e| error("get source from options", e.to_string()))?;
         let status = self.execute(&source).await;
         if let Some(error) = &status.error {
-            error!("{error}");
+            error.log();
         }
         Ok(status.success)
     }

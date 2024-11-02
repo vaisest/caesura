@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
+#[allow(dead_code)]
 pub struct CommandError {
     pub stderr: String,
     pub stdout: String,

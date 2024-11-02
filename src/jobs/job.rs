@@ -1,6 +1,6 @@
-use crate::errors::AppError;
 use crate::spectrogram::SpectrogramJob;
 use crate::transcode::{AdditionalJob, TranscodeJob};
+use rogue_logging::Error;
 
 /// A job is a stand-alone object that contains all the information needed to perform
 /// a piece of work.
@@ -36,7 +36,7 @@ impl Job {
     }
 
     /// Execute the wrapped command.
-    pub async fn execute(self) -> Result<(), AppError> {
+    pub async fn execute(self) -> Result<(), Error> {
         match self {
             Job::Additional(job) => job.execute().await,
             Job::Spectrogram(job) => job.execute().await,

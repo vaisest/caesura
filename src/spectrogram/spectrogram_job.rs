@@ -1,11 +1,11 @@
+use rogue_logging::Error;
 use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::process::Output;
-
 use tokio::process::Command;
 
 use crate::dependencies::SOX;
-use crate::errors::{AppError, OutputHandler};
+use crate::errors::{command_error, io_error, OutputHandler};
 use crate::spectrogram::*;
 
 /// A command to generate a spectrogram image of a FLAC file using sox.
@@ -23,13 +23,13 @@ pub struct SpectrogramJob {
 
 impl SpectrogramJob {
     /// Execute the command to generate the spectrogram.
-    pub async fn execute(self) -> Result<(), AppError> {
+    pub async fn execute(self) -> Result<(), Error> {
         let output_dir = self
             .output_path
             .parent()
             .expect("output path should have a parent");
         create_dir_all(output_dir)
-            .or_else(|e| AppError::io(e, "create spectrogram output directory"))?;
+            .map_err(|e| io_error(e, "create spectrogram output directory"))?;
         match self.size {
             Size::Full => self.execute_full().await,
             Size::Zoom => self.execute_zoom().await,
@@ -37,7 +37,7 @@ impl SpectrogramJob {
         Ok(())
     }
 
-    async fn execute_zoom(&self) -> Result<Output, AppError> {
+    async fn execute_zoom(&self) -> Result<Output, Error> {
         let output = Command::new(SOX)
             .arg(&self.source_path)
             .arg("-n")
@@ -64,11 +64,11 @@ impl SpectrogramJob {
             .arg(&self.output_path)
             .output()
             .await
-            .or_else(|e| AppError::command(e, "execute generate spectrogram", SOX))?;
+            .map_err(|e| command_error(e, "execute generate spectrogram", SOX))?;
         OutputHandler::execute(output, "generate spectrogram", "IMDL")
     }
 
-    async fn execute_full(&self) -> Result<Output, AppError> {
+    async fn execute_full(&self) -> Result<Output, Error> {
         let output = Command::new(SOX)
             .arg(&self.source_path)
             .arg("-n")
@@ -91,7 +91,7 @@ impl SpectrogramJob {
             .arg(&self.output_path)
             .output()
             .await
-            .or_else(|e| AppError::command(e, "execute generate spectrogram", SOX))?;
+            .map_err(|e| command_error(e, "execute generate spectrogram", SOX))?;
         OutputHandler::execute(output, "generate spectrogram", "IMDL")
     }
 }

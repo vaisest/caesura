@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use crate::errors::AppError;
 use crate::formats::TargetFormat;
 use crate::fs::FlacFile;
 use crate::imdl::ImdlCommand;
@@ -8,6 +7,7 @@ use crate::naming::{SpectrogramName, TranscodeName};
 use crate::options::SharedOptions;
 use crate::source::Source;
 use di::{injectable, Ref};
+use rogue_logging::Error;
 
 #[injectable]
 pub struct PathManager {
@@ -87,7 +87,7 @@ impl PathManager {
         &self,
         source: &Source,
         target: TargetFormat,
-    ) -> Result<Option<PathBuf>, AppError> {
+    ) -> Result<Option<PathBuf>, Error> {
         let path_with_indexer = self.get_torrent_path(source, target, true);
         if path_with_indexer.is_file() {
             return Ok(Some(path_with_indexer));

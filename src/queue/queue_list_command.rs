@@ -1,9 +1,9 @@
-use crate::errors::AppError;
 use crate::options::{BatchOptions, CacheOptions, Options, SharedOptions};
 use crate::queue::Queue;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use log::{debug, error, info};
+use rogue_logging::Error;
 
 /// List the sources in the queue
 #[injectable]
@@ -15,7 +15,7 @@ pub struct QueueListCommand {
 }
 
 impl QueueListCommand {
-    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, Error> {
         if !self.shared_options.validate()
             || !self.cache_options.validate()
             || !self.batch_options.validate()

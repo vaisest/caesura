@@ -1,8 +1,8 @@
-use crate::errors::AppError;
 use crate::jobs::*;
 use colored::Colorize;
 use di::{injectable, Ref, RefMut};
 use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
+use rogue_logging::Error;
 use rogue_logging::Verbosity::Info;
 use rogue_logging::*;
 use tokio::task::JoinSet;
@@ -10,7 +10,7 @@ use tokio::task::JoinSet;
 /// A [Subscriber] that updates a progress bar in the console
 pub struct ProgressBarSubscriber {
     /// The set of jobs to track
-    set: RefMut<JoinSet<Result<(), AppError>>>,
+    set: RefMut<JoinSet<Result<(), Error>>>,
 
     /// The progress bar
     bar: ProgressBar,
@@ -19,7 +19,7 @@ pub struct ProgressBarSubscriber {
 #[injectable]
 impl ProgressBarSubscriber {
     /// Create a new [`ProgressBarSubscriber`]
-    pub fn new(logger: Ref<Logger>, set: RefMut<JoinSet<Result<(), AppError>>>) -> Self {
+    pub fn new(logger: Ref<Logger>, set: RefMut<JoinSet<Result<(), Error>>>) -> Self {
         let bar = create_progress_bar(logger);
         Self { set, bar }
     }

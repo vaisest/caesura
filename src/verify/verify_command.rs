@@ -3,7 +3,6 @@ use di::{injectable, Ref, RefMut};
 use log::*;
 
 use crate::api::Api;
-use crate::errors::AppError;
 use crate::formats::TargetFormatProvider;
 use crate::fs::{Collector, PathManager};
 use crate::imdl::imdl_command::ImdlCommand;
@@ -15,6 +14,7 @@ use crate::source::*;
 use crate::verify::tag_verifier::TagVerifier;
 use crate::verify::verify_status::VerifyStatus;
 use crate::verify::*;
+use rogue_logging::Error;
 
 /// Verify a FLAC source is suitable for transcoding.
 #[injectable]
@@ -36,7 +36,7 @@ impl VerifyCommand {
     /// [`SourceIssue`] issues are logged as warnings.
     ///
     /// Returns `true` if the source is verified.
-    pub async fn execute_cli(&mut self) -> Result<bool, AppError> {
+    pub async fn execute_cli(&mut self) -> Result<bool, Error> {
         if !self.arg.validate()
             || !self.shared_options.validate()
             || !self.verify_options.validate()
@@ -184,13 +184,13 @@ impl VerifyCommand {
             Ok(buffer) => ImdlCommand::verify_from_buffer(&buffer, &source.directory)
                 .await
                 .unwrap_or_else(|e| {
-                    vec![Error {
+                    vec![SourceIssue::Error {
                         domain: "IMDL".to_owned(),
                         details: e.to_string(),
                     }]
                 }),
             Err(e) => {
-                vec![Error {
+                vec![SourceIssue::Error {
                     domain: "API".to_owned(),
                     details: e.to_string(),
                 }]

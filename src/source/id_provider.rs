@@ -2,10 +2,11 @@ use std::path::{Path, PathBuf};
 
 use di::{injectable, Ref};
 
-use crate::errors::AppError;
+use crate::errors::error;
 use crate::imdl::ImdlCommand;
 use crate::options::{SharedOptions, SourceArg};
 use crate::source::*;
+use rogue_logging::Error;
 
 /// Retrieve the id of a source.
 #[injectable]
@@ -15,33 +16,32 @@ pub struct IdProvider {
 }
 
 impl IdProvider {
-    pub async fn get_by_options(&self) -> Result<i64, AppError> {
+    pub async fn get_by_options(&self) -> Result<i64, Error> {
         let source_input = self.arg.source.clone().unwrap_or_default();
         self.get_by_string(&source_input).await
     }
 
-    pub async fn get_by_string(&self, input: &String) -> Result<i64, AppError> {
-        let id = if let Ok(id) = input.parse::<i64>() {
-            id
+    pub async fn get_by_string(&self, input: &String) -> Result<i64, Error> {
+        if let Ok(id) = input.parse::<i64>() {
+            Ok(id)
         } else if input.starts_with("http") {
-            self.get_by_url(input)?
+            self.get_by_url(input)
         } else if input.ends_with(".torrent") {
             let path = PathBuf::from(input);
             if path.exists() {
-                self.get_by_file(&path).await?
+                self.get_by_file(&path).await
             } else {
-                AppError::explained(
+                Err(error(
                     "get source from torrent file",
                     "File does not exist".to_owned(),
-                )?
+                ))
             }
         } else {
-            AppError::explained("get source", format!("Unknown source: {input}"))?
-        };
-        Ok(id)
+            Err(error("get source", format!("Unknown source: {input}")))
+        }
     }
 
-    fn get_by_url(&self, url: &str) -> Result<i64, AppError> {
+    fn get_by_url(&self, url: &str) -> Result<i64, Error> {
         let base = &self
             .options
             .indexer_url
@@ -50,19 +50,20 @@ impl IdProvider {
         get_torrent_id_from_url(url, base)
     }
 
-    async fn get_by_file(&self, path: &Path) -> Result<i64, AppError> {
+    async fn get_by_file(&self, path: &Path) -> Result<i64, Error> {
         let summary = ImdlCommand::show(path).await?;
         let tracker_id = self.options.indexer.clone().expect("indexer should be set");
         if summary.is_source_equal(&tracker_id) {
             let url = summary.comment.unwrap_or_default();
             self.get_by_url(&url)
         } else {
-            AppError::unexpected(
+            Err(error(
                 "get source by file",
-                "incorrect source",
-                tracker_id,
-                summary.source.unwrap_or_default(),
-            )
+                format!(
+                    "incorrect source\nExpected: {tracker_id}\nActual: {}",
+                    summary.source.unwrap_or_default()
+                ),
+            ))
         }
     }
 }

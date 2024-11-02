@@ -1,4 +1,4 @@
-use crate::errors::AppError;
+use rogue_logging::Error;
 use std::path::PathBuf;
 
 use crate::fs::DirectoryReader;
@@ -13,7 +13,7 @@ use crate::testing::*;
 use rogue_logging::Logger;
 
 #[tokio::test]
-async fn spectrogram_command() -> Result<(), AppError> {
+async fn spectrogram_command() -> Result<(), Error> {
     // Arrange
     Logger::force_init(PKG_NAME.to_owned());
     let shared_options = TestOptionsFactory::from(SharedOptions {

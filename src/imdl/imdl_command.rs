@@ -4,13 +4,14 @@ use std::process::{Output, Stdio};
 use bytes::Buf;
 use colored::Colorize;
 use log::trace;
+use rogue_logging::Error;
 use tokio::fs::copy;
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 
 use crate::built_info::{PKG_NAME, PKG_VERSION};
 use crate::dependencies::IMDL;
-use crate::errors::{AppError, OutputHandler};
+use crate::errors::{command_error, io_error, json_error, OutputHandler};
 use crate::imdl::TorrentSummary;
 use crate::source::SourceIssue;
 use crate::source::SourceIssue::Imdl;
@@ -25,7 +26,7 @@ impl ImdlCommand {
         output_path: &Path,
         announce_url: String,
         source: String,
-    ) -> Result<Output, AppError> {
+    ) -> Result<Output, Error> {
         let output = Command::new(IMDL)
             .arg("torrent")
             .arg("create")
@@ -43,12 +44,12 @@ impl ImdlCommand {
             .arg("--force")
             .output()
             .await
-            .or_else(|e| AppError::command(e, "execute create torrent", IMDL))?;
+            .map_err(|e| command_error(e, "execute create torrent", IMDL))?;
         OutputHandler::execute(output, "create torrent", "IMDL")
     }
 
     /// Get a summary of the torrent file.
-    pub async fn show(path: &Path) -> Result<TorrentSummary, AppError> {
+    pub async fn show(path: &Path) -> Result<TorrentSummary, Error> {
         let output = Command::new(IMDL)
             .arg("torrent")
             .arg("show")
@@ -56,17 +57,17 @@ impl ImdlCommand {
             .arg(path)
             .output()
             .await
-            .or_else(|e| AppError::command(e, "execute read torrent", IMDL))?;
+            .map_err(|e| command_error(e, "execute read torrent", IMDL))?;
         let output = OutputHandler::execute(output, "read torrent", "IMDL")?;
         let reader = output.stdout.reader();
-        serde_json::from_reader(reader).or_else(|e| AppError::json(e, "deserialize torrent"))
+        serde_json::from_reader(reader).map_err(|e| json_error(e, "deserialize torrent"))
     }
 
     /// Verify files match the torrent metadata.
     pub async fn verify(
         torrent_file: &Path,
         directory: &Path,
-    ) -> Result<Option<SourceIssue>, AppError> {
+    ) -> Result<Option<SourceIssue>, Error> {
         let output = Command::new(IMDL)
             .arg("torrent")
             .arg("verify")
@@ -78,7 +79,7 @@ impl ImdlCommand {
             .stderr(Stdio::piped())
             .output()
             .await
-            .or_else(|e| AppError::command(e, "execute verify torrent", IMDL))?;
+            .map_err(|e| command_error(e, "execute verify torrent", IMDL))?;
         if output.status.success() {
             Ok(None)
         } else {
@@ -91,7 +92,7 @@ impl ImdlCommand {
     pub async fn verify_from_buffer(
         buffer: &[u8],
         directory: &PathBuf,
-    ) -> Result<Vec<SourceIssue>, AppError> {
+    ) -> Result<Vec<SourceIssue>, Error> {
         let mut child = Command::new(IMDL)
             .arg("torrent")
             .arg("verify")
@@ -102,17 +103,17 @@ impl ImdlCommand {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
-            .or_else(|e| AppError::command(e, "execute verify torrent", IMDL))?;
+            .map_err(|e| command_error(e, "execute verify torrent", IMDL))?;
         let mut stdin = child.stdin.take().expect("stdin should be available");
         stdin
             .write_all(buffer)
             .await
-            .or_else(|e| AppError::command(e, "writing buffer to verify torrent", IMDL))?;
+            .map_err(|e| command_error(e, "writing buffer to verify torrent", IMDL))?;
         drop(stdin);
         let output = child
             .wait_with_output()
             .await
-            .or_else(|e| AppError::command(e, "get output of verify torrent", IMDL))?;
+            .map_err(|e| command_error(e, "get output of verify torrent", IMDL))?;
         if output.status.success() {
             Ok(Vec::new())
         } else {
@@ -132,7 +133,7 @@ impl ImdlCommand {
         content_dir: &Path,
         announce_url: String,
         source: String,
-    ) -> Result<bool, AppError> {
+    ) -> Result<bool, Error> {
         let torrent = ImdlCommand::show(from).await?;
         let torrent_announce = torrent.announce_list.first().and_then(|x| x.first());
         if torrent.is_source_equal(&source) && torrent_announce == Some(&announce_url) {
@@ -144,7 +145,7 @@ impl ImdlCommand {
             );
             copy(&from, &to)
                 .await
-                .or_else(|e| AppError::io(e, "duplicate torrent"))?;
+                .map_err(|e| io_error(e, "duplicate torrent"))?;
             return Ok(true);
         }
         if !content_dir.is_dir() {

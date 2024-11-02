@@ -1,6 +1,6 @@
-use crate::errors::AppError;
 use crate::formats::TargetFormat;
 use crate::queue::TimeStamp;
+use rogue_logging::Error;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -18,7 +18,7 @@ pub struct UploadStatus {
     /// For example `copy_transcode_to_content_dir` and `copy_torrent_to` are recoverable,
     /// so may error but the upload still proceeds successfully.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub errors: Option<Vec<AppError>>,
+    pub errors: Option<Vec<Error>>,
 }
 
 #[derive(Clone, Deserialize, Serialize)]

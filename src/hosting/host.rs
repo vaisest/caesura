@@ -4,7 +4,6 @@ use di::ServiceProvider;
 use crate::cli::ArgumentsParser;
 use crate::cli::CommandArguments::*;
 use crate::cli::QueueCommandArguments::{Add, List, Summary};
-use crate::errors::AppError;
 use crate::options::config_command::ConfigCommand;
 use crate::queue::queue_summary_command::QueueSummaryCommand;
 use crate::queue::{QueueAddCommand, QueueListCommand};
@@ -12,6 +11,7 @@ use crate::spectrogram::SpectrogramCommand;
 use crate::transcode::TranscodeCommand;
 use crate::upload::UploadCommand;
 use crate::verify::VerifyCommand;
+use rogue_logging::Error;
 use rogue_logging::*;
 
 /// Application host, responsible for executing the application
@@ -34,7 +34,7 @@ impl Host {
     /// 1. Configure logging
     /// 2. Determine the command to execute
     /// 3. Execute the command
-    pub async fn execute(&self) -> Result<bool, AppError> {
+    pub async fn execute(&self) -> Result<bool, Error> {
         let logger = self.services.get_required::<Logger>();
         Logger::init(logger);
         match ArgumentsParser::get_or_show_help() {

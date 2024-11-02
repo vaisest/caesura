@@ -1,8 +1,9 @@
 use crate::db::Hash;
-use crate::errors::AppError;
+use crate::errors::{error, io_error, yaml_error};
 use colored::Colorize;
 use futures::future;
 use log::trace;
+use rogue_logging::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::File;
@@ -67,7 +68,7 @@ where
     /// Get an item by hash.
     ///
     /// Returns `None` if the item is not found.
-    pub fn get(&self, hash: Hash<K>) -> Result<Option<T>, AppError> {
+    pub fn get(&self, hash: Hash<K>) -> Result<Option<T>, Error> {
         let chunk_path = self.get_chunk_path(get_chunk_hash(hash));
         if chunk_path.exists() {
             let chunk = read_chunk::<K, C, T>(&chunk_path)?;
@@ -80,15 +81,15 @@ where
     /// Get all items.
     ///
     /// Items are unsorted.
-    pub async fn get_all(&self) -> Result<BTreeMap<Hash<K>, T>, AppError> {
+    pub async fn get_all(&self) -> Result<BTreeMap<Hash<K>, T>, Error> {
         let mut items = BTreeMap::new();
         let mut dir = read_dir(&self.directory)
             .await
-            .or_else(|e| AppError::io(e, "read directory"))?;
+            .map_err(|e| io_error(e, "read directory"))?;
         while let Some(entry) = dir
             .next_entry()
             .await
-            .or_else(|e| AppError::io(e, "read entry"))?
+            .map_err(|e| io_error(e, "read entry"))?
         {
             trace!("{} entry: {}", "Reading".bold(), entry.path().display());
             let path = entry.path();
@@ -114,7 +115,7 @@ where
     T: Clone + Send + Serialize + for<'de> Deserialize<'de> + 'static,
 {
     /// Add or replace an item.
-    pub async fn set(&self, hash: Hash<K>, item: T) -> Result<(), AppError> {
+    pub async fn set(&self, hash: Hash<K>, item: T) -> Result<(), Error> {
         let chunk_path = self.get_chunk_path(get_chunk_hash(hash));
         let lock = acquire_lock(&chunk_path).await?;
         let mut chunk = if chunk_path.exists() {
@@ -139,7 +140,7 @@ where
         &self,
         items: BTreeMap<Hash<K>, T>,
         replace: bool,
-    ) -> Result<usize, AppError> {
+    ) -> Result<usize, Error> {
         let chunks = group_by_chunk(items);
         let futures = chunks.into_iter().map(|(chunk_hash, new_chunk)| {
             let chunk_path = self.get_chunk_path(chunk_hash);
@@ -149,8 +150,14 @@ where
         });
         let mut added = 0;
         for result in future::join_all(futures).await {
-            added += result
-                .unwrap_or_else(|e| AppError::external("update table", "tokio", e.to_string()))?;
+            added += result.unwrap_or_else(|e| {
+                Err(Error {
+                    action: "update table".to_owned(),
+                    message: e.to_string(),
+                    domain: Some("tokio".to_owned()),
+                    ..Error::default()
+                })
+            })?;
         }
         Ok(added)
     }
@@ -179,38 +186,38 @@ fn group_by_chunk<const K: usize, const C: usize, T>(
 /// Read a chunk from a file.
 fn read_chunk<const K: usize, const C: usize, T>(
     path: &PathBuf,
-) -> Result<BTreeMap<Hash<K>, T>, AppError>
+) -> Result<BTreeMap<Hash<K>, T>, Error>
 where
     T: for<'de> Deserialize<'de>,
 {
     if !path.exists() || !path.is_file() {
-        return AppError::explained(
+        return Err(error(
             "read chunk",
             format!("Chunk file does not exist: {}", path.display()),
-        );
+        ));
     }
     trace!("{} chunk file: {}", "Reading".bold(), path.display());
 
-    let file = File::open(path).or_else(|e| AppError::io(e, "open chunk file"))?;
+    let file = File::open(path).map_err(|e| io_error(e, "open chunk file"))?;
     let reader = BufReader::new(file);
-    serde_yaml::from_reader(reader).or_else(|e| AppError::yaml(e, "deserialize chunk"))
+    serde_yaml::from_reader(reader).map_err(|e| yaml_error(e, "deserialize chunk"))
 }
 
 /// Write a chunk to a file
 fn write_chunk<const K: usize, const C: usize, T>(
     path: PathBuf,
     chunk: BTreeMap<Hash<K>, T>,
-) -> Result<(), AppError>
+) -> Result<(), Error>
 where
     T: Serialize,
 {
     trace!("{} chunk file: {}", "Writing".bold(), path.display());
-    let file = File::create(path).or_else(|e| AppError::io(e, "create chunk file"))?;
+    let file = File::create(path).map_err(|e| io_error(e, "create chunk file"))?;
     let mut writer = BufWriter::new(file);
-    serde_yaml::to_writer(&mut writer, &chunk).or_else(|e| AppError::yaml(e, "write chunk"))?;
+    serde_yaml::to_writer(&mut writer, &chunk).map_err(|e| yaml_error(e, "write chunk"))?;
     writer
         .flush()
-        .or_else(|e| AppError::external("flush chunk", "BufWriter", format!("{e}")))?;
+        .map_err(|e| error("flush chunk", e.to_string()))?;
     Ok(())
 }
 
@@ -221,7 +228,7 @@ async fn update_chunk<const K: usize, const C: usize, T>(
     chunk_path: PathBuf,
     new_chunk: BTreeMap<Hash<K>, T>,
     replace: bool,
-) -> Result<usize, AppError>
+) -> Result<usize, Error>
 where
     T: for<'de> Deserialize<'de> + Serialize,
 {
@@ -246,7 +253,7 @@ where
 /// Acquire a lock
 ///
 /// If the lock is already in use then wait
-async fn acquire_lock(path: &Path) -> Result<PathBuf, AppError> {
+async fn acquire_lock(path: &Path) -> Result<PathBuf, Error> {
     let start = Instant::now();
     let timeout = Duration::from_secs(LOCK_ACQUIRE_TIMEOUT);
     let mut lock: PathBuf = path.to_path_buf();
@@ -262,17 +269,17 @@ async fn acquire_lock(path: &Path) -> Result<PathBuf, AppError> {
             return Ok(lock);
         }
         if start.elapsed() > timeout {
-            return AppError::explained(
+            return Err(error(
                 "acquire lock",
                 format!("Exceeded timeout for acquiring lock: {}", lock.display()),
-            );
+            ));
         }
         sleep(Duration::from_millis(LOCK_ACQUIRE_SLEEP_MILLIS)).await;
     }
 }
 
-async fn release_lock(path: PathBuf) -> Result<(), AppError> {
+async fn release_lock(path: PathBuf) -> Result<(), Error> {
     remove_file(path)
         .await
-        .or_else(|e| AppError::io(e, "release lock"))
+        .map_err(|e| io_error(e, "release lock"))
 }

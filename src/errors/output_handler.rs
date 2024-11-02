@@ -1,12 +1,13 @@
 use crate::errors::command_error::CommandError;
-use crate::errors::AppError;
+use crate::errors::output_error;
+use rogue_logging::Error;
 use std::os::unix::process::ExitStatusExt;
 use std::process::Output;
 
 pub struct OutputHandler {}
 
 impl OutputHandler {
-    pub fn execute(output: Output, action: &str, domain: &str) -> Result<Output, AppError> {
+    pub fn execute(output: Output, action: &str, domain: &str) -> Result<Output, Error> {
         if output.status.success() {
             Ok(output)
         } else {
@@ -17,7 +18,7 @@ impl OutputHandler {
                 exit_signal: output.status.signal(),
                 exit_stopped_signal: output.status.stopped_signal(),
             };
-            AppError::output(error, action, domain)
+            Err(output_error(error, action, domain))
         }
     }
 }

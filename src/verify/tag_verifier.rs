@@ -1,13 +1,13 @@
-use crate::errors::AppError;
 use crate::fs::{convert_to_id3v2, get_vorbis_tags, replace_vinyl_track_numbering, FlacFile};
 use crate::source::Source;
 use lofty::prelude::Accessor;
 use lofty::prelude::ItemKey::Composer;
+use rogue_logging::Error;
 
 pub struct TagVerifier;
 
 impl TagVerifier {
-    pub fn execute(flac: &FlacFile, source: &Source) -> Result<Vec<String>, AppError> {
+    pub fn execute(flac: &FlacFile, source: &Source) -> Result<Vec<String>, Error> {
         let mut tags = get_vorbis_tags(flac)?;
         convert_to_id3v2(&mut tags);
         let _ = replace_vinyl_track_numbering(&mut tags);

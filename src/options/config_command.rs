@@ -1,6 +1,7 @@
-use crate::errors::AppError;
+use crate::errors::{json_error, yaml_error};
 use crate::options::*;
 use di::{injectable, Ref};
+use rogue_logging::Error;
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -20,12 +21,12 @@ pub struct ConfigCommand {
 }
 
 impl ConfigCommand {
-    pub fn execute(&self) -> Result<bool, AppError> {
+    pub fn execute(&self) -> Result<bool, Error> {
         let options = self
             .get_options_hashmap()
-            .or_else(|e| AppError::json(e, "collate config"))?;
+            .map_err(|e| json_error(e, "collate config"))?;
         let yaml =
-            serde_yaml::to_string(&options).or_else(|e| AppError::yaml(e, "serialize config"))?;
+            serde_yaml::to_string(&options).map_err(|e| yaml_error(e, "serialize config"))?;
         println!("{yaml}");
         Ok(true)
     }
