@@ -5,6 +5,7 @@ use lofty::probe::Probe;
 use lofty::tag::ItemKey::TrackNumber;
 use lofty::tag::{Accessor, Tag, TagType};
 use log::trace;
+use regex::Regex;
 use rogue_logging::Error;
 
 pub(crate) fn get_vorbis_tags(flac: &FlacFile) -> Result<Tag, Error> {
@@ -48,12 +49,11 @@ pub(crate) fn replace_vinyl_track_numbering(tags: &mut Tag) -> Result<(), Error>
 }
 
 pub(crate) fn get_numeric_from_vinyl_format(input: &str) -> Option<(u32, u32)> {
-    if input.len() != 2 {
-        return None;
-    }
-    let mut characters = input.chars();
-    let disc_number = letter_to_number(characters.next()?)?;
-    let track_number: u32 = characters.next()?.to_digit(10)?;
+    let re = Regex::new(r"^([A-Z])(\d+)$").ok()?;
+    let captures = re.captures(input)?;
+    let disc_letter = captures.get(1)?.as_str().chars().next()?;
+    let track_number: u32 = captures.get(2)?.as_str().parse().ok()?;
+    let disc_number = letter_to_number(disc_letter)?;
     Some((disc_number, track_number))
 }
 
