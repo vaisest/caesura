@@ -1,10 +1,11 @@
+use std::fs::create_dir;
 use std::path::PathBuf;
 
 use crate::formats::TargetFormat;
 use crate::fs::FlacFile;
 use crate::imdl::ImdlCommand;
 use crate::naming::{SpectrogramName, TranscodeName};
-use crate::options::SharedOptions;
+use crate::options::{CacheOptions, SharedOptions};
 use crate::source::Source;
 use di::{injectable, Ref};
 use rogue_logging::Error;
@@ -12,9 +13,33 @@ use rogue_logging::Error;
 #[injectable]
 pub struct PathManager {
     shared_options: Ref<SharedOptions>,
+    cache_options: Ref<CacheOptions>,
 }
 
 impl PathManager {
+    #[must_use]
+    pub fn get_cache_dir(&self) -> PathBuf {
+        self.cache_options
+            .cache
+            .clone()
+            .expect("cache should be set")
+    }
+
+    #[must_use]
+    pub fn get_source_torrent_path(&self, source: &Source) -> PathBuf {
+        let id = source.torrent.id;
+        let indexer = self
+            .shared_options
+            .indexer
+            .clone()
+            .expect("indexer should be set");
+        let torrents_dir = self.get_cache_dir().join("torrents");
+        if !torrents_dir.is_dir() {
+            let _ = create_dir(&torrents_dir);
+        }
+        torrents_dir.join(format!("{id}.{indexer}.torrent"))
+    }
+
     #[must_use]
     pub fn get_output_dir(&self) -> PathBuf {
         self.shared_options

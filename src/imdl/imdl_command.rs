@@ -89,6 +89,7 @@ impl ImdlCommand {
     }
 
     /// Verify files match the torrent metadata.
+    #[allow(dead_code)]
     pub async fn verify_from_buffer(
         buffer: &[u8],
         directory: &PathBuf,

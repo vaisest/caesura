@@ -15,6 +15,8 @@ use crate::verify::verify_status::VerifyStatus;
 use crate::verify::*;
 use gazelle_api::GazelleClient;
 use rogue_logging::Error;
+use tokio::fs::File;
+use tokio::io::AsyncWriteExt;
 
 /// Verify a FLAC source is suitable for transcoding.
 #[injectable]
@@ -193,21 +195,52 @@ impl VerifyCommand {
             return Vec::new();
         }
         let mut api = self.api.write().expect("API should be available");
-        match api.get_torrent_file_as_buffer(source.torrent.id).await {
-            Ok(buffer) => ImdlCommand::verify_from_buffer(&buffer, &source.directory)
-                .await
-                .unwrap_or_else(|e| {
-                    vec![SourceIssue::Error {
-                        domain: "IMDL".to_owned(),
+        let torrent_path = self.paths.get_source_torrent_path(source);
+        if !torrent_path.is_file() {
+            trace!(
+                "{} torrent file as it's not cached: {}",
+                "Downloading".bold(),
+                torrent_path.display()
+            );
+            let mut file = match File::create_new(&torrent_path).await {
+                Ok(file) => file,
+                Err(e) => {
+                    return vec![SourceIssue::Error {
+                        domain: "File System".to_owned(),
                         details: e.to_string(),
                     }]
-                }),
-            Err(e) => {
-                vec![SourceIssue::Error {
-                    domain: "API".to_owned(),
+                }
+            };
+            let buffer = match api.get_torrent_file_as_buffer(source.torrent.id).await {
+                Ok(buffer) => buffer,
+                Err(e) => {
+                    return vec![SourceIssue::Error {
+                        domain: "API".to_owned(),
+                        details: e.to_string(),
+                    }]
+                }
+            };
+            if let Err(e) = file.write_all(&buffer).await {
+                return vec![SourceIssue::Error {
+                    domain: "File System".to_owned(),
                     details: e.to_string(),
-                }]
+                }];
+            }
+            if let Err(e) = file.flush().await {
+                return vec![SourceIssue::Error {
+                    domain: "File System".to_owned(),
+                    details: e.to_string(),
+                }];
             }
         }
+        ImdlCommand::verify(&torrent_path, &source.directory)
+            .await
+            .unwrap_or_else(|e| {
+                Some(SourceIssue::Error {
+                    domain: "IMDL".to_owned(),
+                    details: e.to_string(),
+                })
+            })
+            .map_or_else(Vec::new, |x| vec![x])
     }
 }
