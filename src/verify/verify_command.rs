@@ -101,7 +101,8 @@ impl VerifyCommand {
         if source.torrent.trumpable == Some(true) {
             issues.push(Trumpable);
         }
-        if !source.torrent.remastered {
+        let indexer = self.shared_options.indexer.clone().expect("indexer should be set");
+        if !source.torrent.remastered && indexer != "ops" {
             issues.push(Unconfirmed);
         }
         let excluded_tags: Vec<String> = self
