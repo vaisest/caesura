@@ -435,9 +435,9 @@ dependencies = [
 
 [[package]]
 name = "gazelle_api"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ce8261d39c186c4a95ec6282127693d484d4d3626d2cbf11f2db1b8cecc21f8"
+checksum = "30050fcea7fc748f702e289002736318046612b02e901b1bfcb9360a980c6f09"
 dependencies = [
  "bytes",
  "chrono",
@@ -1122,9 +1122,9 @@ dependencies = [
 
 [[package]]
 name = "rogue_logging"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fa2adf34cf15a37a7da1dba9e129d52584a20f933011a2eb3bc2918f1ce2f69"
+checksum = "397cc08f5cf9c20adb0f7cb04896bcf3fa5042a4b92c0a0e2cf506a49600fee4"
 dependencies = [
  "chrono",
  "clap",
@@ -1341,18 +1341,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.66"
+version = "1.0.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d171f59dbaa811dbbb1aee1e73db92ec2b122911a48e1390dfe327a821ddede"
+checksum = "3b3c6efbfc763e64eb85c11c25320f0737cb7364c4b6336db90aa9ebe27a0bbd"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.66"
+version = "1.0.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b08be0f17bd307950653ce45db00cd31200d82b624b36e181337d9c7d92765b5"
+checksum = "b607164372e89797d78b8e23a6d67d5d1038c1c65efd52e1389ef8b77caba2a6"
 dependencies = [
  "proc-macro2",
  "quote",
