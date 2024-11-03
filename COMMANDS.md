@@ -111,6 +111,9 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    Note: This is only useful for development and should probably not be used.
 
    Default: `false`
+* `--exclude-tags <EXCLUDE_TAGS>` — Should sources with specific tags be excluded?
+
+   Default: None
 * `--cpus <CPUS>` — Number of cpus to use for processing.
 
    Default: Total number of CPUs
@@ -150,6 +153,9 @@ Verify, transcode, and upload from multiple FLAC sources in one command
 
    Default: `false`
 * `--transcode` — Should the transcode command be executed?
+
+   Default: `false`
+* `--retry-transcode` — Should failed transcodes be retried?
 
    Default: `false`
 * `--upload` — Should the upload command be executed?
@@ -313,6 +319,9 @@ List the sources in the queue
 
    Default: `false`
 * `--transcode` — Should the transcode command be executed?
+
+   Default: `false`
+* `--retry-transcode` — Should failed transcodes be retried?
 
    Default: `false`
 * `--upload` — Should the upload command be executed?
@@ -734,6 +743,9 @@ Verify a FLAC source is suitable for transcoding
    Note: This is only useful for development and should probably not be used.
 
    Default: `false`
+* `--exclude-tags <EXCLUDE_TAGS>` — Should sources with specific tags be excluded?
+
+   Default: None
 
 
 

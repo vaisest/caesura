@@ -143,9 +143,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "bytes"
-version = "1.7.2"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "428d9aa8fbc0670b7b8d6030a7fadd0f86151cae55e4dbbece15f3780a3dfaf3"
+checksum = "9ac0150caa2ae65ca5bd83f25c7de183dea78d4d366469f148435e2acfbad0da"
 
 [[package]]
 name = "caesura"
@@ -158,6 +158,7 @@ dependencies = [
  "claxon",
  "colored",
  "futures",
+ "gazelle_api",
  "html-escape",
  "humantime",
  "indicatif",
@@ -167,12 +168,12 @@ dependencies = [
  "num_cpus",
  "regex",
  "reqwest",
+ "rogue_logging",
  "serde",
  "serde_json",
  "serde_yaml",
  "tokio",
  "tokio-stream",
- "tower",
 ]
 
 [[package]]
@@ -433,6 +434,31 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
+]
+
+[[package]]
+name = "gazelle_api"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30050fcea7fc748f702e289002736318046612b02e901b1bfcb9360a980c6f09"
+dependencies = [
+ "bytes",
+ "chrono",
+ "clap",
+ "claxon",
+ "colored",
+ "futures",
+ "html-escape",
+ "log",
+ "regex",
+ "reqwest",
+ "rogue_logging",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "tokio",
+ "tokio-stream",
+ "tower",
 ]
 
 [[package]]
@@ -1102,6 +1128,20 @@ dependencies = [
  "spin",
  "untrusted",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "rogue_logging"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "397cc08f5cf9c20adb0f7cb04896bcf3fa5042a4b92c0a0e2cf506a49600fee4"
+dependencies = [
+ "chrono",
+ "clap",
+ "colored",
+ "log",
+ "serde",
+ "serde_yaml",
 ]
 
 [[package]]
