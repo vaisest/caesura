@@ -102,6 +102,19 @@ impl VerifyCommand {
         if !source.torrent.remastered {
             issues.push(Unconfirmed);
         }
+        let excluded_tags: Vec<String> = self
+            .verify_options
+            .exclude_tags
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|x| source.group.tags.contains(x))
+            .collect();
+        if !excluded_tags.is_empty() {
+            issues.push(Excluded {
+                tags: excluded_tags,
+            });
+        }
         let target_formats = self.targets.get(source.format, &source.existing);
         if target_formats.is_empty() {
             issues.push(Existing {

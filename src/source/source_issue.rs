@@ -34,6 +34,9 @@ pub enum SourceIssue {
     LossyWeb,
     Trumpable,
     Unconfirmed,
+    Excluded {
+        tags: Vec<String>,
+    },
     Existing {
         formats: BTreeSet<ExistingFormat>,
     },
@@ -110,6 +113,7 @@ impl Display for SourceIssue {
             LossyWeb => "Lossy web releases need approval".to_owned(),
             Trumpable => "Source is trumpable".to_owned(),
             Unconfirmed => "Unconfirmed Release need to be confirmed".to_owned(),
+            Excluded { tags } => format!("Excluded tags: {}", join_humanized(tags)),
             Existing { formats } => {
                 format!(
                     "All allowed formats have been transcoded to already: {}",

@@ -18,6 +18,12 @@ pub struct VerifyOptions {
     /// Default: `false`
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub no_hash_check: Option<bool>,
+
+    /// Should sources with specific tags be excluded?
+    ///
+    /// Default: None
+    #[arg(long)]
+    pub exclude_tags: Option<Vec<String>>,
 }
 
 #[injectable]
@@ -36,11 +42,17 @@ impl Options for VerifyOptions {
         if self.no_hash_check.is_none() {
             self.no_hash_check = alternative.no_hash_check;
         }
+        if self.exclude_tags.is_none() {
+            self.exclude_tags.clone_from(&alternative.exclude_tags);
+        }
     }
 
     fn apply_defaults(&mut self) {
         if self.no_hash_check.is_none() {
             self.no_hash_check = Some(false);
+        }
+        if self.exclude_tags.is_none() {
+            self.exclude_tags = Some(Vec::new());
         }
     }
 
