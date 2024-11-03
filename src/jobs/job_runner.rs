@@ -74,19 +74,35 @@ impl JobRunner {
     }
 
     pub async fn execute(&self) -> Result<(), Error> {
-        self.publisher.start("");
-        let mut set = self.set.write().expect("join set to be writeable");
-        while let Some(result) = set.join_next().await {
-            result.map_err(|e| task_error(e, "executing task"))??;
-        }
-        self.publisher.finish("");
-        Ok(())
+        self.execute_internal(true).await
     }
 
     pub async fn execute_without_publish(&self) -> Result<(), Error> {
+        self.execute_internal(false).await
+    }
+
+    async fn execute_internal(&self, publish: bool) -> Result<(), Error> {
+        if publish {
+            self.publisher.start("");
+        }
         let mut set = self.set.write().expect("join set to be writeable");
         while let Some(result) = set.join_next().await {
-            result.map_err(|e| task_error(e, "executing task"))??;
+            let result = match result {
+                Ok(result) => result,
+                Err(e) => {
+                    set.abort_all();
+                    set.detach_all();
+                    return Err(task_error(e, "executing task"));
+                }
+            };
+            if let Err(e) = result {
+                set.abort_all();
+                set.detach_all();
+                return Err(e);
+            }
+        }
+        if publish {
+            self.publisher.finish("");
         }
         Ok(())
     }
