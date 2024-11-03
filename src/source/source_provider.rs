@@ -48,8 +48,9 @@ impl SourceProvider {
         let Some(format) =
             ExistingFormat::from_torrent(&torrent).and_then(ExistingFormat::to_source)
         else {
-            return Err(SourceIssue::MissingDirectory {
-                path: PathBuf::new(),
+            return Err(SourceIssue::NotSource {
+                format: torrent.format,
+                encoding: torrent.encoding,
             });
         };
         let existing = ExistingFormatProvider::get(&torrent, &group_torrents);
@@ -78,7 +79,7 @@ impl SourceProvider {
             .collect();
         if directories.is_empty() {
             return Err(SourceIssue::MissingDirectory {
-                path: PathBuf::new(),
+                path: PathBuf::from(path),
             });
         } else if directories.len() > 1 {
             warn!(

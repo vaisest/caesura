@@ -40,6 +40,10 @@ pub enum SourceIssue {
     Existing {
         formats: BTreeSet<ExistingFormat>,
     },
+    NotSource {
+        format: String,
+        encoding: String,
+    },
     MissingDirectory {
         path: PathBuf,
     },
@@ -120,7 +124,10 @@ impl Display for SourceIssue {
                     join_humanized(formats)
                 )
             }
-            MissingDirectory { path } => format!("Source directory not found: {}", path.display()),
+            NotSource { format, encoding } => format!("Not a suitable source: {format} {encoding}"),
+            MissingDirectory { path } => {
+                format!("Source directory does not exist: {}", path.display())
+            }
             NoFlacs { path } => format!(
                 "No FLAC files found in source directory: {}",
                 path.display()

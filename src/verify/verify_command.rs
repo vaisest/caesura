@@ -132,7 +132,7 @@ impl VerifyCommand {
         clippy::as_conversions
     )]
     fn flac_checks(&self, source: &Source) -> Vec<SourceIssue> {
-        if !source.directory.exists() || !source.directory.is_dir() {
+        if !source.directory.is_dir() {
             return vec![MissingDirectory {
                 path: source.directory.clone(),
             }];
