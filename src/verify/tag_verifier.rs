@@ -1,4 +1,4 @@
-use crate::fs::{convert_to_id3v2, get_vorbis_tags, replace_vinyl_track_numbering, FlacFile};
+use crate::fs::{convert_to_id3v2, fix_track_numbering, get_vorbis_tags, FlacFile};
 use crate::source::Source;
 use lofty::prelude::Accessor;
 use lofty::prelude::ItemKey::Composer;
@@ -10,7 +10,7 @@ impl TagVerifier {
     pub fn execute(flac: &FlacFile, source: &Source) -> Result<Vec<String>, Error> {
         let mut tags = get_vorbis_tags(flac)?;
         convert_to_id3v2(&mut tags);
-        let _ = replace_vinyl_track_numbering(&mut tags);
+        let _ = fix_track_numbering(&mut tags);
         let mut missing: Vec<String> = Vec::new();
         if tags.artist().is_none() {
             missing.push("artist".to_owned());

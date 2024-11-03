@@ -2,9 +2,7 @@ use di::{injectable, Ref};
 
 use crate::errors::claxon_error;
 use crate::formats::target_format::TargetFormat;
-use crate::fs::{
-    convert_to_id3v2, get_vorbis_tags, replace_vinyl_track_numbering, FlacFile, PathManager,
-};
+use crate::fs::{convert_to_id3v2, fix_track_numbering, get_vorbis_tags, FlacFile, PathManager};
 use crate::jobs::Job;
 use crate::source::Source;
 use crate::transcode::transcode_job::TranscodeJob;
@@ -69,7 +67,7 @@ impl TranscodeJobFactory {
         let tags = if matches!(format, TargetFormat::_320 | TargetFormat::V0) {
             let mut tags = get_vorbis_tags(flac)?;
             convert_to_id3v2(&mut tags);
-            let _ = replace_vinyl_track_numbering(&mut tags);
+            let _ = fix_track_numbering(&mut tags);
             Some(tags)
         } else {
             None

@@ -27,7 +27,20 @@ pub(crate) fn convert_to_id3v2(tags: &mut Tag) {
     tags.re_map(TagType::Id3v2);
 }
 
-pub(crate) fn replace_vinyl_track_numbering(tags: &mut Tag) -> Result<(), Error> {
+pub(crate) fn fix_track_numbering(tags: &mut Tag) -> bool {
+    if tags.track().is_some() {
+        return true;
+    }
+    if replace_total_track_numbering(tags).is_ok() {
+        return true;
+    }
+    if replace_vinyl_track_numbering(tags).is_ok() {
+        return true;
+    }
+    false
+}
+
+fn replace_vinyl_track_numbering(tags: &mut Tag) -> Result<(), Error> {
     let track = tags.get_string(&TrackNumber).ok_or_else(|| {
         error(
             "replace vinyl track numbering",
@@ -48,6 +61,27 @@ pub(crate) fn replace_vinyl_track_numbering(tags: &mut Tag) -> Result<(), Error>
     Ok(())
 }
 
+fn replace_total_track_numbering(tags: &mut Tag) -> Result<(), Error> {
+    let track = tags.get_string(&TrackNumber).ok_or_else(|| {
+        error(
+            "replace total track numbering",
+            "No track number string".to_owned(),
+        )
+    })?;
+    let (track_number, track_total) = get_numeric_from_total_format(track).ok_or_else(|| {
+        error(
+            "replace total track numbering",
+            "Not vinyl format".to_owned(),
+        )
+    })?;
+    trace!(
+        "Replacing total track numbering ({track}) with numeric: track {track_number}, total {track_total}"
+    );
+    tags.set_track(track_number);
+    tags.set_track_total(track_total);
+    Ok(())
+}
+
 pub(crate) fn get_numeric_from_vinyl_format(input: &str) -> Option<(u32, u32)> {
     let re = Regex::new(r"^([A-Z])(\d+)$").ok()?;
     let captures = re.captures(input)?;
@@ -55,6 +89,14 @@ pub(crate) fn get_numeric_from_vinyl_format(input: &str) -> Option<(u32, u32)> {
     let track_number: u32 = captures.get(2)?.as_str().parse().ok()?;
     let disc_number = letter_to_number(disc_letter)?;
     Some((disc_number, track_number))
+}
+
+pub(crate) fn get_numeric_from_total_format(input: &str) -> Option<(u32, u32)> {
+    let re = Regex::new(r"^(\d+)/(\d+)$").ok()?;
+    let captures = re.captures(input)?;
+    let track_number: u32 = captures.get(1)?.as_str().parse().ok()?;
+    let track_total: u32 = captures.get(2)?.as_str().parse().ok()?;
+    Some((track_number, track_total))
 }
 
 #[allow(clippy::as_conversions)]
