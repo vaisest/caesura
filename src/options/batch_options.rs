@@ -24,6 +24,12 @@ pub struct BatchOptions {
     #[arg(long, default_value = None, action = ArgAction::SetTrue)]
     pub transcode: Option<bool>,
 
+    /// Should failed transcodes be retried?
+    ///
+    /// Default: `false`
+    #[arg(long, default_value = None, action = ArgAction::SetTrue)]
+    pub retry_transcode: Option<bool>,
+
     /// Should the upload command be executed?
     ///
     /// Default: `false`
@@ -87,6 +93,9 @@ impl Options for BatchOptions {
         if self.transcode.is_none() {
             self.transcode = alternative.transcode;
         }
+        if self.retry_transcode.is_none() {
+            self.retry_transcode = alternative.retry_transcode;
+        }
         if self.upload.is_none() {
             self.upload = alternative.upload;
         }
@@ -108,6 +117,9 @@ impl Options for BatchOptions {
         }
         if self.transcode.is_none() {
             self.transcode = Some(false);
+        }
+        if self.retry_transcode.is_none() {
+            self.retry_transcode = Some(false);
         }
         if self.upload.is_none() {
             self.upload = Some(false);
@@ -159,6 +171,9 @@ impl Options for BatchOptions {
         }
         if options.transcode == Some(false) {
             options.transcode = None;
+        }
+        if options.retry_transcode == Some(false) {
+            options.retry_transcode = None;
         }
         if options.upload == Some(false) {
             options.upload = None;

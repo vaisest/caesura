@@ -12,13 +12,13 @@ use std::path::PathBuf;
 #[tokio::test]
 async fn queue_get_unprocessed() -> Result<(), Error> {
     // Arrange
-    let new = Hash::<20>::from_string("1100000000000000000000000000000000000000")?;
-    let verified = Hash::<20>::from_string("2200000000000000000000000000000000000000")?;
-    let not_verified = Hash::<20>::from_string("3300000000000000000000000000000000000000")?;
-    let transcoded = Hash::<20>::from_string("4400000000000000000000000000000000000000")?;
-    let not_transcoded = Hash::<20>::from_string("5500000000000000000000000000000000000000")?;
-    let uploaded = Hash::<20>::from_string("6600000000000000000000000000000000000000")?;
-    let not_uploaded = Hash::<20>::from_string("7700000000000000000000000000000000000000")?;
+    let new = Hash::<20>::from_string("0100000000000000000000000000000000000000")?;
+    let verified = Hash::<20>::from_string("0200000000000000000000000000000000000000")?;
+    let not_verified = Hash::<20>::from_string("0300000000000000000000000000000000000000")?;
+    let transcoded = Hash::<20>::from_string("0400000000000000000000000000000000000000")?;
+    let not_transcoded = Hash::<20>::from_string("0500000000000000000000000000000000000000")?;
+    let uploaded = Hash::<20>::from_string("0600000000000000000000000000000000000000")?;
+    let not_uploaded = Hash::<20>::from_string("0700000000000000000000000000000000000000")?;
 
     let mut queue = Queue::from_path(TempDirectory::create("caesura"));
     queue
@@ -123,12 +123,28 @@ async fn queue_get_unprocessed() -> Result<(), Error> {
         .await?;
 
     // Assert
-    let verify = queue.get_unprocessed(String::new(), false, false).await?;
+    let verify = queue
+        .get_unprocessed(String::new(), false, false, false)
+        .await?;
     assert_eq!(verify, vec![new]);
-    let transcode = queue.get_unprocessed(String::new(), true, false).await?;
+    let transcode = queue
+        .get_unprocessed(String::new(), true, false, false)
+        .await?;
     assert_eq!(transcode, vec![new, verified]);
-    let upload = queue.get_unprocessed(String::new(), true, true).await?;
+    let transcode_with_failed = queue
+        .get_unprocessed(String::new(), true, false, true)
+        .await?;
+    assert_eq!(transcode_with_failed, vec![new, not_transcoded, verified]);
+    let upload = queue
+        .get_unprocessed(String::new(), true, true, false)
+        .await?;
     assert_eq!(upload, vec![new, transcoded, verified]);
-
+    let upload_with_failed = queue
+        .get_unprocessed(String::new(), true, true, true)
+        .await?;
+    assert_eq!(
+        upload_with_failed,
+        vec![new, not_transcoded, transcoded, verified]
+    );
     Ok(())
 }

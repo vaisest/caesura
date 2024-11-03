@@ -1,12 +1,12 @@
 use rogue_logging::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
 const HEXADECIMAL_RADIX: u32 = 16;
 
 /// Byte array hash
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Hash<const N: usize> {
     bytes: [u8; N],
 }
@@ -42,6 +42,12 @@ impl<const N: usize> Hash<N> {
     pub fn truncate<const M: usize>(&self) -> Option<Hash<M>> {
         let bytes: [u8; M] = self.bytes[..M].try_into().ok()?;
         Some(Hash::new(bytes))
+    }
+}
+
+impl<const N: usize> Debug for Hash<N> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}", self.to_hex())
     }
 }
 

@@ -6,6 +6,8 @@ use crate::db::{Hash, Table};
 use crate::imdl::ImdlCommand;
 use crate::options::CacheOptions;
 use crate::queue::QueueItem;
+use crate::transcode::TranscodeStatus;
+use crate::verify::VerifyStatus;
 use di::{inject, injectable, Ref};
 use futures::stream::{iter, StreamExt};
 use log::error;
@@ -75,6 +77,7 @@ impl Queue {
         indexer: String,
         transcode_enabled: bool,
         upload_enabled: bool,
+        retry_failed_transcodes: bool,
     ) -> Result<Vec<Hash<20>>, Error> {
         let items = self.table.get_all().await?;
         let mut items: Vec<&QueueItem> = items
@@ -84,7 +87,7 @@ impl Queue {
                     && exclude_verified_if_transcode_disabled(item, transcode_enabled)
                     && exclude_transcoded_if_upload_disabled(item, upload_enabled)
                     && exclude_verify_failures(item)
-                    && exclude_transcode_failures(item)
+                    && exclude_transcode_failures(item, retry_failed_transcodes)
                     && item.upload.is_none()
             })
             .collect();
@@ -143,25 +146,24 @@ impl Queue {
 }
 
 fn exclude_verify_failures(item: &QueueItem) -> bool {
-    if let Some(verify) = &item.verify {
-        verify.verified
-    } else {
-        true
-    }
+    !matches!(
+        item.verify,
+        Some(VerifyStatus {
+            verified: false,
+            ..
+        })
+    )
 }
 
-fn exclude_transcode_failures(item: &QueueItem) -> bool {
-    if let Some(transcode) = &item.transcode {
-        transcode.success
-    } else {
-        true
-    }
+fn exclude_transcode_failures(item: &QueueItem, retry_failed_transcodes: bool) -> bool {
+    retry_failed_transcodes
+        || !matches!(item.transcode, Some(TranscodeStatus { success: false, .. }))
 }
 
 fn exclude_verified_if_transcode_disabled(item: &QueueItem, transcode_enabled: bool) -> bool {
     transcode_enabled || item.verify.is_none()
 }
 
-fn exclude_transcoded_if_upload_disabled(x: &QueueItem, upload_enabled: bool) -> bool {
-    upload_enabled || x.transcode.is_none()
+fn exclude_transcoded_if_upload_disabled(item: &QueueItem, upload_enabled: bool) -> bool {
+    upload_enabled || !matches!(item.transcode, Some(TranscodeStatus { success: true, .. }))
 }
