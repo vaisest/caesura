@@ -2,7 +2,7 @@ use crate::errors::{command_error, error, io_error, OutputHandler};
 use crate::transcode::{Decode, Encode, Resample, Variant};
 use lofty::config::WriteOptions;
 use lofty::prelude::TagExt;
-use lofty::tag::ItemKey::Popularimeter;
+use lofty::tag::ItemKey::{Popularimeter, Work};
 use lofty::tag::Tag;
 use log::{trace, warn};
 use rogue_logging::Error;
@@ -31,9 +31,12 @@ impl TranscodeJob {
             Variant::Resample(resample) => execute_resample(resample).await?,
         };
         if let Some(mut tags) = self.tags {
-            if let Some(popm) = tags.get_string(&Popularimeter) {
-                trace!("Excluding invalid Popularimeter value: {popm}");
-                tags.remove_key(&Popularimeter);
+            let exclude = [Popularimeter, Work];
+            for key in exclude {
+                if let Some(value) = tags.get_string(&key) {
+                    trace!("Excluding invalid {key:?} value: {value}");
+                    tags.remove_key(&key);
+                }
             }
             tags.save_to_path(&output_path, WriteOptions::default())
                 .map_err(|e| error("write tags", e.to_string()))?;
