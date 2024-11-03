@@ -99,6 +99,15 @@ pub(crate) fn get_numeric_from_total_format(input: &str) -> Option<(u32, u32)> {
     Some((track_number, track_total))
 }
 
+#[allow(dead_code)]
+pub(crate) fn print_tags(tags: &Tag) {
+    for item in tags.items() {
+        let key = item.key();
+        let value = item.value();
+        println!("{key:?}: {value:?}");
+    }
+}
+
 #[allow(clippy::as_conversions)]
 fn letter_to_number(letter: char) -> Option<u32> {
     match letter {
