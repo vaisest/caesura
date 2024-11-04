@@ -187,6 +187,10 @@ impl UploadCommand {
             .first()
             .expect("content should contain at least one directory")
             .join(source_dir_name);
+        if target_dir.exists() {
+            warn!("{} copy as the target directory already exists: {}", "Skipping".bold(), target_dir.display());
+            return Ok(())
+        }
         let verb = if self
             .upload_options
             .hard_link
