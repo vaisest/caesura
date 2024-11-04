@@ -1,26 +1,26 @@
 # <p style="text-align: center">caesura 𝄓</p>
 
-An all-in-one command line tool to automate transcoding FLAC or FLAC 24 bit source torrent to MP3 320 (CBR) and MP3 V0 (VBR), then upload to gazelle based trackers.
+A versatile command line tool for automated verifying and transcoding of all your torrents.
 
 ## Features
 
-All gazelle based indexers/trackers are supported
+Most gazelle based indexers/trackers are supported
 - RED
-- **[[wip](https://github.com/RogueOneEcho/caesura/issues/7)]** OPS.
+- **[[new](https://github.com/RogueOneEcho/caesura/issues/7)]** OPS.
 
 Tested on Linux, theoretically works on Windows.
 
-Fully configurable, if there's something hard coded that you think should be configurable then open issue on GitHub.
+Fully configurable, if there's something hard coded that you think should be configurable then [open a discussion on GitHub](https://github.com/RogueOneEcho/caesura/discussions).
 
 ### Source Verification
 
 Each source is verified to ensure:
 - A lossless FLAC
-- Not a scene or lossy release
+- Not a scene, lossy, unconfirmed, or trumpable release
 - Files match the torrent hash
 - Audio tags for artist, album, title and track number are set
 - **[[fixed](https://github.com/RogueOneEcho/caesura/issues/47)]** Classical sources have a composer tag.
-- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/18)]** Vinyl track numbering
+- **[[fixed](https://github.com/RogueOneEcho/caesura/issues/18)]** Vinyl track numbering is converted to numeric
 - Sample rate and channels are suitable
 
 ### Spectrogram Generation
@@ -40,16 +40,15 @@ Each source is verified to ensure:
 - **[new]** Images in the root and first nested directory are included and all other files ignored.
 - **[new]** Images larger than 750 KB are reduced to less than 1280 px, converted to JPG and compressed.
 
-*The logic being that for transcodes only folder and cover images are important. Anyone interested in additional files and high quality artwork can find them in the source torrent.*
-
 ### Upload
 
 - Copy transcodes to content directory
 - Copy torrent file to client auto-add directory
 
-### Batch
+### Batch / Queue
 
 - **[new]** Verify, transcode and upload with one command for every torrent file in a directory.
+- **[new]** Source torrents are added to a queue to track their progress reducing duplicate work and speeding up subsequent runs.
 
 *The application will crunch through your torrent directory and automatically determine which are FLAC sources suitable for transcoding.*
 
@@ -304,6 +303,10 @@ docker compose run --rm caesura batch --upload --limit 10 --wait-before-upload 3
 >
 > If you are going to do so then you should definitely use a long wait interval:
 > `--upload --no-limit --wait-before-upload 2m`
+
+### 10. Next steps
+
+Check out the [full documentation of configuration options in COMMANDS.md](COMMANDS.md), in particular you may want to use `--copy-transcode-to-content-dir` and `--copy-torrent-to` to suit your preferred setup.
 
 ## Directory Structure
 
