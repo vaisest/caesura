@@ -91,7 +91,6 @@ where
             .await
             .map_err(|e| io_error(e, "read entry"))?
         {
-            trace!("{} entry: {}", "Reading".bold(), entry.path().display());
             let path = entry.path();
             let extension = path
                 .extension()
@@ -197,7 +196,6 @@ where
         ));
     }
     trace!("{} chunk file: {}", "Reading".bold(), path.display());
-
     let file = File::open(path).map_err(|e| io_error(e, "open chunk file"))?;
     let reader = BufReader::new(file);
     serde_yaml::from_reader(reader).map_err(|e| yaml_error(e, "deserialize chunk"))
