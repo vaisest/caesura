@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 fn join_humanized_with_slice() {
     let strings = vec!["apple", "banana", "cherry"];
     let result = join_humanized(&strings);
-    assert_eq!(result, "apple, banana and cherry");
+    assert_eq!(result, "apple, banana & cherry");
 
     let strings = vec!["apple"];
     let result = join_humanized(&strings);
@@ -20,7 +20,7 @@ fn join_humanized_with_slice() {
 fn join_humanized_with_btreeset() {
     let set: BTreeSet<&str> = BTreeSet::from(["apple", "banana", "cherry"]);
     let result = join_humanized(&set);
-    assert_eq!(result, "apple, banana and cherry");
+    assert_eq!(result, "apple, banana & cherry");
 
     let set: BTreeSet<&str> = BTreeSet::from(["apple"]);
     let result = join_humanized(&set);
