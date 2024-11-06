@@ -68,6 +68,7 @@ mod tests {
         let group = Group {
             music_info: Some(MusicInfo {
                 artists: Vec::new(),
+                ..MusicInfo::default()
             }),
             ..Group::default()
         };
@@ -89,6 +90,7 @@ mod tests {
                     id: 12345,
                     name: expected.clone(),
                 }],
+                ..MusicInfo::default()
             }),
             ..Group::default()
         };
@@ -116,6 +118,7 @@ mod tests {
                         name: "Artist Two".to_owned(),
                     },
                 ],
+                ..MusicInfo::default()
             }),
             ..Group::default()
         };

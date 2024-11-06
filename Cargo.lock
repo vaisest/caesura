@@ -446,9 +446,9 @@ dependencies = [
 
 [[package]]
 name = "gazelle_api"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "400c71ef737fd86b038c0d671c20c09efee003f33b9d7504990d740b5bc1dc8b"
+checksum = "60236183c4ae9ebf47965fbb7c0b987ca50a66c253be9d876bd0e82b7d95d3fa"
 dependencies = [
  "bytes",
  "chrono",
