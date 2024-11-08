@@ -5,6 +5,8 @@ RUN curl "https://github.com/casey/intermodal/releases/download/v0.1.14/imdl-v0.
       --location \
       --show-error \
       --silent \
+      --connect-timeout 2 \
+      --max-time 30 \
     | tar \
       --extract \
       --gzip \
