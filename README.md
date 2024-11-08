@@ -96,8 +96,11 @@ api_key: "YOUR_API_KEY"
 
 You can then run the `config` command to see how the full configuration including default values the application will use:
 
+> [!NOTE]
+> Because the application is running in a Docker container, you need to mount the config file as a volume.
+
 ```bash
-docker run ghcr.io/rogueoneecho/caesura config
+docker run -v ./config.yml:/config.yml ghcr.io/rogueoneecho/caesura config
 ```
 
 > [!TIP]
