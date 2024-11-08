@@ -3,8 +3,9 @@ services:
     container_name: caesura
     build: .
     volumes:
-    - ./config.json:/config.json:ro
-    - ./samples:/samples
+    - ./config.yml:/config.yml:ro
+    - ./content:/content
+    - cache:/cache
     - output:/output
 
   caddy:
@@ -21,5 +22,6 @@ services:
 
 volumes:
   output:
+  cache:
   caddy_data:
   caddy_config:
