@@ -1,6 +1,6 @@
 use crate::db::Hash;
 use crate::imdl::TorrentSummary;
-use crate::source::get_torrent_id_from_torrent_url_relaxed;
+use crate::source::get_torrent_id_from_torrent_url;
 use crate::spectrogram::SpectrogramStatus;
 use crate::transcode::TranscodeStatus;
 use crate::upload::UploadStatus;
@@ -44,8 +44,7 @@ impl QueueItem {
     #[must_use]
     pub fn from_torrent(path: PathBuf, torrent: TorrentSummary) -> Self {
         let comment = torrent.comment.unwrap_or_default();
-        // TODO It's possible (but highly unlikely) that the URL does not match the indexer
-        let id = get_torrent_id_from_torrent_url_relaxed(&comment);
+        let id = get_torrent_id_from_torrent_url(&comment);
         Self {
             name: torrent.name,
             path,

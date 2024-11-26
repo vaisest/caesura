@@ -25,7 +25,7 @@ impl IdProvider {
         if let Ok(id) = input.parse::<u32>() {
             Ok(id)
         } else if input.starts_with("http") {
-            self.get_by_url(input)
+            get_torrent_id_from_url(input)
         } else if input.ends_with(".torrent") {
             let path = PathBuf::from(input);
             if path.exists() {
@@ -41,21 +41,12 @@ impl IdProvider {
         }
     }
 
-    fn get_by_url(&self, url: &str) -> Result<u32, Error> {
-        let base = &self
-            .options
-            .indexer_url
-            .clone()
-            .expect("indexer_url should be set");
-        get_torrent_id_from_url(url, base)
-    }
-
     async fn get_by_file(&self, path: &Path) -> Result<u32, Error> {
         let summary = ImdlCommand::show(path).await?;
         let tracker_id = self.options.indexer.clone().expect("indexer should be set");
         if summary.is_source_equal(&tracker_id) {
             let url = summary.comment.unwrap_or_default();
-            self.get_by_url(&url)
+            get_torrent_id_from_url(&url)
         } else {
             Err(error(
                 "get source by file",
