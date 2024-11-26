@@ -17,5 +17,6 @@ else
   echo "FAIL"
   exit 1
 fi
+mkdir samples/content
 unzip "$ZIP" -d "$OUT"
 rm "$ZIP"
