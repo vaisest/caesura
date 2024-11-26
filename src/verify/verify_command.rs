@@ -58,7 +58,7 @@ impl VerifyCommand {
         if status.verified {
             info!("{} {id}", "Verified".bold());
         } else {
-            warn!("{} to verify {id}", "Failed".bold());
+            warn!("{} for transcoding {id}", "Unsuitable".bold());
             if let Some(issues) = &status.issues {
                 for issue in issues {
                     warn!("{issue}");

@@ -156,7 +156,7 @@ impl BatchCommand {
                 item.verify = Some(status);
             } else {
                 debug!("{} {source}", "Skipping".bold());
-                debug!("{} to verify {}", "Failed".bold(), source);
+                debug!("{} for transcoding {}", "Unsuitable".bold(), source);
                 if let Some(issues) = &status.issues {
                     for issue in issues {
                         debug!("{issue}");
