@@ -61,7 +61,7 @@ Verify, transcode, and upload from multiple FLAC sources in one command
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -219,7 +219,7 @@ Add a directory of `.torrent` files to the queue
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -278,7 +278,7 @@ List the sources in the queue
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -362,7 +362,7 @@ Summarize the sources in the queue
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -427,7 +427,7 @@ Generate spectrograms for each track of a FLAC source
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -498,7 +498,7 @@ Transcode each track of a FLAC source to the target formats
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -600,7 +600,7 @@ Upload transcodes of a FLAC source
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.
@@ -693,7 +693,7 @@ Verify a FLAC source is suitable for transcoding
    Default: Determined by `announce_url`
 * `--indexer-url <INDEXER_URL>` — URL of the indexer.
 
-   Examples: `https://redacted.ch`, `https://orpheus.network`
+   Examples: `https://redacted.sh`, `https://orpheus.network`
 
    Default: Determined by `announce_url`
 * `--content <CONTENT>` — Directories containing torrent content.

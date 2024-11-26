@@ -106,7 +106,7 @@ docker run -v ./config.yml:/config.yml ghcr.io/rogueoneecho/caesura config
 > [!TIP]
 > The following fields are optional, if not set they're set based on the `announce_url`:
 > - `indexer` the id of the indexer: `red`, `pth`, `ops`.
-> - `indexer_url` the URL of the indexer: `https://redacted.ch`, `https://orpheus.network`.
+> - `indexer_url` the URL of the indexer: `https://redacted.sh`, `https://orpheus.network`.
 
 ### 3. Create storage directories
 

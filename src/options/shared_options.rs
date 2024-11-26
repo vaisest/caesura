@@ -41,7 +41,7 @@ pub struct SharedOptions {
 
     /// URL of the indexer.
     ///
-    /// Examples: `https://redacted.ch`, `https://orpheus.network`
+    /// Examples: `https://redacted.sh`, `https://orpheus.network`
     ///
     /// Default: Determined by `announce_url`
     #[arg(long)]
@@ -139,7 +139,7 @@ impl Options for SharedOptions {
         }
         if self.indexer_url.is_none() {
             self.indexer_url = match self.indexer.as_deref() {
-                Some("red") => Some("https://redacted.ch".to_owned()),
+                Some("red") => Some("https://redacted.sh".to_owned()),
                 Some("ops") => Some("https://orpheus.network".to_owned()),
                 _ => None,
             }
