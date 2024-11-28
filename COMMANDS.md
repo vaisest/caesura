@@ -18,7 +18,7 @@ This document contains the help content for the `caesura` command-line program.
 
 ## `caesura`
 
-An all-in-one command line tool to **transcode FLAC** audio files and **upload to gazelle** based indexers/trackers. 
+An allin-one command line tool to **transcode FLAC** audio files and **upload to gazelle** based indexers/trackers.
 
 **Usage:** `caesura [COMMAND]`
 
