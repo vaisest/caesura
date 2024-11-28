@@ -260,7 +260,7 @@ jobs:
     - run: >
         docker buildx build .
         --build-arg VERSION=${{ needs.release.outputs.version }}
-        --tag caesura:${{ needs.release.outputs.version }}
+        --tag caesura:latest
         --cache-from=type=local,src=/tmp/.buildx-cache
         --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max
         --push
