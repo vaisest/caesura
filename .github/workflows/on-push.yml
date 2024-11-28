@@ -162,77 +162,77 @@ jobs:
         path: target/release/caesura
 
 
-  cargo-publish:
-    runs-on: ubuntu-latest
-    if: ${{ needs.release.outputs.version != '' && ! contains(needs.release.outputs.version, '-') }}
-    needs:
-    - release
-    - cargo-build
-    steps:
+  # cargo-publish:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ needs.release.outputs.version != '' && ! contains(needs.release.outputs.version, '-') }}
+  #   needs:
+  #   - release
+  #   - cargo-build
+  #   steps:
 
-    - uses: actions/checkout@v4
+  #   - uses: actions/checkout@v4
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: Cargo.toml
+  #   - uses: actions/download-artifact@v4
+  #     with:
+  #       name: Cargo.toml
 
-    - run: git --no-pager diff --color
+  #   - run: git --no-pager diff --color
 
-    - run: cargo publish --allow-dirty --no-verify
-      env:
-        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  #   - run: cargo publish --allow-dirty --no-verify
+  #     env:
+  #       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
 
-  github-release:
-    runs-on: ubuntu-latest
-    if: ${{ needs.release.outputs.version != ''}}
-    needs:
-      - release
-      - cargo-build
-    steps:
+  # github-release:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ needs.release.outputs.version != ''}}
+  #   needs:
+  #     - release
+  #     - cargo-build
+  #   steps:
 
-    - uses: actions/checkout@v4
+  #   - uses: actions/checkout@v4
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: release-notes.md
+  #   - uses: actions/download-artifact@v4
+  #     with:
+  #       name: release-notes.md
 
-    - name: gh release create
-      if: ${{ ! contains(needs.release.outputs.version, '-') }}
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: >
-        gh release create
-        "v${{ needs.release.outputs.version }}"
-        --title "v${{ needs.release.outputs.version }}"
-        --notes-file release-notes.md
-        --target ${{ github.ref_name }}
+  #   - name: gh release create
+  #     if: ${{ ! contains(needs.release.outputs.version, '-') }}
+  #     env:
+  #       GH_TOKEN: ${{ github.token }}
+  #     run: >
+  #       gh release create
+  #       "v${{ needs.release.outputs.version }}"
+  #       --title "v${{ needs.release.outputs.version }}"
+  #       --notes-file release-notes.md
+  #       --target ${{ github.ref_name }}
 
-    - name: gh release create --prerelease
-      if: ${{ contains(needs.release.outputs.version, '-') }}
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: >
-        gh release create
-        "v${{ needs.release.outputs.version }}"
-        --title "v${{ needs.release.outputs.version }}"
-        --notes-file release-notes.md
-        --target ${{ github.ref_name }}
-        --prerelease
+  #   - name: gh release create --prerelease
+  #     if: ${{ contains(needs.release.outputs.version, '-') }}
+  #     env:
+  #       GH_TOKEN: ${{ github.token }}
+  #     run: >
+  #       gh release create
+  #       "v${{ needs.release.outputs.version }}"
+  #       --title "v${{ needs.release.outputs.version }}"
+  #       --notes-file release-notes.md
+  #       --target ${{ github.ref_name }}
+  #       --prerelease
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: caesura
+  #   - uses: actions/download-artifact@v4
+  #     with:
+  #       name: caesura
 
-    - name: gh release upload
-      run: >
-        gh release upload
-        "v${{ needs.release.outputs.version }}"
-        caesura
-        --clobber
-        --repo "${{ github.repository }}"
-      env:
-        GH_TOKEN: ${{ github.token }}
+  #   - name: gh release upload
+  #     run: >
+  #       gh release upload
+  #       "v${{ needs.release.outputs.version }}"
+  #       caesura
+  #       --clobber
+  #       --repo "${{ github.repository }}"
+  #     env:
+  #       GH_TOKEN: ${{ github.token }}
 
 
   docker-build:
@@ -271,28 +271,28 @@ jobs:
     - run: rm -rf /tmp/.buildx-cache
     - run: mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  docker-release:
-    runs-on: ubuntu-latest
-    needs:
-    - release
-    - cargo-build
-    - docker-build
-    steps:
+  # docker-release:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #   - release
+  #   - cargo-build
+  #   - docker-build
+  #   steps:
 
-    - run: echo $GH_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   - run: echo $GH_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  #     env:
+  #       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - run: docker pull ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }}
+  #   - run: docker pull ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }}
 
-    - run: docker tag ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }} ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
-      if: ${{ github.ref_name == 'alpha' }}
+  #   - run: docker tag ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }} ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
+  #     if: ${{ github.ref_name == 'alpha' }}
 
-    - run: docker push ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
-      if: ${{ github.ref_name == 'alpha' }}
+  #   - run: docker push ghcr.io/rogueoneecho/caesura:${{ github.ref_name }}
+  #     if: ${{ github.ref_name == 'alpha' }}
 
-    - run: docker tag ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }} ghcr.io/rogueoneecho/caesura:latest
-      if: ${{ ! contains(needs.release.outputs.version, '-') }}
+  #   - run: docker tag ghcr.io/rogueoneecho/caesura:${{ needs.release.outputs.version }} ghcr.io/rogueoneecho/caesura:latest
+  #     if: ${{ ! contains(needs.release.outputs.version, '-') }}
 
-    - run: docker push ghcr.io/rogueoneecho/caesura:latest
-      if: ${{ ! contains(needs.release.outputs.version, '-') }}
+  #   - run: docker push ghcr.io/rogueoneecho/caesura:latest
+  #     if: ${{ ! contains(needs.release.outputs.version, '-') }}
